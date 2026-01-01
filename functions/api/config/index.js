@@ -34,6 +34,13 @@ export async function onRequestGet(context) {
           `).run();
       }
 
+      // 检查并添加 backup_url 字段
+      try {
+          await env.NAV_DB.prepare("SELECT backup_url FROM sites LIMIT 1").first();
+      } catch (e) {
+          await env.NAV_DB.prepare("ALTER TABLE sites ADD COLUMN backup_url TEXT").run();
+      }
+
       indexesChecked = true;
     } catch (e) {
       console.error('Failed to ensure indexes or columns:', e);
