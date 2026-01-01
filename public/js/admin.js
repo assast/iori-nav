@@ -572,7 +572,7 @@ function renderConfig(configs) {
     // Backup URL display
     const backupUrlHtml = displayBackupUrl ? `
       <div class="mt-2 flex items-center justify-between text-xs text-orange-600">
-        <span class="truncate max-w-[150px]" title="${displayBackupUrl}">备用: ${displayBackupUrl}</span>
+        <span class="truncate max-w-[150px]" title="${displayBackupUrl}">${displayBackupUrl}</span>
       </div>
     ` : '';
 
