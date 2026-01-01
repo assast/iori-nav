@@ -744,6 +744,10 @@ export async function onRequest(context) {
     // Sites Grid
 
         const sitesGridMarkup = sites.map((site, index) => {
+                      // Debug: 检查 backup_url
+                      if (site.backup_url) {
+                        console.log('[Server] Site has backup_url:', site.name, site.backup_url);
+                      }
 
                       const rawName = site.name || '未命名';
 
