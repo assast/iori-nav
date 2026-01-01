@@ -550,6 +550,11 @@ function renderConfig(configs) {
     return
   }
   configs.forEach(config => {
+    // Debug: 检查 backup_url 是否存在
+    if (config.backup_url) {
+      console.log('Found backup_url:', config.backup_url, 'for site:', config.name);
+    }
+    
     const card = document.createElement('div');
     const safeName = window.escapeHTML(config.name || '');
     const normalizedUrl = window.normalizeUrl(config.url);
@@ -661,12 +666,16 @@ window.handleEdit = function(id) {
     return;
   }
   
+  // Debug: 检查 config 对象
+  console.log('Editing config:', config);
+  console.log('backup_url value:', config.backup_url);
+  
   document.getElementById('editBookmarkId').value = config.id;
   document.getElementById('editBookmarkName').value = config.name;
   document.getElementById('editBookmarkUrl').value = config.url;
   document.getElementById('editBookmarkBackupUrl').value = config.backup_url || '';
-  document.getElementById('editBookmarkLogo').value = config.logo;
-  document.getElementById('editBookmarkDesc').value = config.desc;
+  document.getElementById('editBookmarkLogo').value = config.logo || '';
+  document.getElementById('editBookmarkDesc').value = config.desc || '';
   document.getElementById('editBookmarkSortOrder').value = config.sort_order;
   document.getElementById('editBookmarkIsPrivate').checked = !!config.is_private;
   
