@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
           case 'google': placeholder = 'Google 搜索...'; break;
           case 'baidu': placeholder = '百度搜索...'; break;
           case 'bing': placeholder = 'Bing 搜索...'; break;
+          case 'github': placeholder = 'GitHub 搜索...'; break;
       }
       
       searchInputs.forEach(input => {
@@ -282,12 +283,38 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'google': url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
                     case 'baidu': url = `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`; break;
                     case 'bing': url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`; break;
+                    case 'github': url = `https://github.com/search?q=${encodeURIComponent(query)}&type=repositories`; break;
                 }
-                if (url) window.open(url, '_blank');
+                if (url) {
+                    window.open(url, '_blank');
+                    // 站外搜索同时触发站内搜索
+                    performLocalSearch(query);
+                }
             }
         }
     });
   });
+  
+  // 执行站内搜索的函数
+  function performLocalSearch(keyword) {
+    const lowerKeyword = keyword.toLowerCase().trim();
+    const cards = sitesGrid?.querySelectorAll('.site-card');
+    
+    cards?.forEach(card => {
+      const name = (card.dataset.name || '').toLowerCase();
+      const url = (card.dataset.url || '').toLowerCase();
+      const catalog = (card.dataset.catalog || '').toLowerCase();
+      const desc = (card.dataset.desc || '').toLowerCase();
+      
+      if (name.includes(lowerKeyword) || url.includes(lowerKeyword) || catalog.includes(lowerKeyword) || desc.includes(lowerKeyword)) {
+          card.classList.remove('hidden');
+      } else {
+          card.classList.add('hidden');
+      }
+    });
+    
+    updateHeading(lowerKeyword);
+  }
   
   function updateHeading(keyword, activeCatalog, count) {
     const heading = document.querySelector('[data-role="list-heading"]');
