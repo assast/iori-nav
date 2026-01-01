@@ -108,11 +108,12 @@ export async function onRequestPost(context) {
 
   try {
     const config = await request.json();
-    const { name, url, logo, desc, catelogId, sort_order, is_private } = config;
+    const { name, url, backup_url, logo, desc, catelogId, sort_order, is_private } = config;
     const iconAPI=env.ICON_API ||'https://favicon.im/';
     
     const sanitizedName = (name || '').trim();
     const sanitizedUrl = (url || '').trim();
+    const sanitizedBackupUrl = (backup_url || '').trim() || null;
     let sanitizedLogo = (logo || '').trim() || null;
     const sanitizedDesc = (desc || '').trim() || null;
     const sortOrderValue = normalizeSortOrder(sort_order);
@@ -152,9 +153,9 @@ export async function onRequestPost(context) {
     }
 
     const insert = await env.NAV_DB.prepare(`
-      INSERT INTO sites (name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, catelogId, categoryResult.catelog, sortOrderValue, finalIsPrivate).run();
+      INSERT INTO sites (name, url, backup_url, logo, desc, catelog_id, catelog_name, sort_order, is_private)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(sanitizedName, sanitizedUrl, sanitizedBackupUrl, sanitizedLogo, sanitizedDesc, catelogId, categoryResult.catelog, sortOrderValue, finalIsPrivate).run();
 
     return jsonResponse({
       code: 201,
