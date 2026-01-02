@@ -554,8 +554,6 @@ function renderConfig(configs) {
     const safeName = window.escapeHTML(config.name || '');
     const normalizedUrl = window.normalizeUrl(config.url);
     const displayUrl = config.url ? window.escapeHTML(config.url) : '未提供';
-    const normalizedBackupUrl = window.normalizeUrl(config.backup_url);
-    const displayBackupUrl = config.backup_url ? window.escapeHTML(config.backup_url) : '';
     const normalizedLogo = window.normalizeUrl(config.logo);
     const descCell = config.desc ? window.escapeHTML(config.desc) : '暂无描述';
     const safeCatalog = window.escapeHTML(config.catelog_name || '未分类');
@@ -563,13 +561,6 @@ function renderConfig(configs) {
     
     // Private Icon
     const privateIcon = config.is_private ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 ml-1 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="私密书签"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>` : '';
-    
-    // Backup URL display
-    const backupUrlHtml = displayBackupUrl ? `
-      <div class="mt-2 flex items-center justify-between text-xs text-orange-600">
-        <span class="truncate max-w-[150px]" title="${displayBackupUrl}">备用: ${displayBackupUrl}</span>
-      </div>
-    ` : '';
 
     card.className = 'site-card group bg-white border border-primary-100/60 rounded-xl shadow-sm overflow-hidden relative cursor-pointer';
     card.draggable = true;
@@ -621,12 +612,9 @@ function renderConfig(configs) {
             <p class="mt-3 text-sm text-gray-600 leading-relaxed line-clamp-2 h-10" title="${descCell}">${descCell}</p>
         </div>
         
-        <div class="mt-3 pt-3 border-t border-gray-100">
-             <div class="flex items-center justify-between text-xs text-gray-400">
-                 <span class="truncate max-w-[150px]" title="${displayUrl}">${displayUrl}</span>
-                 <span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">ID: ${config.id}</span>
-             </div>
-             ${backupUrlHtml}
+        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
+             <span class="truncate max-w-[150px]" title="${displayUrl}">${displayUrl}</span>
+             <span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">ID: ${config.id}</span>
         </div>
       </div>
     `;
