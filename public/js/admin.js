@@ -652,8 +652,9 @@ window.handleEdit = function(id) {
   document.getElementById('editBookmarkId').value = config.id;
   document.getElementById('editBookmarkName').value = config.name;
   document.getElementById('editBookmarkUrl').value = config.url;
-  document.getElementById('editBookmarkLogo').value = config.logo;
-  document.getElementById('editBookmarkDesc').value = config.desc;
+  document.getElementById('editBookmarkBackupUrl').value = config.backup_url || '';
+  document.getElementById('editBookmarkLogo').value = config.logo || '';
+  document.getElementById('editBookmarkDesc').value = config.desc || '';
   document.getElementById('editBookmarkSortOrder').value = config.sort_order;
   document.getElementById('editBookmarkIsPrivate').checked = !!config.is_private;
   

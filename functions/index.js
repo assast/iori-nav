@@ -95,6 +95,12 @@ export async function onRequest(context) {
       }
 
       try {
+          await env.NAV_DB.prepare("SELECT backup_url FROM sites LIMIT 1").first();
+      } catch (e) {
+          await env.NAV_DB.prepare("ALTER TABLE sites ADD COLUMN backup_url TEXT").run();
+      }
+
+      try {
           await env.NAV_DB.prepare("SELECT is_private FROM category LIMIT 1").first();
       } catch (e) {
           try {
@@ -157,6 +163,7 @@ export async function onRequest(context) {
   // Settings & Wallpaper
   let layoutHideDesc = false;
   let layoutHideLinks = false;
+  let layoutHideBackupUrl = false;
   let layoutHideCategory = false;
   let layoutHideTitle = false;
   let homeTitleSize = '';
@@ -205,7 +212,7 @@ export async function onRequest(context) {
 
   try {
     const keys = [
-        'layout_hide_desc', 'layout_hide_links', 'layout_hide_category',
+        'layout_hide_desc', 'layout_hide_links', 'layout_hide_backup_url', 'layout_hide_category',
         'layout_hide_title', 'home_title_size', 'home_title_color',
         'layout_hide_subtitle', 'home_subtitle_size', 'home_subtitle_color',
         'home_hide_stats', 'home_stats_size', 'home_stats_color',
@@ -230,6 +237,7 @@ export async function onRequest(context) {
       results.forEach(row => {
         if (row.key === 'layout_hide_desc') layoutHideDesc = row.value === 'true';
         if (row.key === 'layout_hide_links') layoutHideLinks = row.value === 'true';
+        if (row.key === 'layout_hide_backup_url') layoutHideBackupUrl = row.value === 'true';
         if (row.key === 'layout_hide_category') layoutHideCategory = row.value === 'true';
         
         if (row.key === 'layout_hide_title') layoutHideTitle = row.value === 'true';
@@ -333,7 +341,7 @@ export async function onRequest(context) {
     let allSites = [];
 
     try {
-        let query = `SELECT id, name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private, create_time, update_time FROM sites
+        let query = `SELECT id, name, url, logo, desc, backup_url, catelog_id, catelog_name, sort_order, is_private, create_time, update_time FROM sites
                      WHERE (is_private = 0 OR ? = 1)`;
         const params = [includePrivate];
 
@@ -751,13 +759,41 @@ export async function onRequest(context) {
 
       const safeDesc = escapeHTML(rawDesc);
 
+      const normalizedBackupUrl = sanitizeUrl(site.backup_url);
+
+      const safeBackupUrl = normalizedBackupUrl || '';
+
       const hasValidUrl = Boolean(normalizedUrl);
+
+      const hasBackupUrl = Boolean(normalizedBackupUrl);
 
   
 
                                     const descHtml = layoutHideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
 
   
+
+          const backupUrlHtml = (layoutHideBackupUrl || !hasBackupUrl) ? '' : `
+
+            <div class="mt-2 flex items-center justify-between">
+
+              <span class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0 mr-2" title="${safeBackupUrl}">备用: ${escapeHTML(safeBackupUrl)}</span>
+
+              <button class="copy-btn relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(normalizedBackupUrl)}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${layoutGridCols >= '5' ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+
+                </svg>
+
+                ${layoutGridCols >= '5' ? '' : '<span class="copy-text">复制</span>'}
+
+                <span class="copy-success hidden absolute -top-8 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+
+              </button>
+
+            </div>`;
 
                           
 
@@ -1007,6 +1043,7 @@ export async function onRequest(context) {
 
   
 
+                  ${backupUrlHtml}
                   ${linksHtml}
 
   
@@ -1090,6 +1127,9 @@ export async function onRequest(context) {
         <label class="search-engine-option" data-engine="bing">
             <span>Bing</span>
         </label>
+        <label class="search-engine-option" data-engine="github">
+            <span>GitHub</span>
+        </label>
     </div>
     <script>
     (function(){
@@ -1109,6 +1149,7 @@ export async function onRequest(context) {
           if(saved === 'google') ph = 'Google 搜索...';
           if(saved === 'baidu') ph = '百度搜索...';
           if(saved === 'bing') ph = 'Bing 搜索...';
+          if(saved === 'github') ph = 'GitHub 搜索...';
           inputs.forEach(function(i){ i.placeholder = ph; });
         }
       } catch(e){}
@@ -1404,6 +1445,7 @@ export async function onRequest(context) {
       window.IORI_LAYOUT_CONFIG = {
         hideDesc: ${layoutHideDesc},
         hideLinks: ${layoutHideLinks},
+        hideBackupUrl: ${layoutHideBackupUrl},
         hideCategory: ${layoutHideCategory},
         gridCols: "${layoutGridCols}",
         cardStyle: "${layoutCardStyle}",

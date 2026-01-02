@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
           case 'google': placeholder = 'Google 搜索...'; break;
           case 'baidu': placeholder = '百度搜索...'; break;
           case 'bing': placeholder = 'Bing 搜索...'; break;
+          case 'github': placeholder = 'GitHub 搜索...'; break;
       }
       
       searchInputs.forEach(input => {
@@ -282,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'google': url = `https://www.google.com/search?q=${encodeURIComponent(query)}`; break;
                     case 'baidu': url = `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`; break;
                     case 'bing': url = `https://www.bing.com/search?q=${encodeURIComponent(query)}`; break;
+                    case 'github': url = `https://github.com/search?q=${encodeURIComponent(query)}&type=repositories`; break;
                 }
                 if (url) window.open(url, '_blank');
             }
@@ -573,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const isSixCols = config.gridCols === '6';
       const hideDesc = config.hideDesc === true;
       const hideLinks = config.hideLinks === true;
+      const hideBackupUrl = config.hideBackupUrl === true;
       const hideCategory = config.hideCategory === true;
       const cardStyle = config.cardStyle || 'style1';
       
@@ -593,15 +596,29 @@ document.addEventListener('DOMContentLoaded', function() {
       sites.forEach((site, index) => {
         const safeName = escapeHTML(site.name || '未命名');
         const safeUrl = normalizeUrl(site.url);
+        const safeBackupUrl = normalizeUrl(site.backup_url);
         const safeDesc = escapeHTML(site.desc || '暂无描述');
         const safeCatalog = escapeHTML(site.catelog_name || site.catelog || '未分类');
         const cardInitial = (safeName.charAt(0) || '站').toUpperCase();
+        const hasBackupUrl = !!safeBackupUrl;
         
         const logoHtml = site.logo 
              ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" class="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-gray-700" decoding="async" loading="lazy">`
              : `<div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner">${cardInitial}</div>`;
         
         const descHtml = hideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
+        
+        const backupUrlHtml = (hideBackupUrl || !hasBackupUrl) ? '' : `
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0 mr-2" title="${safeBackupUrl}">备用: ${safeBackupUrl}</span>
+            <button class="copy-btn relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors" data-url="${safeBackupUrl}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+              ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
+              <span class="copy-success hidden absolute -top-8 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+            </button>
+          </div>`;
         
         const hasValidUrl = !!safeUrl;
         const linksHtml = hideLinks ? '' : `
@@ -660,6 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             ${descHtml}
           </a>
+          ${backupUrlHtml}
           ${linksHtml}
         </div>
         `;

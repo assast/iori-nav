@@ -71,7 +71,7 @@ export async function onRequestGet(context) {
       queryBindParams.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
     }
 
-    const query = `SELECT * ${queryBase} ORDER BY sort_order ASC, create_time DESC LIMIT ? OFFSET ?`;
+    const query = `SELECT id, name, url, logo, desc, backup_url, catelog_id, catelog_name, sort_order, is_private, create_time, update_time ${queryBase} ORDER BY sort_order ASC, create_time DESC LIMIT ? OFFSET ?`;
     const countQuery = `SELECT COUNT(*) as total ${queryBase}`;
     
     // 添加分页参数
@@ -108,13 +108,14 @@ export async function onRequestPost(context) {
 
   try {
     const config = await request.json();
-    const { name, url, logo, desc, catelogId, sort_order, is_private } = config;
+    const { name, url, logo, desc, backup_url, catelogId, sort_order, is_private } = config;
     const iconAPI=env.ICON_API ||'https://favicon.im/';
     
     const sanitizedName = (name || '').trim();
     const sanitizedUrl = (url || '').trim();
     let sanitizedLogo = (logo || '').trim() || null;
     const sanitizedDesc = (desc || '').trim() || null;
+    const sanitizedBackupUrl = (backup_url || '').trim() || null;
     const sortOrderValue = normalizeSortOrder(sort_order);
     const isPrivateValue = is_private ? 1 : 0;
 
@@ -152,9 +153,9 @@ export async function onRequestPost(context) {
     }
 
     const insert = await env.NAV_DB.prepare(`
-      INSERT INTO sites (name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, catelogId, categoryResult.catelog, sortOrderValue, finalIsPrivate).run();
+      INSERT INTO sites (name, url, logo, desc, backup_url, catelog_id, catelog_name, sort_order, is_private)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, sanitizedBackupUrl, catelogId, categoryResult.catelog, sortOrderValue, finalIsPrivate).run();
 
     return jsonResponse({
       code: 201,
