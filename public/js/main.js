@@ -623,7 +623,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const backupUrlHtml = (hideBackupUrl || !hasBackupUrl) ? '' : `
           <div class="mt-2 flex items-center gap-2">
-            <span class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0" title="${safeBackupUrl}">${safeBackupUrl}</span>
+            <a href="${safeBackupUrl}" target="_blank" rel="noopener noreferrer" class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0 hover:underline" title="${safeBackupUrl}">${safeBackupUrl}</a>
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">备</span>
             <button class="copy-btn relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors flex-shrink-0" data-url="${safeBackupUrl}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
