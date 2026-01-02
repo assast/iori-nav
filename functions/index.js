@@ -104,18 +104,6 @@ export async function onRequest(context) {
           }
       }
 
-      try {
-          await env.NAV_DB.prepare("SELECT backup_url FROM sites LIMIT 1").first();
-      } catch (e) {
-          await env.NAV_DB.prepare("ALTER TABLE sites ADD COLUMN backup_url TEXT").run();
-      }
-
-      try {
-          await env.NAV_DB.prepare("SELECT backup_url FROM pending_sites LIMIT 1").first();
-      } catch (e) {
-          await env.NAV_DB.prepare("ALTER TABLE pending_sites ADD COLUMN backup_url TEXT").run();
-      }
-
       indexesChecked = true;
     } catch (e) {
       console.error('Failed to ensure indexes or columns:', e);
@@ -170,7 +158,6 @@ export async function onRequest(context) {
   let layoutHideDesc = false;
   let layoutHideLinks = false;
   let layoutHideCategory = false;
-  let layoutHideBackupUrl = false;
   let layoutHideTitle = false;
   let homeTitleSize = '';
   let homeTitleColor = '';
@@ -218,7 +205,7 @@ export async function onRequest(context) {
 
   try {
     const keys = [
-        'layout_hide_desc', 'layout_hide_links', 'layout_hide_category', 'layout_hide_backup_url',
+        'layout_hide_desc', 'layout_hide_links', 'layout_hide_category',
         'layout_hide_title', 'home_title_size', 'home_title_color',
         'layout_hide_subtitle', 'home_subtitle_size', 'home_subtitle_color',
         'home_hide_stats', 'home_stats_size', 'home_stats_color',
@@ -244,7 +231,6 @@ export async function onRequest(context) {
         if (row.key === 'layout_hide_desc') layoutHideDesc = row.value === 'true';
         if (row.key === 'layout_hide_links') layoutHideLinks = row.value === 'true';
         if (row.key === 'layout_hide_category') layoutHideCategory = row.value === 'true';
-        if (row.key === 'layout_hide_backup_url') layoutHideBackupUrl = row.value === 'true';
         
         if (row.key === 'layout_hide_title') layoutHideTitle = row.value === 'true';
         if (row.key === 'home_title_size') homeTitleSize = row.value;
@@ -347,7 +333,7 @@ export async function onRequest(context) {
     let allSites = [];
 
     try {
-        let query = `SELECT id, name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private, backup_url, create_time, update_time FROM sites
+        let query = `SELECT id, name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private, create_time, update_time FROM sites
                      WHERE (is_private = 0 OR ? = 1)`;
         const params = [includePrivate];
 
@@ -1104,9 +1090,6 @@ export async function onRequest(context) {
         <label class="search-engine-option" data-engine="bing">
             <span>Bing</span>
         </label>
-        <label class="search-engine-option" data-engine="github">
-            <span>GitHub</span>
-        </label>
     </div>
     <script>
     (function(){
@@ -1125,8 +1108,6 @@ export async function onRequest(context) {
           var ph = '搜索书签...';
           if(saved === 'google') ph = 'Google 搜索...';
           if(saved === 'baidu') ph = '百度搜索...';
-          if(saved === 'bing') ph = 'Bing 搜索...';
-          if(saved === 'github') ph = 'GitHub 搜索...';
           if(saved === 'bing') ph = 'Bing 搜索...';
           inputs.forEach(function(i){ i.placeholder = ph; });
         }
