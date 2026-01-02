@@ -554,6 +554,9 @@ function renderConfig(configs) {
     const safeName = window.escapeHTML(config.name || '');
     const normalizedUrl = window.normalizeUrl(config.url);
     const displayUrl = config.url ? window.escapeHTML(config.url) : '未提供';
+    const normalizedBackupUrl = window.normalizeUrl(config.backup_url);
+    const displayBackupUrl = config.backup_url ? window.escapeHTML(config.backup_url) : '';
+    const hasBackupUrl = Boolean(normalizedBackupUrl);
     const normalizedLogo = window.normalizeUrl(config.logo);
     const descCell = config.desc ? window.escapeHTML(config.desc) : '暂无描述';
     const safeCatalog = window.escapeHTML(config.catelog_name || '未分类');
@@ -612,9 +615,12 @@ function renderConfig(configs) {
             <p class="mt-3 text-sm text-gray-600 leading-relaxed line-clamp-2 h-10" title="${descCell}">${descCell}</p>
         </div>
         
-        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-             <span class="truncate max-w-[150px]" title="${displayUrl}">${displayUrl}</span>
-             <span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">ID: ${config.id}</span>
+        <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
+             <div class="flex items-center justify-between mb-1">
+                 <span class="truncate max-w-[150px]" title="${displayUrl}">${displayUrl}</span>
+                 <span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">ID: ${config.id}</span>
+             </div>
+             ${hasBackupUrl ? `<div class="flex items-center text-orange-600"><span class="truncate max-w-[180px]" title="${displayBackupUrl}">${displayBackupUrl}</span><span class="ml-1 text-[10px] bg-orange-100 text-orange-700 px-1 py-0.5 rounded">备用</span></div>` : ''}
         </div>
       </div>
     `;
