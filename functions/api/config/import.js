@@ -237,7 +237,6 @@ export async function onRequestPost(context) {
         if (!sanitizedLogo) sanitizedLogo = null;
 
         const sanitizedDesc = (site.desc || '').trim() || null;
-        const sanitizedBackupUrl = (site.backup_url || '').trim() || null;
         const sortOrderValue = normalizeSortOrder(site.sort_order);
         
         // Handle Privacy Logic
@@ -250,15 +249,15 @@ export async function onRequestPost(context) {
         if (exists && override) {
             // Update
             batchStmts.push(
-                db.prepare('UPDATE sites SET name=?, url=?, backup_url=?, logo=?, desc=?, catelog_id=?, catelog_name=?, sort_order=?, is_private=?, update_time=CURRENT_TIMESTAMP WHERE url=?')
-                  .bind(sanitizedName, sanitizedUrl, sanitizedBackupUrl, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate, sanitizedUrl)
+                db.prepare('UPDATE sites SET name=?, logo=?, desc=?, catelog_id=?, catelog_name=?, sort_order=?, is_private=?, update_time=CURRENT_TIMESTAMP WHERE url=?')
+                  .bind(sanitizedName, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate, sanitizedUrl)
             );
             itemsUpdated++;
         } else {
             // Insert
             batchStmts.push(
-                db.prepare('INSERT INTO sites (name, url, backup_url, logo, desc, catelog_id, catelog_name, sort_order, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-                  .bind(sanitizedName, sanitizedUrl, sanitizedBackupUrl, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate)
+                db.prepare('INSERT INTO sites (name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+                  .bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate)
             );
             itemsAdded++;
         }

@@ -13,7 +13,7 @@ export async function onRequestGet(context) {
 
   try {
     let categoryQuery = 'SELECT id, catelog, sort_order, parent_id, is_private FROM category';
-    let sitesQuery = 'SELECT id, name, url, backup_url, logo, desc, catelog_id, sort_order, is_private FROM sites';
+    let sitesQuery = 'SELECT id, name, url, logo, desc, catelog_id, sort_order, is_private FROM sites';
 
     if (!includePrivate) {
         categoryQuery += ' WHERE is_private = 0';
