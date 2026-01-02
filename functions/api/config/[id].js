@@ -26,11 +26,10 @@ export async function onRequestPut(context) {
   
   try {
     const config = await request.json();
-    const { name, url, backup_url, logo, desc, catelog_id, sort_order, is_private } = config;
+    const { name, url, logo, desc, catelog_id, sort_order, is_private } = config;
 
     const sanitizedName = (name || '').trim();
     const sanitizedUrl = (url || '').trim();
-    const sanitizedBackupUrl = (backup_url || '').trim() || null;
     let sanitizedLogo = (logo || '').trim() || null;
     const sanitizedDesc = (desc || '').trim() || null;
     const sortOrderValue = normalizeSortOrder(sort_order);
@@ -63,9 +62,9 @@ export async function onRequestPut(context) {
 
     const update = await env.NAV_DB.prepare(`
       UPDATE sites
-      SET name = ?, url = ?, backup_url = ?, logo = ?, desc = ?, catelog_id = ?, catelog_name = ?, sort_order = ?, is_private = ?, update_time = CURRENT_TIMESTAMP
+      SET name = ?, url = ?, logo = ?, desc = ?, catelog_id = ?, catelog_name = ?, sort_order = ?, is_private = ?, update_time = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).bind(sanitizedName, sanitizedUrl, sanitizedBackupUrl, sanitizedLogo, sanitizedDesc, catelog_id, catelogName, sortOrderValue, finalIsPrivate, id).run();
+    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, catelog_id, catelogName, sortOrderValue, finalIsPrivate, id).run();
 
     return jsonResponse({
       code: 200,

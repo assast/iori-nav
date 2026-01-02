@@ -88,7 +88,6 @@ if (addBookmarkForm) {
     e.preventDefault();
     const name = document.getElementById('addBookmarkName').value;
     const url = document.getElementById('addBookmarkUrl').value;
-    const backupUrl = document.getElementById('addBookmarkBackupUrl').value;
     const logo = document.getElementById('addBookmarkLogo').value;
     const desc = document.getElementById('addBookmarkDesc').value;
     const catelogId = addBookmarkCatelogSelect.value;
@@ -107,7 +106,6 @@ if (addBookmarkForm) {
     const payload = {
       name: name.trim(),
       url: url.trim(),
-      backup_url: backupUrl.trim(),
       logo: logo.trim(),
       desc: desc.trim(),
       catelogId: catelogId,

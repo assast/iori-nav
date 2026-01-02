@@ -15,7 +15,6 @@ const initSettings = () => {
   // Layout Inputs
   const hideDescSwitch = document.getElementById('hideDescSwitch');
   const hideLinksSwitch = document.getElementById('hideLinksSwitch');
-  const hideBackupUrlSwitch = document.getElementById('hideBackupUrlSwitch');
   const hideCategorySwitch = document.getElementById('hideCategorySwitch');
   const hideGithubSwitch = document.getElementById('hideGithubSwitch');
   const hideAdminSwitch = document.getElementById('hideAdminSwitch');
@@ -324,7 +323,6 @@ const initSettings = () => {
     // Layout Defaults
     layout_hide_desc: false,
     layout_hide_links: false,
-    layout_hide_backup_url: false,
     layout_hide_category: false,
     layout_hide_title: false,
     home_title_size: '',
@@ -750,7 +748,6 @@ const initSettings = () => {
     currentSettings.model = modelNameInput.value.trim();
     currentSettings.layout_hide_desc = hideDescSwitch.checked;
     currentSettings.layout_hide_links = hideLinksSwitch.checked;
-    currentSettings.layout_hide_backup_url = hideBackupUrlSwitch.checked;
     currentSettings.layout_hide_category = hideCategorySwitch.checked;
     currentSettings.home_hide_github = hideGithubSwitch.checked;
     currentSettings.home_hide_admin = hideAdminSwitch.checked;
@@ -930,7 +927,6 @@ const initSettings = () => {
             
             if (serverSettings.layout_hide_desc !== undefined) currentSettings.layout_hide_desc = serverSettings.layout_hide_desc === 'true';
             if (serverSettings.layout_hide_links !== undefined) currentSettings.layout_hide_links = serverSettings.layout_hide_links === 'true';
-            if (serverSettings.layout_hide_backup_url !== undefined) currentSettings.layout_hide_backup_url = serverSettings.layout_hide_backup_url === 'true';
             if (serverSettings.layout_hide_category !== undefined) currentSettings.layout_hide_category = serverSettings.layout_hide_category === 'true';
             if (serverSettings.layout_hide_title !== undefined) currentSettings.layout_hide_title = serverSettings.layout_hide_title === 'true';
             if (serverSettings.home_title_size) currentSettings.home_title_size = serverSettings.home_title_size;
@@ -1075,7 +1071,6 @@ const initSettings = () => {
     // Layout UI
     if (hideDescSwitch) hideDescSwitch.checked = !!currentSettings.layout_hide_desc;
     if (hideLinksSwitch) hideLinksSwitch.checked = !!currentSettings.layout_hide_links;
-    if (hideBackupUrlSwitch) hideBackupUrlSwitch.checked = !!currentSettings.layout_hide_backup_url;
     if (hideCategorySwitch) hideCategorySwitch.checked = !!currentSettings.layout_hide_category;
     if (hideGithubSwitch) hideGithubSwitch.checked = !!currentSettings.home_hide_github;
     if (hideAdminSwitch) hideAdminSwitch.checked = !!currentSettings.home_hide_admin;
