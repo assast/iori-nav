@@ -773,32 +773,6 @@ export async function onRequest(context) {
 
   
 
-          const backupUrlHtml = (layoutHideBackupUrl || !hasBackupUrl) ? '' : `
-
-            <div class="mt-2 flex items-center justify-between">
-
-              <span class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0 mr-2" title="${safeBackupUrl}">备用: ${escapeHTML(safeBackupUrl)}</span>
-
-              <button class="copy-btn relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(normalizedBackupUrl)}">
-
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${layoutGridCols >= '5' ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-
-                </svg>
-
-                ${layoutGridCols >= '5' ? '' : '<span class="copy-text">复制</span>'}
-
-                <span class="copy-success hidden absolute -top-8 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
-
-              </button>
-
-            </div>`;
-
-                          
-
-  
-
                                                                         const linksHtml = layoutHideLinks ? '' : `
 
   
@@ -823,11 +797,7 @@ export async function onRequest(context) {
 
   
 
-                                                        <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(normalizedUrl)}" ${hasValidUrl ? '' : 'disabled'}>
-
-  
-
-                          
+                                                        <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(normalizedUrl)}" ${hasValidUrl ? '' : 'disabled'}">
 
   
 
@@ -860,6 +830,32 @@ export async function onRequest(context) {
   
 
                   </div>`;
+
+  
+
+          const backupUrlHtml = (layoutHideBackupUrl || !hasBackupUrl) ? '' : `
+
+            <div class="mt-2 flex items-center gap-2">
+
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">备用</span>
+
+              <span class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0" title="${safeBackupUrl}">${escapeHTML(safeBackupUrl)}</span>
+
+              <button class="copy-btn relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors flex-shrink-0" data-url="${escapeHTML(normalizedBackupUrl)}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${layoutGridCols >= '5' ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+
+                </svg>
+
+                ${layoutGridCols >= '5' ? '' : '<span class="copy-text">复制</span>'}
+
+                <span class="copy-success hidden absolute -top-8 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+
+              </button>
+
+            </div>`;
 
   
 
@@ -1043,8 +1039,8 @@ export async function onRequest(context) {
 
   
 
-                  ${backupUrlHtml}
                   ${linksHtml}
+                  ${backupUrlHtml}
 
   
 
