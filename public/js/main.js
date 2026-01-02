@@ -765,6 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
   }
+  }
 
   function updateNavigationState(catalogId) {
       // 1. Update states on standard nav items (in main container and dropdown)
@@ -903,7 +904,6 @@ document.addEventListener('DOMContentLoaded', function() {
           const isDark = document.documentElement.classList.contains('dark');
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
       });
-  }
   }
 });
 
