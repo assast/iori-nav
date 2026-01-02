@@ -661,14 +661,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const backupUrlHtml = (hideBackupUrl || !hasBackupUrl) ? '' : `
           <div class="mt-2 flex items-center justify-between">
             <a href="${escapeHTML(backupUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs text-orange-600 dark:text-orange-400 truncate flex-1 min-w-0 mr-2" title="${escapeHTML(backupUrl)}">
-              ${escapeHTML(backupUrl)}
+              备用: ${escapeHTML(backupUrl)}
             </a>
-            <button class="copy-btn-backup relative flex items-center px-2 py-1 ${hasBackupUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(backupUrl)}">
+            <button class="copy-btn-backup relative flex items-center px-2 py-1 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50 rounded-full text-xs font-medium transition-colors" data-url="${escapeHTML(backupUrl)}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
               </svg>
               ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
-              <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+              <span class="copy-success hidden absolute -top-8 right-0 bg-orange-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
             </button>
           </div>
         `;
