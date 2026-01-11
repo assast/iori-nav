@@ -173,7 +173,7 @@ export async function onRequest(context) {
   ];
   const settingsPlaceholders = settingsKeys.map(() => '?').join(',');
 
-  const sitesQuery = `SELECT id, name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private, create_time, update_time 
+  const sitesQuery = `SELECT id, name, url, logo, desc, backup_url, catelog_id, catelog_name, sort_order, is_private, create_time, update_time 
                       FROM sites WHERE (is_private = 0 OR ? = 1) 
                       ORDER BY sort_order ASC, create_time DESC`;
 
