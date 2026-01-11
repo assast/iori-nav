@@ -1408,6 +1408,7 @@ export async function onRequest(context) {
       window.IORI_LAYOUT_CONFIG = {
         hideDesc: ${layoutHideDesc},
         hideLinks: ${layoutHideLinks},
+        hideBackupUrl: ${layoutHideBackupUrl},
         hideCategory: ${layoutHideCategory},
         gridCols: "${layoutGridCols}",
         cardStyle: "${layoutCardStyle}",
