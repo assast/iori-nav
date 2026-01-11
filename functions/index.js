@@ -1094,6 +1094,9 @@ export async function onRequest(context) {
         <label class="search-engine-option" data-engine="bing">
             <span>Bing</span>
         </label>
+        <label class="search-engine-option" data-engine="github">
+            <span>GitHub</span>
+        </label>
     </div>
     <script>
     (function(){
