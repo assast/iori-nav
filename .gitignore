@@ -13,5 +13,16 @@ AGENTS.md
 # Editor
 .vscode/
 .idea/
+.trae/
+.gemini/
+.cursor/
+.codex/
+.claude/
+.kiro/
+.github/
+.agent/
+.roo/
+.shared/
+.windsurf/
 *.swp
 *.swo

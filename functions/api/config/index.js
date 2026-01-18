@@ -5,7 +5,7 @@ let indexesChecked = false;
 
 export async function onRequestGet(context) {
   const { request, env } = context;
-  
+
   // 自动确保索引存在（每个 Worker 实例只执行一次）
   if (!indexesChecked) {
     try {
@@ -13,7 +13,7 @@ export async function onRequestGet(context) {
         env.NAV_DB.prepare("CREATE INDEX IF NOT EXISTS idx_sites_catelog_id ON sites(catelog_id)"),
         env.NAV_DB.prepare("CREATE INDEX IF NOT EXISTS idx_sites_sort_order ON sites(sort_order)")
       ]);
-      
+
       // 检查并添加 is_private 字段
       try {
           await env.NAV_DB.prepare("SELECT is_private FROM sites LIMIT 1").first();
@@ -73,15 +73,15 @@ export async function onRequestGet(context) {
 
     const query = `SELECT id, name, url, logo, desc, backup_url, catelog_id, catelog_name, sort_order, is_private, create_time, update_time ${queryBase} ORDER BY sort_order ASC, create_time DESC LIMIT ? OFFSET ?`;
     const countQuery = `SELECT COUNT(*) as total ${queryBase}`;
-    
+
     // 添加分页参数
     const fullBindParams = [...queryBindParams, pageSize, offset];
     const { results } = await env.NAV_DB.prepare(query).bind(...fullBindParams).all();
-    
+
     // 优化：如果 pageSize 很大（通常是“获取全部”场景），则跳过 COUNT 查询
     let total = 0;
     if (pageSize >= 1000) {
-        total = results.length + offset; 
+        total = results.length + offset;
     } else {
         const countResult = await env.NAV_DB.prepare(countQuery).bind(...queryBindParams).first();
         total = countResult ? countResult.total : 0;
@@ -101,7 +101,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  
+
   if (!(await isAdminAuthenticated(request, env))) {
     return errorResponse('Unauthorized', 401);
   }
@@ -109,8 +109,8 @@ export async function onRequestPost(context) {
   try {
     const config = await request.json();
     const { name, url, logo, desc, backup_url, catelogId, sort_order, is_private } = config;
-    const iconAPI=env.ICON_API ||'https://favicon.im/';
-    
+    const iconAPI=env.ICON_API ||'https://faviconsnap.com/api/favicon?url=';
+
     const sanitizedName = (name || '').trim();
     const sanitizedUrl = (url || '').trim();
     let sanitizedLogo = (logo || '').trim() || null;
@@ -133,11 +133,8 @@ export async function onRequestPost(context) {
       if(url.startsWith('https://') || url.startsWith('http://')){
         const domain = url.replace(/^https?:\/\//, '').split('/')[0];
         sanitizedLogo = iconAPI+domain;
-        if(!env.ICON_API){
-          sanitizedLogo+='?larger=true'
-      }
     }
-      
+
     }
     // Find the category ID from the category name
     const categoryResult = await env.NAV_DB.prepare('SELECT catelog, is_private FROM category WHERE id = ?').bind(catelogId).first();
@@ -145,7 +142,7 @@ export async function onRequestPost(context) {
     if (!categoryResult) {
       return errorResponse(`Category not found.`, 400);
     }
-    
+
     // If category is private, force site to be private
     let finalIsPrivate = isPrivateValue;
     if (categoryResult.is_private === 1) {
