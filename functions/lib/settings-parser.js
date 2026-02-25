@@ -7,6 +7,7 @@ const SETTINGS_SCHEMA = {
     layout_hide_desc: { default: false, type: 'bool' },
     layout_hide_links: { default: false, type: 'bool' },
     layout_hide_category: { default: false, type: 'bool' },
+    layout_hide_backup_url: { default: false, type: 'bool' },
     layout_hide_title: { default: false, type: 'bool' },
     home_title_size: { default: '', type: 'string' },
     home_title_color: { default: '', type: 'string' },

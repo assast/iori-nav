@@ -456,7 +456,7 @@ export async function onRequest(context) {
   if (customCardCss) headInjections += `<style>${customCardCss}</style>`;
 
   // 全局站点数据（精简字段，减小 HTML 体积）
-  const searchData = allSites.map(s => ({ id: s.id, name: s.name, url: s.url, logo: s.logo, desc: s.desc, catelog_id: s.catelog_id, catelog_name: s.catelog_name }));
+  const searchData = allSites.map(s => ({ id: s.id, name: s.name, url: s.url, logo: s.logo, desc: s.desc, backup_url: s.backup_url, catelog_id: s.catelog_id, catelog_name: s.catelog_name }));
   const safeJson = JSON.stringify(searchData).replace(/</g, '\\u003c');
   headInjections += `<script>window.IORI_SITES = ${safeJson};</script>`;
 
@@ -464,6 +464,7 @@ export async function onRequest(context) {
   headInjections += `<script>
     window.IORI_LAYOUT_CONFIG = {
       hideDesc: ${S.layout_hide_desc}, hideLinks: ${S.layout_hide_links}, hideCategory: ${S.layout_hide_category},
+      hideBackupUrl: ${S.layout_hide_backup_url},
       gridCols: "${S.layout_grid_cols}", cardStyle: "${S.layout_card_style}",
       enableFrostedGlass: ${S.layout_enable_frosted_glass}, rememberLastCategory: ${S.home_remember_last_category}
     };
