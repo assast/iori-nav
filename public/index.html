@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=ff593a1b">
+  <link rel="stylesheet" href="/css/style.css?v=e3d5caee">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
@@ -136,6 +136,14 @@
         <div id="sitesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {{SITES_GRID}}
         </div>
+        <div id="sitesEmptyState" class="hidden py-10">
+          <div class="mx-auto max-w-md rounded-2xl border border-dashed border-primary-200 bg-white/80 px-6 py-10 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800/80">
+            <p class="text-base font-medium text-gray-800 dark:text-gray-100">没找到匹配书签</p>
+            <button id="clearSearchBtn" type="button" class="mt-4 inline-flex items-center justify-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
+              清空搜索
+            </button>
+          </div>
+        </div>
       </div>
     </section>
     
@@ -213,6 +221,6 @@
     </div>
   </div>
   
-  <script src="/js/main.js?v=fcd8edf4"></script>
+  <script src="/js/main.js?v=1382d30a"></script>
 </body>
 </html>

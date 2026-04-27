@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // 为初始 SSR 渲染的卡片设置动画延迟（已从服务端移至前端）
   const initialCards = document.querySelectorAll('.site-card.card-anim-enter');
   const sitesGrid = document.getElementById('sitesGrid');
+  const sitesEmptyState = document.getElementById('sitesEmptyState');
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
 
   // 毛玻璃开关在整个页面生命周期内不变：IORI_LAYOUT_CONFIG 为主，CSS 变量做回退。
   // 只在启动时读一次，避免 renderSites 每次切分类都触发 getComputedStyle
@@ -254,6 +256,58 @@ document.addEventListener('DOMContentLoaded', function () {
     return searchCardCache;
   }
 
+  function updateSearchEmptyState(keyword, visibleCount) {
+    if (!sitesEmptyState) return;
+
+    const categoryEmptyState = sitesGrid?.querySelector('[data-role="category-empty-state"]');
+    const shouldShowSearchEmpty = Boolean(keyword) && visibleCount === 0;
+
+    sitesEmptyState.classList.toggle('hidden', !shouldShowSearchEmpty);
+
+    if (categoryEmptyState) {
+      categoryEmptyState.classList.toggle('hidden', shouldShowSearchEmpty);
+    }
+  }
+
+  function getActiveSearchKeyword() {
+    const filledInput = Array.from(searchInputs).find(input => input.value.trim());
+    return (filledInput?.value || searchInputs[0]?.value || '').trim();
+  }
+
+  function applyLocalSearch(keyword, activeCatalog = undefined) {
+    const normalizedKeyword = (keyword || '').toLowerCase().trim();
+    const cached = getSearchCardCache();
+    let visibleCount = 0;
+
+    cached.forEach(({ el, text }) => {
+      const isMatch = normalizedKeyword === '' || text.includes(normalizedKeyword);
+      el.classList.toggle('hidden', !isMatch);
+      if (isMatch) visibleCount++;
+    });
+
+    updateSearchEmptyState(normalizedKeyword, visibleCount);
+    updateHeading(normalizedKeyword, activeCatalog, visibleCount);
+    return visibleCount;
+  }
+
+  function syncSearchState(activeCatalog = undefined) {
+    if (currentSearchEngine !== 'local') {
+      updateSearchEmptyState('', sitesGrid?.querySelectorAll('.site-card:not(.hidden)').length || 0);
+      updateHeading('', activeCatalog, sitesGrid?.querySelectorAll('.site-card:not(.hidden)').length || 0);
+      return;
+    }
+
+    const keyword = getActiveSearchKeyword();
+    if (keyword) {
+      applyLocalSearch(keyword, activeCatalog);
+      return;
+    }
+
+    const visibleCount = sitesGrid?.querySelectorAll('.site-card:not(.hidden)').length || 0;
+    updateSearchEmptyState('', visibleCount);
+    updateHeading('', activeCatalog, visibleCount);
+  }
+
   let searchDebounceTimer = null;
 
   // Initialize Search Engine UI based on saved preference
@@ -292,11 +346,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     searchInputs.forEach(input => {
       input.placeholder = placeholder;
-      // If switching back to local, trigger filter immediately if input has value
-      if (engine === 'local' && input.value.trim()) {
-        input.dispatchEvent(new Event('input'));
-      }
     });
+
+    if (engine === 'local') {
+      syncSearchState();
+      return;
+    }
+
+    getSearchCardCache().forEach(({ el }) => el.classList.remove('hidden'));
+    updateSearchEmptyState('', getSearchCardCache().length);
+    updateHeading('', undefined, getSearchCardCache().length);
   }
 
   // Apply initial state
@@ -329,18 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       clearTimeout(searchDebounceTimer);
       searchDebounceTimer = setTimeout(() => {
-        const keyword = value.toLowerCase().trim();
-        const cached = getSearchCardCache();
-
-        cached.forEach(({ el, text }) => {
-          if (keyword === '' || text.includes(keyword)) {
-            el.classList.remove('hidden');
-          } else {
-            el.classList.add('hidden');
-          }
-        });
-
-        updateHeading(keyword);
+        applyLocalSearch(value);
       }, 200);
     });
 
@@ -362,6 +410,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  clearSearchBtn?.addEventListener('click', () => {
+    searchInputs.forEach(input => {
+      input.value = '';
+    });
+    applyLocalSearch('');
+    searchInputs[0]?.focus();
+  });
+
   function updateHeading(keyword, activeCatalog, count) {
     const heading = document.querySelector('[data-role="list-heading"]');
     if (!heading) return;
@@ -380,11 +436,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (keyword) {
-      heading.textContent = isMobile ? `${visibleCount} 个书签` : `搜索结果 · ${visibleCount} 个书签`;
+      heading.textContent = isMobile ? `搜索 · ${visibleCount}` : `搜索“${keyword}” · ${visibleCount} 个书签`;
     } else {
       const currentActive = heading.dataset.active;
       if (isMobile) {
-        heading.textContent = `${visibleCount} 个书签`;
+        heading.textContent = `${currentActive || '全部'} · ${visibleCount}`;
       } else {
         if (currentActive) {
           heading.textContent = `${currentActive} · ${visibleCount} 个书签`;
@@ -396,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 初次加载时根据屏幕宽度修正标题显示
-  updateHeading();
+  syncSearchState();
 
   // ========== 一言 API ==========
   const hitokotoContainer = document.querySelector('#hitokoto')?.parentElement;
@@ -605,8 +661,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       renderSites(filteredSites);
-      updateHeading(null, catalogId ? catalogName : null, filteredSites.length);
       updateNavigationState(catalogId);
+      syncSearchState(catalogId ? catalogName : null);
 
       // Remember Last Category Logic
       const config = window.IORI_LAYOUT_CONFIG || {};
@@ -653,18 +709,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardStyle = config.cardStyle || 'style1';
 
     sitesGrid.innerHTML = '';
+    updateSearchEmptyState('', sites.length);
 
     if (sites.length === 0) {
-      sitesGrid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">本分类下暂无书签</div>';
+      sitesGrid.innerHTML = '<div data-role="category-empty-state" class="col-span-full text-center text-gray-500 py-10">本分类下暂无书签</div>';
       return;
     }
 
     sites.forEach((site, index) => {
-      const safeName = escapeHTML(site.name || '未命名');
+      const rawName = String(site.name || '未命名');
+      const safeName = escapeHTML(rawName);
       const safeUrl = normalizeUrl(site.url);
       const safeDesc = escapeHTML(site.desc || '暂无描述');
       const safeCatalog = escapeHTML(site.catelog_name || site.catelog || '未分类');
-      const cardInitial = (safeName.charAt(0) || '站').toUpperCase();
+      const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
 
       const isAboveFold = index < 8;
       const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
@@ -868,8 +926,8 @@ document.addEventListener('DOMContentLoaded', function () {
           // Explicitly restore "All Categories" state
           const allSites = window.IORI_SITES || [];
           renderSites(allSites);
-          updateHeading(null, null, allSites.length);
           updateNavigationState(null);
+          syncSearchState(null);
           return;
         }
 
@@ -888,8 +946,8 @@ document.addEventListener('DOMContentLoaded', function () {
           const filteredSites = allSites.filter(site => String(site.catelog_id) === String(lastId));
 
           renderSites(filteredSites);
-          updateHeading(null, catalogName, filteredSites.length);
           updateNavigationState(lastId);
+          syncSearchState(catalogName);
         } else {
           localStorage.removeItem('iori_last_category');
         }
@@ -899,6 +957,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   requestAnimationFrame(() => {
     document.body.classList.add('app-ready');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+
+    if (!dropdown?.classList.contains('hidden')) {
+      dropdown.classList.add('hidden');
+      document.body.classList.remove('menu-open');
+    }
+
+    if (sidebar?.classList.contains('open')) {
+      closeSidebarMenu();
+    }
   });
 
   // Theme Toggle Logic

@@ -13,6 +13,35 @@ const pendingTotalPagesSpan = document.getElementById('pendingTotalPages');
 
 const messageDiv = document.getElementById('message');
 
+function isModalVisible(modal) {
+  if (!modal) return false;
+  return modal.style.display === 'block' || modal.style.display === 'flex';
+}
+
+function syncBodyModalState() {
+  const hasOpenModal = Array.from(document.querySelectorAll('.modal')).some(isModalVisible);
+  document.body.classList.toggle('modal-open', hasOpenModal);
+}
+
+function focusFirstElement(modal) {
+  if (!modal) return;
+  const firstFocusable = modal.querySelector('input, select, textarea, button, a[href], [tabindex]:not([tabindex="-1"])');
+  firstFocusable?.focus();
+}
+
+window.openAdminModal = function(modal) {
+  if (!modal) return;
+  modal.style.display = 'block';
+  document.body.classList.add('modal-open');
+  requestAnimationFrame(() => focusFirstElement(modal));
+};
+
+window.closeAdminModal = function(modal) {
+  if (!modal) return;
+  modal.style.display = 'none';
+  syncBodyModalState();
+};
+
 // Global Data
 window.categoriesData = [];
 window.categoriesTree = [];
@@ -85,11 +114,11 @@ window.escapeHTML = function (value) {
     return '';
   }
   return String(value)
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"')
-    .replace(/'/g, "'");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 };
 
 window.normalizeUrl = function (value) {
@@ -503,13 +532,15 @@ function renderPendingConfigs(configs) {
     return;
   }
   configs.forEach(config => {
+    const rawUrl = String(config.url || '');
+    const rawDesc = String(config.desc || '');
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="p-3 border-b">${config.id}</td>
       <td class="p-3 border-b">${window.escapeHTML(config.name)}</td>
-      <td class="p-3 border-b truncate max-w-[200px]" title="${config.url}">${window.escapeHTML(config.url)}</td>
+      <td class="p-3 border-b truncate max-w-[200px]" title="${window.escapeHTML(rawUrl)}">${window.escapeHTML(rawUrl)}</td>
       <td class="p-3 border-b">${config.logo ? `<img src="${window.escapeHTML(window.normalizeUrl(config.logo))}" class="w-8 h-8 rounded">` : '无'}</td>
-      <td class="p-3 border-b max-w-[200px] truncate" title="${config.desc}">${window.escapeHTML(config.desc)}</td>
+      <td class="p-3 border-b max-w-[200px] truncate" title="${window.escapeHTML(rawDesc)}">${window.escapeHTML(rawDesc)}</td>
       <td class="p-3 border-b">${window.escapeHTML(config.catelog)}</td>
       <td class="p-3 border-b">
         <div class="flex gap-2">
@@ -563,26 +594,23 @@ function renderConfig(configs) {
   }
   configs.forEach(config => {
     const card = document.createElement('div');
-    const safeName = window.escapeHTML(config.name || '');
+    const rawName = String(config.name || '');
+    const safeName = window.escapeHTML(rawName || '未命名');
     const normalizedUrl = window.normalizeUrl(config.url);
     const displayUrl = config.url ? window.escapeHTML(config.url) : '未提供';
     const normalizedLogo = window.normalizeUrl(config.logo);
     const descCell = config.desc ? window.escapeHTML(config.desc) : '暂无描述';
     const safeCatalog = window.escapeHTML(config.catelog_name || '未分类');
-    const cardInitial = (safeName.charAt(0) || '站').toUpperCase();
+    const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
     
     // Private Icon
-    const privateIcon = config.is_private ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 ml-1 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" title="私密书签"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>` : '';
+    const privacyBadge = config.is_private
+      ? '<span class="bookmark-privacy-badge bookmark-privacy-badge-private">私密</span>'
+      : '<span class="bookmark-privacy-badge bookmark-privacy-badge-public">公开</span>';
 
-    card.className = 'site-card group cursor-pointer';
+    card.className = 'site-card preview-card-fixed';
     card.draggable = true;
     card.dataset.id = config.id;
-    
-    card.addEventListener('click', (e) => {
-        if (normalizedUrl) {
-            window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
-        }
-    });
 
     let logoHtml = '';
     if (normalizedLogo) {
@@ -592,41 +620,37 @@ function renderConfig(configs) {
     }
 
     card.innerHTML = `
-      <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-         <button class="edit-btn p-1.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors shadow-sm" title="编辑" data-id="${config.id}">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-             </svg>
-         </button>
-         <button class="del-btn p-1.5 bg-red-50 text-red-600 rounded-full hover:bg-red-100 transition-colors shadow-sm" title="删除" data-id="${config.id}">
-             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-             </svg>
-         </button>
-      </div>
-
       <div class="p-5">
-        <div class="block">
-            <div class="flex items-start">
-               <div class="site-icon flex-shrink-0 mr-4">
-                  ${logoHtml}
-               </div>
-               <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1">
-                      <h3 class="site-title truncate" title="${safeName}">${safeName}</h3>
-                      ${privateIcon}
-                  </div>
-                  <span class="inline-flex items-center px-2 py-0.5 mt-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                    ${safeCatalog}
-                  </span>
-               </div>
-            </div>
-            <p class="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2 h-10" title="${descCell}">${descCell}</p>
+        <div class="bookmark-card-top">
+          <span class="bookmark-id-chip">#${config.id}</span>
+          ${privacyBadge}
         </div>
-        
-        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-             <span class="truncate max-w-[150px] font-mono" title="${displayUrl}">${displayUrl}</span>
-             <span class="bg-gray-50 text-gray-400 px-1.5 py-0.5 rounded border border-gray-100">ID: ${config.id}</span>
+        <div class="block">
+          <div class="flex items-start">
+             <div class="site-icon flex-shrink-0 mr-4">
+                ${logoHtml}
+             </div>
+             <div class="flex-1 min-w-0">
+                <h3 class="site-title truncate" title="${safeName}">${safeName}</h3>
+                <span class="inline-flex items-center px-2 py-0.5 mt-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+                  ${safeCatalog}
+                </span>
+             </div>
+          </div>
+          <p class="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2 h-10" title="${descCell}">${descCell}</p>
+        </div>
+
+        <div class="bookmark-meta">
+          <span class="bookmark-meta-label">链接</span>
+          <span class="bookmark-meta-value" title="${displayUrl}">${displayUrl}</span>
+        </div>
+
+        <div class="bookmark-card-actions">
+          ${normalizedUrl
+            ? `<a class="visit-btn" href="${window.escapeHTML(normalizedUrl)}" target="_blank" rel="noopener noreferrer">访问</a>`
+            : '<span class="visit-btn is-disabled">无链接</span>'}
+          <button class="edit-btn action-btn action-btn-edit" title="编辑" data-id="${config.id}">编辑</button>
+          <button class="del-btn action-btn action-btn-delete" title="删除" data-id="${config.id}">删除</button>
         </div>
       </div>
     `;
@@ -639,7 +663,7 @@ function renderConfig(configs) {
 function bindActionEvents() {
   document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.addEventListener('click', function (e) {
-      e.stopPropagation(); 
+      e.stopPropagation();
       window.handleEdit(this.dataset.id);
     })
   });
@@ -674,8 +698,7 @@ window.handleEdit = function(id) {
   
   const editModal = document.getElementById('editBookmarkModal');
   if (editModal) {
-      editModal.style.display = 'block';
-      document.body.classList.add('modal-open');
+      window.openAdminModal(editModal);
   }
 }
 
@@ -686,8 +709,7 @@ window.handleDelete = function(id) {
   window.deleteTargetId = id;
   const deleteConfirmModal = document.getElementById('deleteConfirmModal');
   if (deleteConfirmModal) {
-      deleteConfirmModal.style.display = 'block';
-      document.body.classList.add('modal-open');
+      window.openAdminModal(deleteConfirmModal);
   } else if (confirm('确定删除该书签吗？')) {
       window.performDelete(id);
   }
@@ -888,33 +910,45 @@ document.addEventListener('DOMContentLoaded', () => {
    if (deleteConfirmModal) {
        if (closeDeleteConfirmModal) {
            closeDeleteConfirmModal.onclick = () => {
-               deleteConfirmModal.style.display = 'none';
-               document.body.classList.remove('modal-open');
+               window.closeAdminModal(deleteConfirmModal);
            };
        }
        if (cancelDeleteBtn) {
            cancelDeleteBtn.onclick = () => {
-               deleteConfirmModal.style.display = 'none';
-               document.body.classList.remove('modal-open');
+               window.closeAdminModal(deleteConfirmModal);
            };
        }
        if (confirmDeleteBtn) {
            confirmDeleteBtn.onclick = () => {
                if (window.deleteTargetId) {
                    window.performDelete(window.deleteTargetId);
-                   deleteConfirmModal.style.display = 'none';
-                   document.body.classList.remove('modal-open');
+                   window.closeAdminModal(deleteConfirmModal);
                }
            };
        }
        // Click outside to close
        deleteConfirmModal.onclick = (e) => {
            if (e.target === deleteConfirmModal) {
-               deleteConfirmModal.style.display = 'none';
-               document.body.classList.remove('modal-open');
+               window.closeAdminModal(deleteConfirmModal);
            }
        };
    }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const visibleModals = Array.from(document.querySelectorAll('.modal')).filter(isModalVisible);
+  if (visibleModals.length === 0) return;
+
+  const topmostModal = visibleModals.sort((a, b) => {
+    const aIndex = Number(window.getComputedStyle(a).zIndex || 0);
+    const bIndex = Number(window.getComputedStyle(b).zIndex || 0);
+    return aIndex - bIndex;
+  }).pop();
+
+  if (topmostModal) {
+    window.closeAdminModal(topmostModal);
+  }
 });
 
 // 监听新增按钮点击

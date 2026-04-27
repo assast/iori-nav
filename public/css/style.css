@@ -703,6 +703,17 @@ html:not(.dark) .dropdown-item.active {
 }
 
 @media (max-width: 440px) {
+  #hitokoto-parent {
+    display: none !important;
+  }
+
+  [data-role="list-heading"] {
+    white-space: normal;
+    margin-right: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
   #hitokoto {
     max-width: 50%;
     font-size: 0.75rem; /* 窄屏缩小字体 */
