@@ -376,6 +376,85 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
   flex-shrink: 0 !important;    /* 禁止按钮被压缩 */
 }
 
+@media (max-width: 640px) {
+  :root {
+    --card-padding: 0.75rem;
+    --card-radius: 0.6rem;
+  }
+
+  .site-card:hover {
+    transform: scale(1.02) translateY(-2px);
+  }
+
+  .site-card .flex.items-start {
+    align-items: center !important;
+  }
+
+  .site-card:not(.style-2) .site-icon {
+    width: 1.65rem;
+    margin-right: 0.55rem;
+  }
+
+  .site-card .site-icon img,
+  .site-card .site-icon div {
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+    border-radius: 0.45rem !important;
+  }
+
+  .site-card .flex-1 {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.2rem 0.35rem !important;
+    min-width: 0 !important;
+  }
+
+  .site-card .site-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.88rem !important;
+    line-height: 1.15rem !important;
+  }
+
+  .site-card p,
+  .site-card .preview-desc {
+    height: 1.9rem;
+    font-size: 0.71rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .site-card .inline-flex {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 0.05rem 0.35rem !important;
+    font-size: 0.6rem !important;
+    line-height: 0.9rem !important;
+    max-width: 100%;
+  }
+
+  .site-card .mt-3.flex {
+    margin-top: 0.4rem !important;
+    padding-top: 0.35rem !important;
+  }
+
+  .site-card .mt-3.flex .text-xs.truncate {
+    font-size: 0.67rem !important;
+  }
+
+  .search-engine-option {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .nav-btn {
+    height: 2.1rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
 @media (max-width: 440px) {
   /* 隐藏“复制”文字，保留图标 */
   .copy-text {
@@ -721,15 +800,15 @@ html:not(.dark) .dropdown-item.active {
 }
 @media (max-width: 400px) {
   .site-card .flex.items-start {
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
-    text-align: center !important;
+    text-align: left !important;
   }
   .site-card .site-icon {
-    margin-right: 0 !important;
-    margin-bottom: 0.5rem !important;
-    width: 3.5rem !important;
-    height: 3.5rem !important;
+    margin-right: 0.45rem !important;
+    margin-bottom: 0 !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
@@ -739,28 +818,43 @@ html:not(.dark) .dropdown-item.active {
     margin: 0 auto !important;
   }
   .site-card .site-title {
-    text-align: center !important;
-    width: 100% !important;
+    text-align: left !important;
+    width: auto !important;
     display: block !important;
-    transform-origin: center !important;
+    transform-origin: left center !important;
   }
   .site-card .flex-1 {
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
+    width: auto !important;
+    flex-direction: row !important;
     align-items: center !important;
   }
   .site-card p {
-    text-align: center !important;
-    margin-top: 0.5rem !important;
+    text-align: left !important;
+    margin-top: 0.25rem !important;
   }
   .site-card .mt-3.flex {
-    margin-top: auto !important;
+    margin-top: 0.35rem !important;
     justify-content: space-between !important;
-    padding-top: 0.5rem !important;
+    padding-top: 0.3rem !important;
     border-top: 1px solid rgba(0,0,0,0.05) !important;
   }
   .dark .site-card .mt-3.flex {
     border-top: 1px solid rgba(255,255,255,0.1) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .site-card .site-icon {
+    display: none !important;
+  }
+
+  .site-card .site-title {
+    font-size: 0.84rem !important;
+  }
+
+  .site-card p,
+  .site-card .preview-desc {
+    height: 1.75rem;
+    font-size: 0.68rem !important;
   }
 }

@@ -220,13 +220,13 @@ export async function onRequest(context) {
     : renderEmptyState(categories.length, S.home_hide_admin);
 
   // === 11. 计算 Grid 列数 ===
-  let gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 justify-items-center';
+  let gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 justify-items-center';
   if (S.layout_grid_cols === '5') {
-    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 justify-items-center';
+    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 justify-items-center';
   } else if (S.layout_grid_cols === '6') {
-    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 min-[1200px]:grid-cols-6 gap-3 sm:gap-6 justify-items-center';
+    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 min-[1200px]:grid-cols-6 gap-2 sm:gap-4 lg:gap-6 justify-items-center';
   } else if (S.layout_grid_cols === '7') {
-    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-6 justify-items-center';
+    gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-2 sm:gap-4 lg:gap-6 justify-items-center';
   }
 
   // === 12. 计算文本和统计信息 ===
@@ -245,12 +245,12 @@ export async function onRequest(context) {
   const hitokotoStyle = getStyleStr(S.home_hitokoto_size, S.home_hitokoto_color, S.home_hitokoto_font);
   const hitokotoContent = S.home_hide_hitokoto ? '' : '疏影横斜水清浅,暗香浮动月黄昏。';
   const shouldRenderStatsRow = !S.home_hide_stats || !S.home_hide_hitokoto;
-  const statsRowPyClass = shouldRenderStatsRow ? 'my-8' : 'hidden';
+  const statsRowPyClass = shouldRenderStatsRow ? 'my-4 sm:my-6 md:my-8' : 'hidden';
   const statsRowHiddenClass = shouldRenderStatsRow ? '' : 'hidden';
 
   // === 13. 搜索引擎选项 ===
   const searchEngineOptions = S.home_search_engine_enabled ? `
-    <div class="flex justify-center items-center gap-3 mb-4 text-sm select-none search-engine-wrapper">
+    <div class="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4 text-xs sm:text-sm select-none search-engine-wrapper">
         <label class="search-engine-option active" data-engine="local"><span>站内</span></label>
         <label class="search-engine-option" data-engine="google"><span>Google</span></label>
         <label class="search-engine-option" data-engine="baidu"><span>Baidu</span></label>
@@ -260,33 +260,33 @@ export async function onRequest(context) {
   // === 14. Header HTML ===
   const safeSiteName = escapeHTML(siteName);
   const safeSiteDesc = escapeHTML(siteDescription);
-  const horizontalTitleHtml = S.layout_hide_title ? '' : `<h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-3 ${titleColorClass}" ${titleStyle}>${safeSiteName}</h1>`;
-  const horizontalSubtitleHtml = S.layout_hide_subtitle ? '' : `<p class="${subTextColorClass} opacity-90 text-sm md:text-base" ${subtitleStyle}>${safeSiteDesc}</p>`;
+  const horizontalTitleHtml = S.layout_hide_title ? '' : `<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-2 sm:mb-3 ${titleColorClass}" ${titleStyle}>${safeSiteName}</h1>`;
+  const horizontalSubtitleHtml = S.layout_hide_subtitle ? '' : `<p class="${subTextColorClass} opacity-90 text-xs sm:text-sm md:text-base" ${subtitleStyle}>${safeSiteDesc}</p>`;
 
   const verticalHeaderContent = `
-    <div class="max-w-4xl mx-auto text-center relative z-10 ${themeClass} py-8">
-      <div class="mb-8">${horizontalTitleHtml}${horizontalSubtitleHtml}</div>
+    <div class="max-w-4xl mx-auto text-center relative z-10 ${themeClass} py-4 sm:py-6 md:py-8">
+      <div class="mb-5 sm:mb-6 md:mb-8">${horizontalTitleHtml}${horizontalSubtitleHtml}</div>
       <div class="relative max-w-xl mx-auto">
         ${searchEngineOptions}
         <div class="relative">
-          <input type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-12 pr-4 py-3.5 rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 absolute left-3.5 sm:left-4 top-3 sm:top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
       </div>
     </div>`;
 
   const horizontalHeaderContent = `
     <div class="max-w-5xl mx-auto text-center relative z-10 ${themeClass}">
-      <div class="max-w-4xl mx-auto mb-8">${horizontalTitleHtml}${horizontalSubtitleHtml}</div>
-      <div class="relative max-w-xl mx-auto mb-8">
+      <div class="max-w-4xl mx-auto mb-5 sm:mb-6 md:mb-8">${horizontalTitleHtml}${horizontalSubtitleHtml}</div>
+      <div class="relative max-w-xl mx-auto mb-5 sm:mb-6 md:mb-8">
         ${searchEngineOptions}
         <div class="relative">
-          <input id="headerSearchInput" type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-12 pr-4 py-3.5 rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-4 top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input id="headerSearchInput" type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 absolute left-3.5 sm:left-4 top-3 sm:top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
       </div>
       <div class="relative max-w-5xl mx-auto">
-        <div id="horizontalCategoryNav" class="flex flex-wrap justify-center items-center gap-3 overflow-hidden transition-all duration-300" style="max-height: 60px;">
+        <div id="horizontalCategoryNav" class="flex flex-wrap justify-center items-center gap-2 sm:gap-3 overflow-hidden transition-all duration-300" style="max-height: 60px;">
           ${horizontalCatalogMarkup}
           <div id="horizontalMoreWrapper" class="relative hidden">
             <button id="horizontalMoreBtn" class="nav-btn inactive">

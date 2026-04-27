@@ -17,14 +17,14 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=e3d5caee">
+  <link rel="stylesheet" href="/css/style.css?v=f7704465">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark');
     }
   </script>
-  <link rel="stylesheet" href="/css/tailwind.min.css?v=433b4379">
+  <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
 </head>
 <body class="bg-secondary-50 font-sans text-gray-800">
   <!-- SVG sprite: 高频复用图标在此定义一次，卡片等处通过 <use href="#icon-xxx"/> 引用 -->
@@ -116,13 +116,13 @@
   
   <!-- 主内容区 -->
   <main class="main-content {{MAIN_CLASS}} min-h-screen transition-all duration-300">
-    <header class="{{HEADER_CLASS}} text-white py-10 px-6 md:px-10 shadow-sm">
+    <header class="{{HEADER_CLASS}} text-white py-4 sm:py-8 px-4 sm:px-6 md:px-10 shadow-sm">
       {{HEADER_CONTENT}}
     </header>
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 {{STATS_ROW_PY_CLASS}}">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 {{STATS_ROW_PY_CLASS}}">
       <div class="flex items-center justify-between {{STATS_ROW_HIDDEN}}">
-        <h2 class="text-xl font-semibold text-gray-800 {{STATS_VISIBLE}}" {{STATS_STYLE}} data-role="list-heading" data-default="{{HEADING_DEFAULT}}" data-active="{{HEADING_ACTIVE}}">
+        <h2 class="text-base sm:text-xl font-semibold text-gray-800 {{STATS_VISIBLE}}" {{STATS_STYLE}} data-role="list-heading" data-default="{{HEADING_DEFAULT}}" data-active="{{HEADING_ACTIVE}}">
           {{HEADING_TEXT}}
         </h2>
         <div id="hitokoto-parent" class="text-sm {{HITOKOTO_CLASS}} md:block {{HITOKOTO_VISIBLE}}" {{HITOKOTO_STYLE}}>
@@ -131,8 +131,8 @@
       </div>
     </div>
     
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
-      <div class="{{CONTAINER_CLASS}} p-4 sm:p-6">
+    <section class="max-w-7xl mx-auto px-3 sm:px-6 pb-8 sm:pb-12">
+      <div class="{{CONTAINER_CLASS}} p-3 sm:p-6">
         <div id="sitesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {{SITES_GRID}}
         </div>
