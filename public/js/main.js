@@ -701,8 +701,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 使用全局配置获取布局设置，避免依赖 DOM 推断
     const config = window.IORI_LAYOUT_CONFIG || {};
-    const isFiveCols = config.gridCols === '5';
-    const isSixCols = config.gridCols === '6';
+    const numericGridCols = Number(config.gridCols) || 4;
+    const hideCopyText = numericGridCols >= 5;
     const hideDesc = config.hideDesc === true;
     const hideLinks = config.hideLinks === true;
     const hideCategory = config.hideCategory === true;
@@ -737,14 +737,14 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="mt-3 flex items-center justify-between">
             <span class="text-xs text-primary-600 dark:text-primary-400 truncate flex-1 min-w-0 mr-2" title="${safeUrl}">${safeUrl || '未提供链接'}</span>
             <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'}>
-              <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}"><use href="#icon-copy"/></svg>
-              ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
+              <svg class="h-3 w-3 ${hideCopyText ? '' : 'mr-1'}"><use href="#icon-copy"/></svg>
+              ${hideCopyText ? '' : '<span class="copy-text">复制</span>'}
               <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
             </button>
           </div>`;
 
       const categoryHtml = hideCategory ? '' : `
-                <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300">
+                <span class="site-category-chip inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300" title="${safeCatalog}">
                   ${safeCatalog}
                 </span>`;
 
@@ -777,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <div class="site-icon flex-shrink-0 mr-4 transition-all duration-300">
                 ${logoHtml}
               </div>
-              <div class="flex-1 min-w-0">
+              <div class="site-meta flex-1 min-w-0">
                 <h3 class="site-title text-base font-medium text-gray-900 truncate transition-all duration-300 origin-left" title="${safeName}">${safeName}</h3>
                 ${categoryHtml}
               </div>

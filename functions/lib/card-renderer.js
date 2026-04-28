@@ -63,7 +63,7 @@ export function renderSiteCards(sites, settings) {
       </div>`;
 
     const categoryHtml = hideCategory ? '' : `
-      <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300">
+      <span class="site-category-chip inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300" title="${safeCatalog}">
         ${safeCatalog}
       </span>`;
 
@@ -78,7 +78,7 @@ export function renderSiteCards(sites, settings) {
         : `<div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner">${cardInitial}</div>`
       }
               </div>
-              <div class="flex-1 min-w-0">
+              <div class="site-meta flex-1 min-w-0">
                 <h3 class="site-title text-base font-medium text-gray-900 dark:text-gray-100 truncate transition-all duration-300 origin-left" title="${safeName}">${safeName}</h3>
                 ${categoryHtml}
               </div>
