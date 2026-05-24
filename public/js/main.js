@@ -649,18 +649,9 @@ document.addEventListener('DOMContentLoaded', function () {
       sitesGrid.style.transition = 'none';
       sitesGrid.style.opacity = '1';
 
-      const allSites = window.IORI_SITES || [];
-      let filteredSites = [];
+      const filteredSites = catalogId ? getSitesForCategory(catalogId) : getSitesForCategory(null);
 
-      if (catalogId) {
-        // catalogId 是字符串，site.catelog_id 是数字，需转换
-        filteredSites = allSites.filter(site => String(site.catelog_id) === String(catalogId));
-      } else {
-        // catalogId 为空表示“全部”
-        filteredSites = allSites;
-      }
-
-      renderSites(filteredSites);
+      renderSites(filteredSites, catalogId);
       updateNavigationState(catalogId);
       syncSearchState(catalogId ? catalogName : null);
 
@@ -692,7 +683,136 @@ document.addEventListener('DOMContentLoaded', function () {
     document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
   }
 
-  function renderSites(sites) {
+  function getSitesForCategory(catalogId) {
+    const allSites = window.IORI_SITES || [];
+    if (!catalogId) return allSites;
+
+    const categoryDescendantIds = window.IORI_CATEGORY_DESCENDANT_IDS || {};
+    const descendantIds = categoryDescendantIds[String(catalogId)] || [String(catalogId)];
+    const descendantIdSet = new Set(descendantIds.map(id => String(id)));
+    const categoryRank = new Map(descendantIds.map((id, index) => [String(id), index]));
+
+    return allSites
+      .filter(site => descendantIdSet.has(String(site.catelog_id)))
+      .sort((a, b) => {
+        const rankA = categoryRank.get(String(a.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+        const rankB = categoryRank.get(String(b.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+        return rankA - rankB;
+      });
+  }
+
+  function getCategoryGroupLabel(catelogId) {
+    const names = window.IORI_CATEGORY_NAMES || {};
+    return names[String(catelogId)] || '未分类';
+  }
+
+  function renderCategoryGroupHeader(label, isRootGroup) {
+    const safeLabel = escapeHTML(label || '未分类');
+    const subtitle = isRootGroup ? '当前分类' : '子分类';
+    return `
+      <div class="col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2">
+        <div class="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+          <span class="text-sm sm:text-base font-semibold">${safeLabel}</span>
+          <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500">${subtitle}</span>
+        </div>
+      </div>`;
+  }
+
+  function groupSitesForCategoryView(sites, activeCatalogId) {
+    if (!activeCatalogId) return [{ id: '', label: '', isRootGroup: false, sites }];
+
+    const groups = [];
+    let currentGroup = null;
+    sites.forEach(site => {
+      const groupId = String(site.catelog_id || '');
+      if (!currentGroup || currentGroup.id !== groupId) {
+        currentGroup = {
+          id: groupId,
+          label: getCategoryGroupLabel(groupId),
+          isRootGroup: groupId === String(activeCatalogId),
+          sites: [],
+        };
+        groups.push(currentGroup);
+      }
+      currentGroup.sites.push(site);
+    });
+    return groups;
+  }
+
+  function renderSiteCard(site, index, options) {
+    const { hideDesc, hideLinks, hideCategory, isFiveCols, isSixCols, cardStyle } = options;
+    const rawName = String(site.name || '未命名');
+    const safeName = escapeHTML(rawName);
+    const safeUrl = normalizeUrl(site.url);
+    const safeDesc = escapeHTML(site.desc || '暂无描述');
+    const safeCatalog = escapeHTML(site.catelog_name || site.catelog || '未分类');
+    const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
+
+    const isAboveFold = index < 8;
+    const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
+    const logoHtml = site.logo
+      ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="40" height="40" class="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
+      : `<div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner">${cardInitial}</div>`;
+
+    const descHtml = hideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
+
+    const hasValidUrl = !!safeUrl;
+    const linksHtml = hideLinks ? '' : `
+        <div class="mt-3 flex items-center justify-between">
+          <span class="text-xs text-primary-600 dark:text-primary-400 truncate flex-1 min-w-0 mr-2" title="${safeUrl}">${safeUrl || '未提供链接'}</span>
+          <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'}>
+            <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}"><use href="#icon-copy"/></svg>
+            ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
+            <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+          </button>
+        </div>`;
+
+    const categoryHtml = hideCategory ? '' : `
+              <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300">
+                ${safeCatalog}
+              </span>`;
+
+    const frostedClass = isFrostedEnabled ? 'frosted-glass-effect' : '';
+    const cardStyleClass = cardStyle === 'style2' ? 'style-2' : '';
+    const baseCardClass = isFrostedEnabled
+      ? 'site-card group overflow-hidden transition-all'
+      : 'site-card group bg-white border border-primary-100/60 shadow-sm overflow-hidden dark:bg-gray-800 dark:border-gray-700';
+
+    const card = document.createElement('div');
+    card.className = `${baseCardClass} ${frostedClass} ${cardStyleClass} card-anim-enter`;
+    const delay = Math.min(index, 12) * 20;
+    if (delay > 0) {
+      card.style.animationDelay = `${delay}ms`;
+    }
+
+    card.addEventListener('animationend', () => {
+      card.classList.remove('card-anim-enter');
+      card.style.animation = 'none';
+      if (delay > 0) card.style.removeProperty('animation-delay');
+    }, { once: true });
+
+    card.setAttribute('data-id', site.id);
+    card.innerHTML = `
+      <div class="site-card-content">
+        <a href="${safeUrl}" ${hasValidUrl ? 'target="_blank" rel="noopener noreferrer"' : ''} class="block">
+          <div class="flex items-start">
+            <div class="site-icon flex-shrink-0 mr-4 transition-all duration-300">
+              ${logoHtml}
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="site-title text-base font-medium text-gray-900 truncate transition-all duration-300 origin-left" title="${safeName}">${safeName}</h3>
+              ${categoryHtml}
+            </div>
+          </div>
+          ${descHtml}
+        </a>
+        ${linksHtml}
+      </div>
+      `;
+    return card;
+  }
+
+  function renderSites(sites, activeCatalogId = null) {
     const sitesGrid = document.getElementById('sitesGrid');
     if (!sitesGrid) return;
 
@@ -701,12 +821,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 使用全局配置获取布局设置，避免依赖 DOM 推断
     const config = window.IORI_LAYOUT_CONFIG || {};
-    const isFiveCols = config.gridCols === '5';
-    const isSixCols = config.gridCols === '6';
-    const hideDesc = config.hideDesc === true;
-    const hideLinks = config.hideLinks === true;
-    const hideCategory = config.hideCategory === true;
-    const cardStyle = config.cardStyle || 'style1';
+    const cardOptions = {
+      isFiveCols: config.gridCols === '5',
+      isSixCols: config.gridCols === '6',
+      hideDesc: config.hideDesc === true,
+      hideLinks: config.hideLinks === true,
+      hideCategory: config.hideCategory === true,
+      cardStyle: config.cardStyle || 'style1',
+    };
 
     sitesGrid.innerHTML = '';
     updateSearchEmptyState('', sites.length);
@@ -716,79 +838,16 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    sites.forEach((site, index) => {
-      const rawName = String(site.name || '未命名');
-      const safeName = escapeHTML(rawName);
-      const safeUrl = normalizeUrl(site.url);
-      const safeDesc = escapeHTML(site.desc || '暂无描述');
-      const safeCatalog = escapeHTML(site.catelog_name || site.catelog || '未分类');
-      const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
-
-      const isAboveFold = index < 8;
-      const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
-      const logoHtml = site.logo
-        ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="40" height="40" class="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
-        : `<div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner">${cardInitial}</div>`;
-
-      const descHtml = hideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
-
-      const hasValidUrl = !!safeUrl;
-      const linksHtml = hideLinks ? '' : `
-          <div class="mt-3 flex items-center justify-between">
-            <span class="text-xs text-primary-600 dark:text-primary-400 truncate flex-1 min-w-0 mr-2" title="${safeUrl}">${safeUrl || '未提供链接'}</span>
-            <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'}>
-              <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}"><use href="#icon-copy"/></svg>
-              ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
-              <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
-            </button>
-          </div>`;
-
-      const categoryHtml = hideCategory ? '' : `
-                <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300">
-                  ${safeCatalog}
-                </span>`;
-
-      const frostedClass = isFrostedEnabled ? 'frosted-glass-effect' : '';
-      const cardStyleClass = cardStyle === 'style2' ? 'style-2' : '';
-      const baseCardClass = isFrostedEnabled
-        ? 'site-card group overflow-hidden transition-all'
-        : 'site-card group bg-white border border-primary-100/60 shadow-sm overflow-hidden dark:bg-gray-800 dark:border-gray-700';
-
-      const card = document.createElement('div');
-      card.className = `${baseCardClass} ${frostedClass} ${cardStyleClass} card-anim-enter`;
-      const delay = Math.min(index, 12) * 20;
-      if (delay > 0) {
-        card.style.animationDelay = `${delay}ms`;
+    let cardIndex = 0;
+    groupSitesForCategoryView(sites, activeCatalogId).forEach(group => {
+      if (activeCatalogId) {
+        sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(group.label, group.isRootGroup));
       }
 
-      // Remove animation class after completion to ensure clean state
-      card.addEventListener('animationend', () => {
-        card.classList.remove('card-anim-enter');
-        card.style.animation = 'none'; // 彻底禁用动画，防止干扰 Hover
-        if (delay > 0) card.style.removeProperty('animation-delay');
-      }, { once: true });
-
-      card.setAttribute('data-id', site.id);
-
-      card.innerHTML = `
-        <div class="site-card-content">
-          <a href="${safeUrl}" ${hasValidUrl ? 'target="_blank" rel="noopener noreferrer"' : ''} class="block">
-            <div class="flex items-start">
-              <div class="site-icon flex-shrink-0 mr-4 transition-all duration-300">
-                ${logoHtml}
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="site-title text-base font-medium text-gray-900 truncate transition-all duration-300 origin-left" title="${safeName}">${safeName}</h3>
-                ${categoryHtml}
-              </div>
-            </div>
-            ${descHtml}
-          </a>
-          ${linksHtml}
-        </div>
-        `;
-
-      sitesGrid.appendChild(card);
+      group.sites.forEach(site => {
+        sitesGrid.appendChild(renderSiteCard(site, cardIndex, cardOptions));
+        cardIndex += 1;
+      });
     });
   }
 
@@ -942,10 +1001,9 @@ document.addEventListener('DOMContentLoaded', function () {
           // main.js click handler uses: let catalogName = link.textContent.trim();
           let catalogName = link.innerText.trim();
 
-          const allSites = window.IORI_SITES || [];
-          const filteredSites = allSites.filter(site => String(site.catelog_id) === String(lastId));
+          const filteredSites = getSitesForCategory(lastId);
 
-          renderSites(filteredSites);
+          renderSites(filteredSites, lastId);
           updateNavigationState(lastId);
           syncSearchState(catalogName);
         } else {

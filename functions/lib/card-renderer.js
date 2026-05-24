@@ -3,6 +3,18 @@
 
 import { escapeHTML, sanitizeUrl } from './utils';
 
+export function renderCategoryGroupHeader(label, isRootGroup) {
+  const safeLabel = escapeHTML(label || '未分类');
+  const subtitle = isRootGroup ? '当前分类' : '子分类';
+  return `
+    <div class="col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2">
+      <div class="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+        <span class="text-sm sm:text-base font-semibold">${safeLabel}</span>
+        <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500">${subtitle}</span>
+      </div>
+    </div>`;
+}
+
 /**
  * 渲染站点卡片网格 HTML
  * @param {Array} sites - 站点数据数组
@@ -47,7 +59,8 @@ export function renderSiteCards(sites, settings) {
 
   return processed.map(({ site, safeName, safeCatalog, safeDesc, normalizedUrl, safeUrl, safeDisplayUrl, logoUrl, cardInitial, hasValidUrl }, index) => {
     // 首屏（约前 8 张）logo 用 eager + fetchpriority=high 改善 LCP；其余 lazy
-    const isAboveFold = index < 8;
+    const renderIndex = Number.isInteger(site.__renderIndex) ? site.__renderIndex : index;
+    const isAboveFold = renderIndex < 8;
     const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
 
     const descHtml = hideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;

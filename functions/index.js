@@ -4,7 +4,7 @@ import { FONT_MAP, HOME_CACHE_TTL } from './constants';
 import { escapeHTML, sanitizeUrl, normalizeSortOrder, getStyleStr } from './lib/utils';
 import { getSettingsKeys, parseSettings } from './lib/settings-parser';
 import { renderHorizontalMenu, renderVerticalMenu } from './lib/menu-renderer';
-import { renderSiteCards, renderEmptyState } from './lib/card-renderer';
+import { renderSiteCards, renderEmptyState, renderCategoryGroupHeader } from './lib/card-renderer';
 import { ensureSchemaReady } from './lib/schema-migration';
 
 // 模板内容在 Worker 运行时实例生命周期内不变（部署会替换实例），缓存避免每次 MISS 重复 ASSETS.fetch
@@ -140,12 +140,15 @@ export async function onRequest(context) {
 
   const categoryMap = new Map();
   const categoryIdMap = new Map();
+  const categoryNameById = new Map();
+  const categoryDescendantIdsById = new Map();
   const rootCategories = [];
 
   categories.forEach(cat => {
     cat.children = [];
     cat.sort_order = normalizeSortOrder(cat.sort_order);
     categoryMap.set(cat.id, cat);
+    categoryNameById.set(String(cat.id), cat.catelog || '未分类');
     if (cat.catelog) categoryIdMap.set(cat.catelog, cat.id);
   });
 
@@ -189,8 +192,13 @@ export async function onRequest(context) {
     if (cat.children && cat.children.length > 0) {
       cat.children.forEach(child => ids.push(...collectCategoryAndDescendantIds(child)));
     }
+    categoryDescendantIdsById.set(String(cat.id), ids.map(id => String(id)));
     return ids;
   };
+
+  categories.forEach(cat => {
+    if (!categoryDescendantIdsById.has(String(cat.id))) collectCategoryAndDescendantIds(cat);
+  });
 
   if (catalogExists) {
     const rootId = categoryIdMap.get(requestedCatalogName);
@@ -202,6 +210,56 @@ export async function onRequest(context) {
   const sites = targetCategoryIds.length > 0
     ? allSites.filter(site => targetCategoryIds.includes(site.catelog_id))
     : allSites;
+
+  const sortSitesByCategoryTree = (siteList, rootCategoryId) => {
+    if (!rootCategoryId) return siteList;
+
+    const orderedCategoryIds = categoryDescendantIdsById.get(String(rootCategoryId)) || [String(rootCategoryId)];
+    const categoryRank = new Map(orderedCategoryIds.map((id, index) => [String(id), index]));
+
+    return [...siteList].sort((a, b) => {
+      const rankA = categoryRank.get(String(a.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+      const rankB = categoryRank.get(String(b.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    });
+  };
+
+  const orderedSites = catalogExists
+    ? sortSitesByCategoryTree(sites, categoryIdMap.get(requestedCatalogName))
+    : sites;
+
+  const groupSitesByCategory = (siteList, activeCategoryId) => {
+    if (!activeCategoryId) return [{ id: '', label: '', isRootGroup: false, sites: siteList }];
+
+    const groups = [];
+    let currentGroup = null;
+    siteList.forEach(site => {
+      const groupId = String(site.catelog_id || '');
+      if (!currentGroup || currentGroup.id !== groupId) {
+        currentGroup = {
+          id: groupId,
+          label: categoryNameById.get(groupId) || '未分类',
+          isRootGroup: groupId === String(activeCategoryId),
+          sites: [],
+        };
+        groups.push(currentGroup);
+      }
+      currentGroup.sites.push(site);
+    });
+    return groups;
+  };
+
+  const renderGroupedSiteCards = (siteList, activeCategoryId) => {
+    if (!activeCategoryId) return renderSiteCards(siteList, S);
+
+    let cardIndex = 0;
+    return groupSitesByCategory(siteList, activeCategoryId).map(group => {
+      const headerHtml = renderCategoryGroupHeader(group.label, group.isRootGroup);
+      const indexedSites = group.sites.map(site => ({ ...site, __renderIndex: cardIndex++ }));
+      const cardsHtml = renderSiteCards(indexedSites, S);
+      return headerHtml + cardsHtml;
+    }).join('');
+  };
 
   // === 7. 壁纸处理 ===
   // 壁纸 URL 直接使用设置中的 layout_custom_wallpaper，可被 KV 正常缓存
@@ -224,8 +282,8 @@ export async function onRequest(context) {
   const catalogLinkMarkup = renderVerticalMenu(rootCategories, currentCatalogName, isCustomWallpaper);
 
   // === 10. 生成站点卡片 HTML ===
-  let sitesGridMarkup = sites.length > 0
-    ? renderSiteCards(sites, S)
+  let sitesGridMarkup = orderedSites.length > 0
+    ? renderGroupedSiteCards(orderedSites, catalogExists ? categoryIdMap.get(requestedCatalogName) : null)
     : renderEmptyState(categories.length, S.home_hide_admin);
 
   // === 11. 计算 Grid 列数 ===
@@ -239,7 +297,7 @@ export async function onRequest(context) {
   }
 
   // === 12. 计算文本和统计信息 ===
-  const headingPlainText = currentCatalogName ? `${currentCatalogName} · ${sites.length} 个书签` : `全部收藏 · ${sites.length} 个书签`;
+  const headingPlainText = currentCatalogName ? `${currentCatalogName} · ${orderedSites.length} 个书签` : `全部收藏 · ${orderedSites.length} 个书签`;
   const headingText = escapeHTML(headingPlainText);
   const headingDefaultAttr = escapeHTML(headingPlainText);
   const headingActiveAttr = catalogExists ? escapeHTML(currentCatalogName) : '';
@@ -455,9 +513,11 @@ export async function onRequest(context) {
   }
   if (customCardCss) headInjections += `<style>${customCardCss}</style>`;
 
-  // 全局站点数据与布局配置：SQL 已精简字段，直接序列化无需再拷贝
-  // 两者都挪到 </body> 前注入（见下方 replace），避免阻塞 <head> 解析
+  // 全局站点数据、分类树映射与布局配置：SQL 已精简字段，直接序列化无需再拷贝
+  // 挪到 </body> 前注入（见下方 replace），避免阻塞 <head> 解析
   const safeSitesJson = JSON.stringify(allSites).replace(/</g, '\\u003c');
+  const safeCategoryDescendantIdsJson = JSON.stringify(Object.fromEntries(categoryDescendantIdsById)).replace(/</g, '\\u003c');
+  const safeCategoryNamesJson = JSON.stringify(Object.fromEntries(categoryNameById)).replace(/</g, '\\u003c');
   const safeLayoutConfigJson = JSON.stringify({
     hideDesc: S.layout_hide_desc,
     hideLinks: S.layout_hide_links,
@@ -489,7 +549,7 @@ export async function onRequest(context) {
   } else {
     html = html.replace(
       mainJsMarker,
-      () => `<script>window.IORI_SITES=${safeSitesJson};window.IORI_LAYOUT_CONFIG=${safeLayoutConfigJson};</script>\n  ${mainJsMarker}`
+      () => `<script>window.IORI_SITES=${safeSitesJson};window.IORI_CATEGORY_DESCENDANT_IDS=${safeCategoryDescendantIdsJson};window.IORI_CATEGORY_NAMES=${safeCategoryNamesJson};window.IORI_LAYOUT_CONFIG=${safeLayoutConfigJson};</script>\n  ${mainJsMarker}`
     );
   }
 
