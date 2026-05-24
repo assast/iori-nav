@@ -184,10 +184,19 @@ export async function onRequest(context) {
   let currentCatalogName = '';
   const catalogExists = requestedCatalogName && categoryIdMap.has(requestedCatalogName);
 
+  const collectCategoryAndDescendantIds = (cat) => {
+    const ids = [cat.id];
+    if (cat.children && cat.children.length > 0) {
+      cat.children.forEach(child => ids.push(...collectCategoryAndDescendantIds(child)));
+    }
+    return ids;
+  };
+
   if (catalogExists) {
     const rootId = categoryIdMap.get(requestedCatalogName);
+    const rootCategory = categoryMap.get(rootId);
     currentCatalogName = requestedCatalogName;
-    targetCategoryIds.push(rootId);
+    targetCategoryIds = rootCategory ? collectCategoryAndDescendantIds(rootCategory) : [rootId];
   }
 
   const sites = targetCategoryIds.length > 0
