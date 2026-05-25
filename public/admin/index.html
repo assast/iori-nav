@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>书签管理页面</title>
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/admin.css?v=b76e337d" />
+  <link rel="stylesheet" href="/css/admin.css?v=08f2128e" />
   <link rel="stylesheet" href="/css/admin-dropdown.css?v=a8270a59" />
   <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
 </head>
@@ -937,17 +937,32 @@
       </div>
 
       <div id="config" class="tab-content active">
-        <div class="grid-wrapper">
+        <div class="table-wrapper">
           <div class="bookmark-toolbar mb-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
               <p class="text-gray-500 text-sm">
-                拖动卡片可调整排序
+                修改排序值可调整顺序
               </p>
             </div>
           </div>
-          <div id="configGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            <!-- data render by js -->
-          </div>
+          <table id="configTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Logo</th>
+                <th>名称</th>
+                <th>URL</th>
+                <th>描述</th>
+                <th>分类</th>
+                <th>隐私</th>
+                <th>排序</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="configTableBody">
+              <!-- data render by js -->
+            </tbody>
+          </table>
           <div class="pagination mt-6 flex justify-center items-center gap-4">
             <button id="prevPage" disabled
               class="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">上一页</button>
@@ -1152,7 +1167,7 @@
   </div>
 
   <script src="/js/admin-cache.js?v=ae06819c"></script>
-  <script src="/js/admin.js?v=60edd281"></script>
+  <script src="/js/admin.js?v=671e10e7"></script>
   <script src="/js/admin-categories.js?v=038903ce"></script>
   <script src="/js/admin-bookmarks.js?v=2c52bc54"></script>
   <script src="/js/admin-batch.js?v=a2ed8c7f"></script>

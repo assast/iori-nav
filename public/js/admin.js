@@ -1,5 +1,5 @@
 // DOM Elements
-const configGrid = document.getElementById('configGrid');
+const configTableBody = document.getElementById('configTableBody');
 const prevPageBtn = document.getElementById('prevPage');
 const nextPageBtn = document.getElementById('nextPage');
 const currentPageSpan = document.getElementById('currentPage');
@@ -414,12 +414,14 @@ if (categoryFilter) {
 // Fetch Configs (Bookmarks)
 window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeyword, catalogId = currentCategoryFilter) {
   // 显示加载状态
-  if (configGrid) {
-      configGrid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20">
-            <div class="w-10 h-10 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mb-4"></div>
-            <p class="text-gray-500 text-sm">正在加载书签数据...</p>
-        </div>
+  if (configTableBody) {
+      configTableBody.innerHTML = `
+        <tr><td colspan="9" class="text-center py-20">
+            <div class="flex flex-col items-center justify-center">
+                <div class="w-10 h-10 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mb-4"></div>
+                <p class="text-gray-500 text-sm">正在加载书签数据...</p>
+            </div>
+        </td></tr>
       `;
   }
 
@@ -451,11 +453,11 @@ window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeywor
       } else {
         window.showMessage(data.message, 'error');
         // 错误时清空或显示错误信息
-        if (configGrid) configGrid.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">${data.message}</div>`;
+        if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-red-500 py-10">${data.message}</td></tr>`;
       }
     }).catch(err => {
       window.showMessage('网络错误', 'error');
-      if (configGrid) configGrid.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">网络错误: ${err.message}</div>`;
+      if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-red-500 py-10">网络错误: ${err.message}</td></tr>`;
     })
 }
 
@@ -584,16 +586,16 @@ function handlePendingAction(id, action) {
     }).catch(() => window.showMessage('操作失败', 'error'));
 }
 
-// Render Bookmarks List
+// Render Bookmarks List (Table Mode)
 function renderConfig(configs) {
-  if (!configGrid) return;
-  configGrid.innerHTML = '';
+  if (!configTableBody) return;
+  configTableBody.innerHTML = '';
   if (configs.length === 0) {
-    configGrid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">没有配置数据</div>';
-    return
+    configTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500 py-10">没有配置数据</td></tr>';
+    return;
   }
   configs.forEach(config => {
-    const card = document.createElement('div');
+    const tr = document.createElement('tr');
     const rawName = String(config.name || '');
     const safeName = window.escapeHTML(rawName || '未命名');
     const normalizedUrl = window.normalizeUrl(config.url);
@@ -602,62 +604,46 @@ function renderConfig(configs) {
     const descCell = config.desc ? window.escapeHTML(config.desc) : '暂无描述';
     const safeCatalog = window.escapeHTML(config.catelog_name || '未分类');
     const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
-    
-    // Private Icon
-    const privacyBadge = config.is_private
-      ? '<span class="bookmark-privacy-badge bookmark-privacy-badge-private">私密</span>'
-      : '<span class="bookmark-privacy-badge bookmark-privacy-badge-public">公开</span>';
+    const sortOrder = config.sort_order ?? '';
 
-    card.className = 'site-card preview-card-fixed';
-    card.draggable = true;
-    card.dataset.id = config.id;
+    // Private badge
+    const privacyBadge = config.is_private
+      ? '<span class="privacy-tag privacy-private">私密</span>'
+      : '<span class="privacy-tag privacy-public">公开</span>';
 
     let logoHtml = '';
     if (normalizedLogo) {
-      logoHtml = `<img src="${window.escapeHTML(normalizedLogo)}" alt="${safeName}" class="w-full h-full rounded-lg object-cover bg-gray-50">`;
+      logoHtml = `<img src="${window.escapeHTML(normalizedLogo)}" alt="${safeName}" class="w-8 h-8 rounded object-cover bg-gray-50">`;
     } else {
-      logoHtml = `<div class="w-full h-full rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-lg">${cardInitial}</div>`;
+      logoHtml = `<div class="w-8 h-8 rounded bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-xs">${cardInitial}</div>`;
     }
 
-    card.innerHTML = `
-      <div class="p-5">
-        <div class="bookmark-card-top">
-          <span class="bookmark-id-chip">#${config.id}</span>
-          ${privacyBadge}
-        </div>
-        <div class="block">
-          <div class="flex items-start">
-             <div class="site-icon flex-shrink-0 mr-4">
-                ${logoHtml}
-             </div>
-             <div class="flex-1 min-w-0">
-                <h3 class="site-title truncate" title="${safeName}">${safeName}</h3>
-                <span class="inline-flex items-center px-2 py-0.5 mt-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                  ${safeCatalog}
-                </span>
-             </div>
-          </div>
-          <p class="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2 h-10" title="${descCell}">${descCell}</p>
-        </div>
+    const urlLink = normalizedUrl
+      ? `<a href="${window.escapeHTML(normalizedUrl)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline truncate max-w-[200px] inline-block" title="${displayUrl}">${displayUrl}</a>`
+      : `<span class="text-gray-400">未提供</span>`;
 
-        <div class="bookmark-meta">
-          <span class="bookmark-meta-label">链接</span>
-          <span class="bookmark-meta-value" title="${displayUrl}">${displayUrl}</span>
+    tr.innerHTML = `
+      <td class="p-3 border-b text-gray-500">${config.id}</td>
+      <td class="p-3 border-b">${logoHtml}</td>
+      <td class="p-3 border-b font-medium text-gray-900" title="${safeName}">${safeName}</td>
+      <td class="p-3 border-b">${urlLink}</td>
+      <td class="p-3 border-b text-gray-600 max-w-[200px] truncate" title="${descCell}">${descCell}</td>
+      <td class="p-3 border-b text-gray-600">${safeCatalog}</td>
+      <td class="p-3 border-b">${privacyBadge}</td>
+      <td class="p-3 border-b">
+        <input type="number" class="sort-input" value="${sortOrder}" data-id="${config.id}" min="0" step="1" title="修改后按回车保存">
+      </td>
+      <td class="p-3 border-b">
+        <div class="flex gap-2 flex-wrap">
+          <button class="edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-id="${config.id}">编辑</button>
+          <button class="del-btn bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded text-xs" data-id="${config.id}">删除</button>
         </div>
-
-        <div class="bookmark-card-actions">
-          ${normalizedUrl
-            ? `<a class="visit-btn" href="${window.escapeHTML(normalizedUrl)}" target="_blank" rel="noopener noreferrer">访问</a>`
-            : '<span class="visit-btn is-disabled">无链接</span>'}
-          <button class="edit-btn action-btn action-btn-edit" title="编辑" data-id="${config.id}">编辑</button>
-          <button class="del-btn action-btn action-btn-delete" title="删除" data-id="${config.id}">删除</button>
-        </div>
-      </div>
+      </td>
     `;
-    configGrid.appendChild(card);
+    configTableBody.appendChild(tr);
   });
   bindActionEvents();
-  setupDragAndDrop();
+  bindSortInputEvents();
 }
 
 function bindActionEvents() {
@@ -732,96 +718,37 @@ window.performDelete = function(id) {
     });
 }
 
-function setupDragAndDrop() {
-  const cards = document.querySelectorAll('#configGrid .site-card');
-  let draggedItem = null;
+function bindSortInputEvents() {
+  document.querySelectorAll('.sort-input').forEach(input => {
+    input.addEventListener('change', async function () {
+      const id = this.dataset.id;
+      const newSortOrder = Number(this.value);
+      if (isNaN(newSortOrder)) {
+        window.showMessage('排序值必须是数字', 'error');
+        return;
+      }
 
-  cards.forEach(card => {
-    card.addEventListener('dragstart', function (e) {
-      draggedItem = this;
-      this.classList.add('opacity-50', 'scale-95');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/html', this.innerHTML);
-    });
+      const config = allConfigs.find(c => c.id == id);
+      if (config && config.sort_order === newSortOrder) return;
 
-    card.addEventListener('dragend', function () {
-      this.classList.remove('opacity-50', 'scale-95');
-      draggedItem = null;
-      document.querySelectorAll('.site-card').forEach(c => c.classList.remove('border-2', 'border-accent-500'));
-    });
-
-    card.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      this.classList.add('border-2', 'border-accent-500');
-    });
-
-    card.addEventListener('dragleave', function () {
-      this.classList.remove('border-2', 'border-accent-500');
-    });
-
-    card.addEventListener('drop', function (e) {
-      e.preventDefault();
-      this.classList.remove('border-2', 'border-accent-500');
-
-      if (draggedItem !== this) {
-        const allCards = Array.from(configGrid.children);
-        const draggedIdx = allCards.indexOf(draggedItem);
-        const droppedIdx = allCards.indexOf(this);
-
-        if (draggedIdx < droppedIdx) {
-          this.after(draggedItem);
+      try {
+        const res = await fetch(`/api/config/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sort_order: newSortOrder })
+        });
+        const data = await res.json();
+        if (data.code === 200) {
+          window.showMessage('排序已保存', 'success');
+          if (config) config.sort_order = newSortOrder;
         } else {
-          this.before(draggedItem);
+          window.showMessage(data.message || '保存排序失败', 'error');
         }
-
-        saveSortOrder();
+      } catch (err) {
+        window.showMessage('保存排序失败: ' + err.message, 'error');
       }
     });
   });
-}
-
-function saveSortOrder() {
-  const cards = document.querySelectorAll('#configGrid .site-card');
-  const startIndex = (currentPage - 1) * pageSize;
-  const items = [];
-
-  cards.forEach((card, index) => {
-    const id = Number(card.dataset.id);
-    const newSortOrder = startIndex + index;
-
-    items.push({ id, sort_order: newSortOrder });
-  });
-
-  if (items.length > 0) {
-    window.showMessage('正在保存排序...', 'info');
-    fetch('/api/config/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'reorder',
-        payload: { items }
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.code !== 200) {
-          window.showMessage(data.message || '保存排序失败', 'error');
-          return;
-        }
-
-        window.showMessage('排序已保存', 'success');
-        // Update local memory data
-        cards.forEach((card, index) => {
-          const id = card.dataset.id;
-          const config = allConfigs.find(c => c.id == id);
-          if (config) {
-            config.sort_order = startIndex + index;
-          }
-        });
-      })
-      .catch(err => window.showMessage('保存排序失败: ' + err.message, 'error'));
-  }
 }
 
 // Init Data

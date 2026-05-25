@@ -32,7 +32,7 @@ export async function onRequestPut(context) {
   }
   
   try {
-    const existing = await env.NAV_DB.prepare('SELECT id, is_private FROM sites WHERE id = ?').bind(id).first();
+    const existing = await env.NAV_DB.prepare('SELECT * FROM sites WHERE id = ?').bind(id).first();
     if (!existing) {
       return errorResponse('config not found', 404);
     }
@@ -40,21 +40,25 @@ export async function onRequestPut(context) {
     const config = await request.json();
     const { name, url, logo, desc, catelog_id, sort_order, is_private } = config;
 
-    const sanitizedName = (name || '').trim();
-    const sanitizedUrl = (url || '').trim();
-    let sanitizedLogo = (logo || '').trim() || null;
-    const sanitizedDesc = (desc || '').trim() || null;
-    const sortOrderValue = normalizeSortOrder(sort_order);
-    const isPrivateValue = is_private ? 1 : 0;
+    // Support partial updates: use existing values when field is not provided
+    const sanitizedName = name !== undefined ? String(name).trim() : existing.name;
+    const sanitizedUrl = url !== undefined ? String(url).trim() : existing.url;
+    let sanitizedLogo = logo !== undefined ? (String(logo).trim() || null) : existing.logo;
+    const sanitizedDesc = desc !== undefined ? (String(desc).trim() || null) : existing.desc;
+    const sortOrderValue = sort_order !== undefined ? normalizeSortOrder(sort_order) : existing.sort_order;
+    const isPrivateValue = is_private !== undefined ? (is_private ? 1 : 0) : existing.is_private;
+    const finalCatelogId = catelog_id !== undefined ? catelog_id : existing.catelog_id;
 
-    if (!sanitizedName || !sanitizedUrl || !catelog_id) {
+    if (!sanitizedName || !sanitizedUrl || !finalCatelogId) {
       return errorResponse('Name, URL and Catelog are required', 400);
     }
     const iconAPI = env.ICON_API || 'https://faviconsnap.com/api/favicon?url=';
-    sanitizedLogo = buildFaviconUrl(sanitizedUrl, sanitizedLogo, iconAPI);
+    if (logo !== undefined || url !== undefined) {
+      sanitizedLogo = buildFaviconUrl(sanitizedUrl, sanitizedLogo, iconAPI);
+    }
 
     // Fetch category name
-    const categoryResult = await env.NAV_DB.prepare('SELECT catelog, is_private FROM category WHERE id = ?').bind(catelog_id).first();
+    const categoryResult = await env.NAV_DB.prepare('SELECT catelog, is_private FROM category WHERE id = ?').bind(finalCatelogId).first();
     const catelogName = categoryResult ? categoryResult.catelog : 'Unknown';
 
     // If category is private, force site to be private
@@ -67,7 +71,7 @@ export async function onRequestPut(context) {
       UPDATE sites
       SET name = ?, url = ?, logo = ?, desc = ?, catelog_id = ?, catelog_name = ?, sort_order = ?, is_private = ?, update_time = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, catelog_id, catelogName, sortOrderValue, finalIsPrivate, id).run();
+    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, finalCatelogId, catelogName, sortOrderValue, finalIsPrivate, id).run();
 
     const dirtyScope = (existing.is_private === 1 && finalIsPrivate === 1) ? 'private' : 'all';
     await markHomeCacheDirty(env, dirtyScope);

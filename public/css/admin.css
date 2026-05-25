@@ -244,14 +244,15 @@ th {
 }
 
 /* 设置书签列表的列宽 */
-#configTable th:nth-child(1) { width: 5%; } /* ID */
-#configTable th:nth-child(2) { width: 15%; } /* Name */
-#configTable th:nth-child(3) { width: 30%; } /* URL */
-#configTable th:nth-child(4) { width: 5%; }  /* Logo */
-#configTable th:nth-child(5) { width: 20%; } /* Description */
+#configTable th:nth-child(1) { width: 5%; }  /* ID */
+#configTable th:nth-child(2) { width: 6%; }  /* Logo */
+#configTable th:nth-child(3) { width: 14%; } /* Name */
+#configTable th:nth-child(4) { width: 22%; } /* URL */
+#configTable th:nth-child(5) { width: 18%; } /* Description */
 #configTable th:nth-child(6) { width: 10%; } /* Catelog */
-#configTable th:nth-child(7) { width: 5%; }  /* 排序 */
-#configTable th:nth-child(8) { width: 10%; } /* Actions */
+#configTable th:nth-child(7) { width: 8%; }  /* Privacy */
+#configTable th:nth-child(8) { width: 8%; }  /* 排序 */
+#configTable th:nth-child(9) { width: 9%; }  /* Actions */
 
 /* 设置待审核列表的列宽 */
 #pendingTable th:nth-child(1) { width: 5%; } /* ID */
@@ -323,13 +324,7 @@ tr:nth-child(even) {
   padding: 5px 8px;
   font-size: 0.8rem;
 }
-.edit-btn {
-  background-color: #17a2b8; /* 编辑按钮颜色 */
-}
-
-.del-btn {
-  background-color: #dc3545; /* 删除按钮颜色 */
-}
+/* .edit-btn and .del-btn styles removed: list buttons now use Tailwind utility classes */
 .pagination {
   text-align: center;
   margin-top: 20px;
@@ -1396,5 +1391,52 @@ body.modal-open {
   }
 }
 
+/* 隐私状态标签 (列表模式) */
+.privacy-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.privacy-private {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.privacy-public {
+  color: #166534;
+  background: #dcfce7;
+}
+
+/* 排序值输入框 */
+.sort-input {
+  width: 64px;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sort-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 确保表格行hover效果 */
+#configTable tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+#configTable tbody tr {
+  transition: background-color 0.15s ease;
+}
 
 
