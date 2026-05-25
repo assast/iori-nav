@@ -1342,19 +1342,62 @@ body.modal-open {
     padding: 1rem;
   }
 
+  .admin-header {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
   .header-actions {
     width: 100%;
     flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* 顶部操作栏垂直布局 */
+  .import-export {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .import-export > .custom-dropdown-wrapper,
+  .import-export > #searchInput {
+    max-width: none;
+    width: 100%;
+    margin-right: 0;
+    min-width: auto;
+  }
+
+  .import-export > div:last-child {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .import-export button,
+  .import-export .refresh-btn,
+  .import-export .logout-btn {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.875rem;
   }
 
   .tab-buttons {
     display: flex;
     width: 100%;
     overflow-x: auto;
+    gap: 0.125rem;
   }
 
   .tab-button {
     white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
   }
 
   .form-group {
@@ -1371,6 +1414,84 @@ body.modal-open {
 
   .modal-content {
     padding: 1.25rem;
+    width: 95%;
+    margin: 2% auto;
+  }
+
+  /* 表格通用优化 */
+  #configTable th,
+  #configTable td,
+  #categoryTable th,
+  #categoryTable td,
+  #pendingTable th,
+  #pendingTable td {
+    padding: 8px 6px;
+    font-size: 0.875rem;
+  }
+
+  /* 书签列表隐藏非关键列 (ID, Logo) */
+  #configTable th:nth-child(2),
+  #configTable td:nth-child(2),
+  #configTable th:nth-child(3),
+  #configTable td:nth-child(3) {
+    display: none;
+  }
+
+  /* 分类列表隐藏非关键列 (书签数, 子分类数) */
+  #categoryTable th:nth-child(3),
+  #categoryTable td:nth-child(3),
+  #categoryTable th:nth-child(4),
+  #categoryTable td:nth-child(4) {
+    display: none;
+  }
+
+  /* 待审核列表隐藏 Logo 列 */
+  #pendingTable th:nth-child(4),
+  #pendingTable td:nth-child(4) {
+    display: none;
+  }
+
+  /* 批量操作工具栏 */
+  .bookmark-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  #batchActionsBar {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  #batchActionsBar button {
+    min-height: 36px;
+  }
+
+  /* 分页优化 */
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .pagination button,
+  .pagination select {
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* 分类操作按钮 */
+  .category-actions button {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* 排序输入框缩小 */
+  .sort-input {
+    width: 52px;
+    padding: 0.25rem 0.375rem;
+    font-size: 0.8125rem;
   }
 }
 
@@ -1384,6 +1505,95 @@ body.modal-open {
 
   .bookmark-card-actions {
     grid-template-columns: 1fr;
+  }
+
+  /* 顶部按钮单列 */
+  .import-export > div:last-child {
+    grid-template-columns: 1fr;
+  }
+
+  /* 更窄屏幕隐藏更多列 */
+  /* 书签列表隐藏描述、隐私、排序 */
+  #configTable th:nth-child(6),
+  #configTable td:nth-child(6),
+  #configTable th:nth-child(8),
+  #configTable td:nth-child(8),
+  #configTable th:nth-child(9),
+  #configTable td:nth-child(9) {
+    display: none;
+  }
+
+  /* 分类列表隐藏 ID、排序 */
+  #categoryTable th:nth-child(1),
+  #categoryTable td:nth-child(1):not([colspan]),
+  #categoryTable th:nth-child(6),
+  #categoryTable td:nth-child(6) {
+    display: none;
+  }
+
+  /* 待审核列表隐藏描述 */
+  #pendingTable th:nth-child(5),
+  #pendingTable td:nth-child(5) {
+    display: none;
+  }
+
+  /* 分类操作按钮全宽 */
+  #categoryTable td:last-child > div {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  #categoryTable td:last-child button {
+    width: 100%;
+    text-align: center;
+    min-height: 32px;
+  }
+
+  /* 书签操作按钮 */
+  #configTable td:last-child > div {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  #configTable td:last-child button {
+    width: 100%;
+    text-align: center;
+    min-height: 32px;
+  }
+
+  /* 分页按钮紧凑 */
+  .pagination button,
+  .pagination select {
+    min-height: 36px;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  /* 模态框几乎全屏 */
+  .modal-content {
+    width: 100%;
+    margin: 0;
+    border-radius: 0.75rem 0.75rem 0 0;
+    max-height: 95vh;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  /* 批量操作栏按钮全宽 */
+  #batchActionsBar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.375rem;
+  }
+
+  #batchActionsBar.hidden {
+    display: none;
+  }
+
+  #batchActionsBar > span {
+    grid-column: 1 / -1;
   }
 }
 
