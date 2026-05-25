@@ -17,6 +17,7 @@ let categoryCurrentPage = 1;
 let categoryPageSize = 10000; // Default show all for tree view structure
 let categoryTotalItems = 0;
 let currentViewParentId = null;
+let expandedCategoryIds = new Set();
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -117,32 +118,12 @@ function updateCategoryPaginationButtons() {
 }
 
 function renderCategoryView(parentId) {
-    currentViewParentId = parentId;
-    updateCategoryBreadcrumb(parentId);
-    
-    let nodesToRender = [];
-    if (!parentId || parentId == '0') {
-        nodesToRender = window.categoriesTree || [];
-    } else {
-        // Find the node in the tree
-        const findNode = (nodes, id) => {
-            for(const node of nodes) {
-                if(node.id == id) return node;
-                if(node.children) {
-                    const found = findNode(node.children, id);
-                    if(found) return found;
-                }
-            }
-            return null;
-        };
-        const parentNode = findNode(window.categoriesTree, parentId);
-        if(parentNode && parentNode.children) {
-            nodesToRender = parentNode.children;
-        } else {
-            nodesToRender = [];
-        }
+    if (parentId && parentId != '0') {
+        expandedCategoryIds.add(String(parentId));
     }
-    renderCategoryTable(nodesToRender);
+    currentViewParentId = null;
+    updateCategoryBreadcrumb(null);
+    renderCategoryTable(window.categoriesTree || []);
 }
 
 function updateCategoryBreadcrumb(parentId) {
@@ -174,40 +155,58 @@ function renderCategoryTable(categories) {
     if (!categoryTableBody) return;
     categoryTableBody.innerHTML = '';
     if (!categories || categories.length === 0) {
-        categoryTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-10">没有子分类数据</td></tr>';
+        categoryTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-10">没有分类数据</td></tr>';
         return;
     }
 
-    categories.forEach(item => {
-        const tr = document.createElement('tr');
-        const safeName = window.escapeHTML(item.catelog);
-        const siteCount = item.site_count || 0;
-        const sortValue = item.sort_order === null || item.sort_order === 9999 ? '' : item.sort_order;
-        const subCount = item.children ? item.children.length : 0;
+    const renderRows = (nodes, depth = 0) => {
+        nodes.forEach(item => {
+            const tr = document.createElement('tr');
+            const safeName = window.escapeHTML(item.catelog);
+            const siteCount = item.site_count || 0;
+            const sortValue = item.sort_order === null || item.sort_order === 9999 ? '' : item.sort_order;
+            const subCount = item.children ? item.children.length : 0;
+            const hasChildren = subCount > 0;
+            const isExpanded = expandedCategoryIds.has(String(item.id));
+            const expandLabel = isExpanded ? '收起' : '展开';
+            const expandIcon = isExpanded ? '▾' : '▸';
+            const childButton = hasChildren
+                ? `<button class="category-subs-btn bg-indigo-100 text-indigo-600 hover:bg-indigo-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" aria-expanded="${isExpanded}">${expandIcon} ${expandLabel}</button>`
+                : '<button class="category-subs-btn bg-gray-100 text-gray-400 px-2 py-1 rounded text-xs" disabled>无子分类</button>';
 
-        const privacyBadge = item.is_private
-            ? '<span class="privacy-tag privacy-private">私密</span>'
-            : '<span class="privacy-tag privacy-public">公开</span>';
+            const privacyBadge = item.is_private
+                ? '<span class="privacy-tag privacy-private">私密</span>'
+                : '<span class="privacy-tag privacy-public">公开</span>';
 
-        tr.innerHTML = `
-            <td class="p-3 border-b text-gray-500">${item.id}</td>
-            <td class="p-3 border-b font-medium text-gray-900">${safeName}</td>
-            <td class="p-3 border-b text-gray-600">${siteCount}</td>
-            <td class="p-3 border-b text-gray-600">${subCount}</td>
-            <td class="p-3 border-b">${privacyBadge}</td>
-            <td class="p-3 border-b">
-                <input type="number" class="sort-input" value="${sortValue}" data-id="${item.id}" min="0" step="1" title="修改后按回车保存">
-            </td>
-            <td class="p-3 border-b">
-                <div class="flex gap-2 flex-wrap">
-                    <button class="category-subs-btn bg-indigo-100 text-indigo-600 hover:bg-indigo-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}">子分类</button>
-                    <button class="category-edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}">编辑</button>
-                    <button class="category-del-btn bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" data-site-count="${siteCount}" data-sub-count="${subCount}">删除</button>
-                </div>
-            </td>
-        `;
-        categoryTableBody.appendChild(tr);
-    });
+            tr.className = depth > 0 ? 'category-child-row' : '';
+            tr.innerHTML = `
+                <td class="p-3 border-b text-gray-500">${item.id}</td>
+                <td class="p-3 border-b font-medium text-gray-900">
+                    <span class="category-name-cell" style="padding-left: ${depth * 1.5}rem">${safeName}</span>
+                </td>
+                <td class="p-3 border-b text-gray-600">${siteCount}</td>
+                <td class="p-3 border-b text-gray-600">${subCount}</td>
+                <td class="p-3 border-b">${privacyBadge}</td>
+                <td class="p-3 border-b">
+                    <input type="number" class="sort-input" value="${sortValue}" data-id="${item.id}" min="0" step="1" title="修改后按回车保存">
+                </td>
+                <td class="p-3 border-b">
+                    <div class="flex gap-2 flex-wrap">
+                        ${childButton}
+                        <button class="category-edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}">编辑</button>
+                        <button class="category-del-btn bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" data-site-count="${siteCount}" data-sub-count="${subCount}">删除</button>
+                    </div>
+                </td>
+            `;
+            categoryTableBody.appendChild(tr);
+
+            if (hasChildren && isExpanded) {
+                renderRows(item.children, depth + 1);
+            }
+        });
+    };
+
+    renderRows(categories);
 
     bindCategoryEvents();
     bindCategorySortInputEvents();
@@ -292,7 +291,13 @@ function bindCategoryEvents() {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
             const categoryId = this.getAttribute('data-category-id');
-            renderCategoryView(categoryId);
+            const key = String(categoryId);
+            if (expandedCategoryIds.has(key)) {
+                expandedCategoryIds.delete(key);
+            } else {
+                expandedCategoryIds.add(key);
+            }
+            renderCategoryView(null);
         });
     });
 }

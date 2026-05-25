@@ -325,6 +325,12 @@ tr:nth-child(even) {
   opacity: 0.5;
   cursor: not-allowed;
 }
+.category-child-row td {
+  background-color: #fbfdff;
+}
+.category-name-cell {
+  display: inline-block;
+}
 
 .actions {
   display: flex;
