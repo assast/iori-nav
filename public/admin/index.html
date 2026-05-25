@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>书签管理页面</title>
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/admin.css?v=08f2128e" />
-  <link rel="stylesheet" href="/css/admin-dropdown.css?v=a8270a59" />
+  <link rel="stylesheet" href="/css/admin.css?v=4119f71e" />
+  <link rel="stylesheet" href="/css/admin-dropdown.css?v=f47ba184" />
   <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
 </head>
 
@@ -44,8 +44,6 @@
         placeholder="搜索书签(名称, URL, 分类)" />
       <input type="file" id="importFile" accept=".json,.html,.htm" style="display: none" />
       <div class="flex flex-wrap gap-2 items-center">
-        <button id="batchBtn"
-          class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-sm font-medium text-sm h-[42px] whitespace-nowrap">批量管理</button>
         <button id="importBtn"
           class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm h-[42px] whitespace-nowrap">导入</button>
         <button id="exportBtn"
@@ -938,16 +936,24 @@
 
       <div id="config" class="tab-content active">
         <div class="table-wrapper">
-          <div class="bookmark-toolbar mb-4 flex justify-between items-center">
+          <div class="bookmark-toolbar mb-4 flex justify-between items-center flex-wrap gap-2">
             <div class="flex items-center gap-2">
               <p class="text-gray-500 text-sm">
                 修改排序值可调整顺序
               </p>
             </div>
+            <div id="batchActionsBar" class="flex items-center gap-2 hidden">
+              <span class="text-sm text-gray-600">已选 <span id="batchSelectedCountMain" class="font-bold text-gray-800">0</span> 项</span>
+              <button id="batchDeleteBtnMain" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">删除</button>
+              <button id="batchChangeCategoryBtnMain" class="bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">更改分类</button>
+              <button id="batchChangePrivacyBtnMain" class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">更改隐私</button>
+              <button id="batchClearSelectionBtn" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 text-sm">取消</button>
+            </div>
           </div>
           <table id="configTable">
             <thead>
               <tr>
+                <th class="w-12 text-center"><input type="checkbox" id="selectAllMain" class="rounded"></th>
                 <th>ID</th>
                 <th>Logo</th>
                 <th>名称</th>
@@ -1011,7 +1017,7 @@
       </div>
 
       <div id="categories" class="tab-content">
-        <div class="grid-wrapper">
+        <div class="table-wrapper">
           <div class="category-toolbar mb-4 flex justify-between items-center">
             <div class="flex items-center gap-2">
               <button id="categoryBackBtn"
@@ -1025,13 +1031,26 @@
               </button>
               <span id="categoryBreadcrumb" class="text-gray-700 font-medium ml-2"></span>
               <p class="category-hint text-gray-500 text-sm ml-2 hidden sm:block">
-                拖动卡片可调整排序
+                修改排序值可调整顺序
               </p>
             </div>
           </div>
-          <div id="categoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            <!-- data render by js -->
-          </div>
+          <table id="categoryTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>书签数</th>
+                <th>子分类数</th>
+                <th>隐私</th>
+                <th>排序</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="categoryTableBody">
+              <!-- data render by js -->
+            </tbody>
+          </table>
           <div class="pagination mt-6 flex justify-center items-center gap-4">
             <button id="categoryPrevPage" disabled
               class="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">上一页</button>
@@ -1049,76 +1068,6 @@
               <option value="10000" selected>全部</option>
             </select>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 批量管理模态框 -->
-  <div id="batchModal" class="modal" style="display: none;">
-    <div class="modal-content flex flex-col"
-      style="max-width: 900px; width: 90%; height: 80vh; max-height: 800px; margin: auto;">
-      <span class="modal-close" id="closeBatchModal">×</span>
-      <h2 class="mb-4">批量管理</h2>
-
-      <!-- 顶部工具栏 -->
-      <div class="flex flex-wrap gap-4 justify-between items-center mb-4 p-2 bg-gray-50 rounded shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700">过滤:</span>
-          <div id="batchCategoryFilterWrapper" class="custom-dropdown-wrapper" style="width: 200px;"></div>
-          <input type="hidden" id="batchCategoryFilter" value="">
-        </div>
-
-        <div class="flex gap-2">
-          <button id="batchDeleteBtn"
-            class="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">删除</button>
-          <button id="batchChangeCategoryBtn"
-            class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">更改分类</button>
-          <button id="batchChangePrivacyBtn"
-            class="bg-gray-600 text-white px-3 py-1.5 rounded text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">更改隐私</button>
-        </div>
-      </div>
-
-      <!-- 表格区域 -->
-      <div class="flex-1 overflow-auto border rounded border-gray-200 min-h-0">
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-gray-100 sticky top-0 z-10">
-            <tr>
-              <th class="p-3 border-b w-12 text-center">
-                <input type="checkbox" id="batchSelectAll" class="rounded">
-              </th>
-              <th class="p-3 border-b w-16">ID</th>
-              <th class="p-3 border-b w-16">Logo</th>
-              <th class="p-3 border-b">标题</th>
-              <th class="p-3 border-b w-32">分类</th>
-              <th class="p-3 border-b w-20 text-center">隐私</th>
-            </tr>
-          </thead>
-          <tbody id="batchTableBody" class="text-sm">
-            <!-- 动态填充 -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 底部通过分页 -->
-      <div class="mt-4 flex justify-between items-center shrink-0">
-        <div class="text-sm text-gray-500">
-          已选 <span id="batchSelectedCount" class="font-bold text-gray-800">0</span> 项
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="batchPrevPage"
-            class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 text-sm">上一页</button>
-          <span class="text-sm">
-            <span id="batchCurrentPageNum">1</span> / <span id="batchTotalPagesNum">1</span>
-          </span>
-          <button id="batchNextPage"
-            class="px-3 py-1 border rounded hover:bg-gray-50 disabled:opacity-50 text-sm">下一页</button>
-          <select id="batchPageSize" class="ml-2 border rounded p-1 text-sm">
-            <option value="50">50条/页</option>
-            <option value="100">100条/页</option>
-            <option value="200">200条/页</option>
-            <option value="500">500条/页</option>
-          </select>
         </div>
       </div>
     </div>
@@ -1167,10 +1116,10 @@
   </div>
 
   <script src="/js/admin-cache.js?v=ae06819c"></script>
-  <script src="/js/admin.js?v=671e10e7"></script>
-  <script src="/js/admin-categories.js?v=038903ce"></script>
+  <script src="/js/admin.js?v=cf714c83"></script>
+  <script src="/js/admin-categories.js?v=c6a4798a"></script>
   <script src="/js/admin-bookmarks.js?v=2c52bc54"></script>
-  <script src="/js/admin-batch.js?v=a2ed8c7f"></script>
+  <script src="/js/admin-batch.js?v=3f24c650"></script>
   <script src="/js/admin-settings.js?v=df9e628b"></script>
   <script src="/js/admin-import-export.js?v=210ca688"></script>
 </body>

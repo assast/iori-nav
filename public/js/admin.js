@@ -194,7 +194,7 @@ const pageSizeSelect = document.getElementById('pageSizeSelect');
 let currentPage = 1;
 let pageSize = 50; // Default to 50
 let totalItems = 0;
-let allConfigs = [];
+window.allConfigs = [];
 let currentSearchKeyword = '';
 let currentCategoryFilter = '';
 
@@ -205,6 +205,7 @@ if (searchInput) {
     debounceTimer = setTimeout(() => {
       currentSearchKeyword = e.target.value.trim();
       currentPage = 1;
+      clearBookmarkSelection();
       fetchConfigs(currentPage, currentSearchKeyword, currentCategoryFilter);
     }, 300);
   });
@@ -215,6 +216,7 @@ if (pageSizeSelect) {
   pageSizeSelect.addEventListener('change', () => {
     pageSize = parseInt(pageSizeSelect.value);
     currentPage = 1;
+    clearBookmarkSelection();
     fetchConfigs(currentPage, currentSearchKeyword, currentCategoryFilter);
   });
 }
@@ -259,7 +261,7 @@ window.createCascadingDropdown = function(containerId, inputId, categoriesTree, 
     const input = document.getElementById(inputId);
     if (!container || !input) return;
     
-    const isFilter = inputId === 'categoryFilter' || inputId === 'batchCategoryFilter';
+    const isFilter = inputId === 'categoryFilter';
 
     let initialLabel = '请选择分类';
     const findLabel = (nodes, id) => {
@@ -407,6 +409,7 @@ if (categoryFilter) {
   categoryFilter.addEventListener('change', () => {
     currentCategoryFilter = categoryFilter.value;
     currentPage = 1;
+    clearBookmarkSelection();
     fetchConfigs(currentPage, currentSearchKeyword, currentCategoryFilter);
   });
 }
@@ -416,7 +419,7 @@ window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeywor
   // 显示加载状态
   if (configTableBody) {
       configTableBody.innerHTML = `
-        <tr><td colspan="9" class="text-center py-20">
+        <tr><td colspan="10" class="text-center py-20">
             <div class="flex flex-col items-center justify-center">
                 <div class="w-10 h-10 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mb-4"></div>
                 <p class="text-gray-500 text-sm">正在加载书签数据...</p>
@@ -447,17 +450,18 @@ window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeywor
         currentPage = data.page;
         totalPagesSpan.innerText = Math.ceil(totalItems / pageSize);
         currentPageSpan.innerText = currentPage;
-        allConfigs = data.data;
-        renderConfig(allConfigs);
+        window.allConfigs = data.data;
+        pruneBookmarkSelectionToConfigs(window.allConfigs);
+        renderConfig(window.allConfigs);
         updatePaginationButtons();
       } else {
         window.showMessage(data.message, 'error');
         // 错误时清空或显示错误信息
-        if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-red-500 py-10">${data.message}</td></tr>`;
+        if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="10" class="text-center text-red-500 py-10">${data.message}</td></tr>`;
       }
     }).catch(err => {
       window.showMessage('网络错误', 'error');
-      if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="9" class="text-center text-red-500 py-10">网络错误: ${err.message}</td></tr>`;
+      if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="10" class="text-center text-red-500 py-10">网络错误: ${err.message}</td></tr>`;
     })
 }
 
@@ -471,6 +475,7 @@ if (prevPageBtn) {
   prevPageBtn.addEventListener('click', () => {
     if (currentPage > 1) {
       currentPage--;
+      clearBookmarkSelection();
       fetchConfigs(currentPage, currentSearchKeyword, currentCategoryFilter);
     }
   });
@@ -480,6 +485,7 @@ if (nextPageBtn) {
   nextPageBtn.addEventListener('click', () => {
     if (currentPage < Math.ceil(totalItems / pageSize)) {
       currentPage++;
+      clearBookmarkSelection();
       fetchConfigs(currentPage, currentSearchKeyword, currentCategoryFilter);
     }
   });
@@ -591,7 +597,9 @@ function renderConfig(configs) {
   if (!configTableBody) return;
   configTableBody.innerHTML = '';
   if (configs.length === 0) {
-    configTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500 py-10">没有配置数据</td></tr>';
+    configTableBody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-500 py-10">没有配置数据</td></tr>';
+    updateSelectAllMainState();
+    updateBatchActionsBar();
     return;
   }
   configs.forEach(config => {
@@ -605,6 +613,7 @@ function renderConfig(configs) {
     const safeCatalog = window.escapeHTML(config.catelog_name || '未分类');
     const cardInitial = (rawName.trim().charAt(0) || '站').toUpperCase();
     const sortOrder = config.sort_order ?? '';
+    const isChecked = window.selectedBookmarkIds?.has(config.id) ? 'checked' : '';
 
     // Private badge
     const privacyBadge = config.is_private
@@ -623,6 +632,9 @@ function renderConfig(configs) {
       : `<span class="text-gray-400">未提供</span>`;
 
     tr.innerHTML = `
+      <td class="p-3 border-b text-center">
+        <input type="checkbox" class="bookmark-checkbox rounded" data-id="${config.id}" ${isChecked}>
+      </td>
       <td class="p-3 border-b text-gray-500">${config.id}</td>
       <td class="p-3 border-b">${logoHtml}</td>
       <td class="p-3 border-b font-medium text-gray-900" title="${safeName}">${safeName}</td>
@@ -644,6 +656,8 @@ function renderConfig(configs) {
   });
   bindActionEvents();
   bindSortInputEvents();
+  bindBatchCheckboxEvents();
+  updateBatchActionsBar();
 }
 
 function bindActionEvents() {
@@ -665,7 +679,7 @@ function bindActionEvents() {
 
 // Global Edit/Delete Functions used by admin-bookmarks.js or local bindings
 window.handleEdit = function(id) {
-  const config = allConfigs.find(c => c.id == id);
+  const config = window.allConfigs.find(c => c.id == id);
   if (!config) {
     window.showMessage('找不到书签数据', 'error');
     return;
@@ -719,7 +733,7 @@ window.performDelete = function(id) {
 }
 
 function bindSortInputEvents() {
-  document.querySelectorAll('.sort-input').forEach(input => {
+  document.querySelectorAll('#configTableBody .sort-input').forEach(input => {
     input.addEventListener('change', async function () {
       const id = this.dataset.id;
       const newSortOrder = Number(this.value);
@@ -728,7 +742,7 @@ function bindSortInputEvents() {
         return;
       }
 
-      const config = allConfigs.find(c => c.id == id);
+      const config = window.allConfigs.find(c => c.id == id);
       if (config && config.sort_order === newSortOrder) return;
 
       try {
@@ -748,6 +762,139 @@ function bindSortInputEvents() {
         window.showMessage('保存排序失败: ' + err.message, 'error');
       }
     });
+  });
+}
+
+// ===================================
+// 批量操作功能 (Batch Operations)
+// ===================================
+window.selectedBookmarkIds = new Set();
+
+function updateSelectAllMainState() {
+  const selectAllMain = document.getElementById('selectAllMain');
+  if (!selectAllMain) return;
+
+  const checkboxes = Array.from(document.querySelectorAll('.bookmark-checkbox'));
+  const checkedCount = checkboxes.filter(cb => cb.checked).length;
+
+  selectAllMain.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+  selectAllMain.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+}
+
+function clearBookmarkSelection() {
+  if (window.selectedBookmarkIds) {
+    window.selectedBookmarkIds.clear();
+  }
+  document.querySelectorAll('.bookmark-checkbox').forEach(cb => cb.checked = false);
+  updateSelectAllMainState();
+  updateBatchActionsBar();
+}
+window.clearBookmarkSelection = clearBookmarkSelection;
+
+function pruneBookmarkSelectionToConfigs(configs) {
+  if (!window.selectedBookmarkIds) return;
+
+  const visibleIds = new Set((configs || []).map(config => String(config.id)));
+  window.selectedBookmarkIds.forEach(id => {
+    if (!visibleIds.has(String(id))) {
+      window.selectedBookmarkIds.delete(id);
+    }
+  });
+}
+
+function bindBatchCheckboxEvents() {
+  // 行内复选框
+  document.querySelectorAll('.bookmark-checkbox').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const id = parseInt(e.target.dataset.id);
+      if (e.target.checked) {
+        window.selectedBookmarkIds.add(id);
+      } else {
+        window.selectedBookmarkIds.delete(id);
+      }
+      updateSelectAllMainState();
+      updateBatchActionsBar();
+    });
+  });
+}
+
+function updateBatchActionsBar() {
+  const bar = document.getElementById('batchActionsBar');
+  const countSpan = document.getElementById('batchSelectedCountMain');
+  const count = window.selectedBookmarkIds.size;
+
+  if (countSpan) countSpan.textContent = count;
+  if (bar) {
+    bar.classList.toggle('hidden', count === 0);
+  }
+  updateSelectAllMainState();
+}
+window.updateBatchActionsBar = updateBatchActionsBar;
+
+// 全选/取消全选
+const selectAllMain = document.getElementById('selectAllMain');
+if (selectAllMain) {
+  selectAllMain.addEventListener('change', (e) => {
+    const checked = e.target.checked;
+    document.querySelectorAll('.bookmark-checkbox').forEach(cb => {
+      cb.checked = checked;
+      const id = parseInt(cb.dataset.id);
+      if (checked) {
+        window.selectedBookmarkIds.add(id);
+      } else {
+        window.selectedBookmarkIds.delete(id);
+      }
+    });
+    updateSelectAllMainState();
+    updateBatchActionsBar();
+  });
+}
+
+// 取消选择
+const batchClearSelectionBtn = document.getElementById('batchClearSelectionBtn');
+if (batchClearSelectionBtn) {
+  batchClearSelectionBtn.addEventListener('click', () => {
+    clearBookmarkSelection();
+  });
+}
+
+// 批量删除按钮
+const batchDeleteBtnMain = document.getElementById('batchDeleteBtnMain');
+if (batchDeleteBtnMain) {
+  batchDeleteBtnMain.addEventListener('click', () => {
+    const count = window.selectedBookmarkIds.size;
+    if (count === 0) return;
+    const batchDeleteConfirmModal = document.getElementById('batchDeleteConfirmModal');
+    const batchDeleteConfirmText = document.getElementById('batchDeleteConfirmText');
+    if (batchDeleteConfirmText) {
+      batchDeleteConfirmText.textContent = `确定要删除选中的 ${count} 条书签吗？`;
+    }
+    if (batchDeleteConfirmModal) {
+      window.openAdminModal(batchDeleteConfirmModal);
+    }
+  });
+}
+
+// 批量更改分类按钮
+const batchChangeCategoryBtnMain = document.getElementById('batchChangeCategoryBtnMain');
+if (batchChangeCategoryBtnMain) {
+  batchChangeCategoryBtnMain.addEventListener('click', () => {
+    if (window.selectedBookmarkIds.size === 0) return;
+    if (typeof window.createCascadingDropdown === 'function') {
+      window.createCascadingDropdown('batchTargetCategoryWrapper', 'batchTargetCategory', window.categoriesTree);
+    }
+    const batchCategoryModal = document.getElementById('batchCategoryModal');
+    if (batchCategoryModal) window.openAdminModal(batchCategoryModal);
+  });
+}
+
+// 批量更改隐私按钮
+const batchChangePrivacyBtnMain = document.getElementById('batchChangePrivacyBtnMain');
+if (batchChangePrivacyBtnMain) {
+  batchChangePrivacyBtnMain.addEventListener('click', () => {
+    if (window.selectedBookmarkIds.size === 0) return;
+    const batchPrivacyModal = document.getElementById('batchPrivacyModal');
+    if (batchPrivacyModal) window.openAdminModal(batchPrivacyModal);
   });
 }
 

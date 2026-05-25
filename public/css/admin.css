@@ -244,15 +244,25 @@ th {
 }
 
 /* 设置书签列表的列宽 */
-#configTable th:nth-child(1) { width: 5%; }  /* ID */
-#configTable th:nth-child(2) { width: 6%; }  /* Logo */
-#configTable th:nth-child(3) { width: 14%; } /* Name */
-#configTable th:nth-child(4) { width: 22%; } /* URL */
-#configTable th:nth-child(5) { width: 18%; } /* Description */
-#configTable th:nth-child(6) { width: 10%; } /* Catelog */
-#configTable th:nth-child(7) { width: 8%; }  /* Privacy */
-#configTable th:nth-child(8) { width: 8%; }  /* 排序 */
-#configTable th:nth-child(9) { width: 9%; }  /* Actions */
+#configTable th:nth-child(1) { width: 3%; }   /* 复选框 */
+#configTable th:nth-child(2) { width: 5%; }   /* ID */
+#configTable th:nth-child(3) { width: 6%; }   /* Logo */
+#configTable th:nth-child(4) { width: 12%; }  /* Name */
+#configTable th:nth-child(5) { width: 20%; }  /* URL */
+#configTable th:nth-child(6) { width: 16%; }  /* Description */
+#configTable th:nth-child(7) { width: 10%; }  /* Catelog */
+#configTable th:nth-child(8) { width: 7%; }   /* Privacy */
+#configTable th:nth-child(9) { width: 7%; }   /* 排序 */
+#configTable th:nth-child(10) { width: 9%; }  /* Actions */
+
+/* 设置分类列表的列宽 */
+#categoryTable th:nth-child(1) { width: 8%; }   /* ID */
+#categoryTable th:nth-child(2) { width: 22%; }  /* 名称 */
+#categoryTable th:nth-child(3) { width: 10%; }  /* 书签数 */
+#categoryTable th:nth-child(4) { width: 10%; }  /* 子分类数 */
+#categoryTable th:nth-child(5) { width: 10%; }  /* 隐私 */
+#categoryTable th:nth-child(6) { width: 10%; }  /* 排序 */
+#categoryTable th:nth-child(7) { width: 20%; }  /* 操作 */
 
 /* 设置待审核列表的列宽 */
 #pendingTable th:nth-child(1) { width: 5%; } /* ID */
@@ -1327,20 +1337,6 @@ body.modal-open {
   /* min-height: 300px;  Removed to avoid blank space */
 }
 
-/* 确保批量管理大模态框 (batchModal) 的内容不溢出 */
-#batchModal .modal-content {
-  overflow: hidden !important; /* 恢复 hidden，防止滚动条溢出圆角 */
-  display: flex;
-  flex-direction: column;
-}
-
-/* 恢复表格区域的正常滚动 */
-#batchModal .flex-1.overflow-auto {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  overflow: auto !important;
-}
-
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -1437,6 +1433,19 @@ body.modal-open {
 
 #configTable tbody tr {
   transition: background-color 0.15s ease;
+}
+
+#categoryTable tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+#categoryTable tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+/* 批量操作工具栏 */
+#batchActionsBar {
+  animation: fadeIn 0.2s ease;
 }
 
 

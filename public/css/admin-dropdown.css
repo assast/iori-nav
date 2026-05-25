@@ -53,13 +53,6 @@
   min-width: 250px; /* Ensure a minimum readable width */
 }
 
-/* 批量管理模态框中的下拉菜单需要向上弹出，如果空间不足 */
-/* 这通常需要 JS 判断，但我们可以给它一个更大的 z-index 和 max-height */
-#batchModal .custom-dropdown-menu {
-  z-index: 9999;
-  max-height: 200px;
-}
-
 /* 修复：批量更改分类的小模态框，下拉菜单高度增加 */
 #batchCategoryModal .custom-dropdown-menu {
   max-height: 300px; /* 显示更多内容 */
