@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>书签管理页面</title>
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/admin.css?v=4119f71e" />
+  <link rel="stylesheet" href="/css/admin.css?v=e6b53a41" />
   <link rel="stylesheet" href="/css/admin-dropdown.css?v=f47ba184" />
   <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
 </head>
@@ -1018,8 +1018,8 @@
 
       <div id="categories" class="tab-content">
         <div class="table-wrapper">
-          <div class="category-toolbar mb-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
+          <div class="category-toolbar mb-4 flex justify-between items-center flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <button id="categoryBackBtn"
                 class="hidden text-sm text-gray-600 hover:text-primary-600 flex items-center bg-white border border-gray-300 px-3 py-1 rounded shadow-sm transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
@@ -1033,6 +1033,16 @@
               <p class="category-hint text-gray-500 text-sm ml-2 hidden sm:block">
                 修改排序值可调整顺序
               </p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+              <button id="categoryExpandAllBtn"
+                class="text-sm text-indigo-600 hover:bg-indigo-100 flex items-center bg-indigo-50 border border-gray-100 px-3 py-1 rounded shadow-sm transition-colors">
+                全部展开
+              </button>
+              <button id="categoryCollapseAllBtn"
+                class="text-sm text-gray-600 hover:bg-gray-50 flex items-center bg-white border border-gray-300 px-3 py-1 rounded shadow-sm transition-colors">
+                全部折叠
+              </button>
             </div>
           </div>
           <table id="categoryTable">
@@ -1117,7 +1127,7 @@
 
   <script src="/js/admin-cache.js?v=ae06819c"></script>
   <script src="/js/admin.js?v=cf714c83"></script>
-  <script src="/js/admin-categories.js?v=c6a4798a"></script>
+  <script src="/js/admin-categories.js?v=f6ac8996"></script>
   <script src="/js/admin-bookmarks.js?v=2c52bc54"></script>
   <script src="/js/admin-batch.js?v=3f24c650"></script>
   <script src="/js/admin-settings.js?v=df9e628b"></script>

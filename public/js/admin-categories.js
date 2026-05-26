@@ -11,6 +11,8 @@ const categoryCurrentPageSpan = document.getElementById('categoryCurrentPage');
 const categoryTotalPagesSpan = document.getElementById('categoryTotalPages');
 const categoryPageSizeSelect = document.getElementById('categoryPageSizeSelect');
 const addCategoryBtn = document.getElementById('addCategoryBtn');
+const categoryExpandAllBtn = document.getElementById('categoryExpandAllBtn');
+const categoryCollapseAllBtn = document.getElementById('categoryCollapseAllBtn');
 
 // State
 let categoryCurrentPage = 1;
@@ -52,6 +54,18 @@ function initCategoryEvents() {
                 categoryCurrentPage++;
                 fetchCategories(categoryCurrentPage);
             }
+        });
+    }
+
+    if (categoryExpandAllBtn) {
+        categoryExpandAllBtn.addEventListener('click', () => {
+            expandAllCategories();
+        });
+    }
+
+    if (categoryCollapseAllBtn) {
+        categoryCollapseAllBtn.addEventListener('click', () => {
+            collapseAllCategories();
         });
     }
 
@@ -115,6 +129,26 @@ window.fetchCategories = function(page = categoryCurrentPage) {
 function updateCategoryPaginationButtons() {
     if (categoryPrevPageBtn) categoryPrevPageBtn.disabled = categoryCurrentPage <= 1;
     if (categoryNextPageBtn) categoryNextPageBtn.disabled = categoryCurrentPage >= Math.ceil(categoryTotalItems / categoryPageSize);
+}
+
+function collectExpandableCategoryIds(categories, ids = []) {
+    categories.forEach(item => {
+        if (item.children && item.children.length > 0) {
+            ids.push(String(item.id));
+            collectExpandableCategoryIds(item.children, ids);
+        }
+    });
+    return ids;
+}
+
+function expandAllCategories() {
+    expandedCategoryIds = new Set(collectExpandableCategoryIds(window.categoriesTree || []));
+    renderCategoryView(null);
+}
+
+function collapseAllCategories() {
+    expandedCategoryIds.clear();
+    renderCategoryView(null);
 }
 
 function renderCategoryView(parentId) {
