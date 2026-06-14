@@ -49,6 +49,7 @@ const SETTINGS_SCHEMA = {
     card_desc_font: { default: '', type: 'string' },
     card_desc_size: { default: '', type: 'string' },
     card_desc_color: { default: '', type: 'string' },
+    sort_by_clicks: { default: false, type: 'bool' },
 };
 
 /**

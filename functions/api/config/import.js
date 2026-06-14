@@ -176,13 +176,17 @@ export async function onRequestPost(context) {
     // --- Site Processing ---
     const siteUrls = sitesToImport.map(item => (item.url || '').trim()).filter(url => url);
     const existingSiteUrls = new Set();
+    const existingSiteClicks = new Map();
     if (siteUrls.length > 0) {
         for (let i = 0; i < siteUrls.length; i += BATCH_SIZE) {
             const chunk = siteUrls.slice(i, i + BATCH_SIZE);
             const placeholders = chunk.map(() => '?').join(',');
-            const { results: existingSites } = await db.prepare(`SELECT url FROM sites WHERE url IN (${placeholders})`).bind(...chunk).all();
+            const { results: existingSites } = await db.prepare(`SELECT url, clicks FROM sites WHERE url IN (${placeholders})`).bind(...chunk).all();
             if (existingSites) {
-                existingSites.forEach(site => existingSiteUrls.add(site.url));
+                existingSites.forEach(site => {
+                    existingSiteUrls.add(site.url);
+                    existingSiteClicks.set(site.url, Math.max(0, parseInt(site.clicks, 10) || 0));
+                });
             }
         }
     }
@@ -247,7 +251,11 @@ export async function onRequestPost(context) {
 
         const sanitizedDesc = (site.desc || '').trim() || null;
         const sortOrderValue = normalizeSortOrder(site.sort_order);
-        
+        const hasClicks = site.clicks !== undefined && site.clicks !== null;
+        const clicksValue = hasClicks
+            ? Math.max(0, parseInt(site.clicks, 10) || 0)
+            : (exists ? existingSiteClicks.get(sanitizedUrl) || 0 : 0);
+
         // Handle Privacy Logic
         let finalIsPrivate = site.is_private ? 1 : 0;
         // Force private if category is private
@@ -258,15 +266,15 @@ export async function onRequestPost(context) {
         if (exists && override) {
             // Update
             batchStmts.push(
-                db.prepare('UPDATE sites SET name=?, logo=?, desc=?, catelog_id=?, catelog_name=?, sort_order=?, is_private=?, update_time=CURRENT_TIMESTAMP WHERE url=?')
-                  .bind(sanitizedName, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate, sanitizedUrl)
+                db.prepare('UPDATE sites SET name=?, logo=?, desc=?, catelog_id=?, catelog_name=?, sort_order=?, is_private=?, clicks=?, update_time=CURRENT_TIMESTAMP WHERE url=?')
+                  .bind(sanitizedName, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate, clicksValue, sanitizedUrl)
             );
             itemsUpdated++;
         } else {
             // Insert
             batchStmts.push(
-                db.prepare('INSERT INTO sites (name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-                  .bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate)
+                db.prepare('INSERT INTO sites (name, url, logo, desc, catelog_id, catelog_name, sort_order, is_private, clicks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+                  .bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, newCatId, catNameForDb, sortOrderValue, finalIsPrivate, clicksValue)
             );
             itemsAdded++;
         }

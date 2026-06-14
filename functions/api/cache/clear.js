@@ -10,9 +10,24 @@ export async function onRequestPost(context) {
   try {
     await clearHomeCache(env, 'all');
     await clearHomeCacheDirty(env, 'all');
+
+    // 从 DB 读取所有站点的 clicks 映射，供前端全量覆盖 localStorage
+    let clicksMap = {};
+    try {
+      const { results } = await env.NAV_DB.prepare('SELECT id, clicks FROM sites').all();
+      if (results && results.length > 0) {
+        for (const row of results) {
+          clicksMap[String(row.id)] = row.clicks || 0;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to read clicks map:', e);
+    }
+
     const response = jsonResponse({
       code: 200,
-      message: '首页缓存已清除'
+      message: '首页缓存已清除',
+      clicksMap
     });
     // Clear stale cookie to prevent auto-refresh loop if any
     response.headers.append('Set-Cookie', 'iori_cache_stale=; Path=/; Max-Age=0; SameSite=Lax');

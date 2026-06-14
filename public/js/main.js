@@ -88,6 +88,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 2000);
   }
 
+  // ========== 点击量追踪 ==========
+  // 点击站点卡片时在 localStorage 累加，不触发网络写入，不立即重排
+  sitesGrid?.addEventListener('click', function (e) {
+    const link = e.target.closest('.site-card a[target="_blank"]');
+    if (!link) return;
+    const card = link.closest('.site-card');
+    const siteId = card?.getAttribute('data-id');
+    if (siteId && window.IORI_CLICKS) {
+      window.IORI_CLICKS.increment(siteId);
+    }
+  });
+
   // ========== 返回顶部 ==========
   const backToTop = document.getElementById('backToTop');
   const appScroll = document.getElementById('app-scroll');
@@ -684,21 +696,43 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function getSitesForCategory(catalogId) {
-    const allSites = window.IORI_SITES || [];
-    if (!catalogId) return allSites;
+    const rawSites = window.IORI_SITES || [];
+    const config = window.IORI_LAYOUT_CONFIG || {};
+    // 合并本地与 DB 的 clicks 值
+    const allSites = window.IORI_CLICKS ? window.IORI_CLICKS.merge(rawSites) : rawSites;
+
+    if (!catalogId) {
+      // 全部视图：若按点击量排序则全局降序
+      if (config.sortByClicks) {
+        return [...allSites].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+      }
+      return allSites;
+    }
 
     const categoryDescendantIds = window.IORI_CATEGORY_DESCENDANT_IDS || {};
     const descendantIds = categoryDescendantIds[String(catalogId)] || [String(catalogId)];
     const descendantIdSet = new Set(descendantIds.map(id => String(id)));
-    const categoryRank = new Map(descendantIds.map((id, index) => [String(id), index]));
 
-    return allSites
-      .filter(site => descendantIdSet.has(String(site.catelog_id)))
-      .sort((a, b) => {
+    const filtered = allSites.filter(site => descendantIdSet.has(String(site.catelog_id)));
+
+    if (config.sortByClicks) {
+      // 分类视图保持分类树分组顺序，分类内部按点击量降序
+      const categoryRank = new Map(descendantIds.map((id, index) => [String(id), index]));
+      return filtered.sort((a, b) => {
         const rankA = categoryRank.get(String(a.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
         const rankB = categoryRank.get(String(b.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
-        return rankA - rankB;
+        if (rankA !== rankB) return rankA - rankB;
+        return (b.clicks || 0) - (a.clicks || 0);
       });
+    }
+
+    // 默认：按分类树顺序排列
+    const categoryRank = new Map(descendantIds.map((id, index) => [String(id), index]));
+    return filtered.sort((a, b) => {
+      const rankA = categoryRank.get(String(a.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+      const rankB = categoryRank.get(String(b.catelog_id)) ?? Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    });
   }
 
   function getCategoryGroupLabel(catelogId) {
@@ -958,7 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Auto-restore Last Category
-  (function () {
+  const didRestoreLastCategory = (function () {
     const config = window.IORI_LAYOUT_CONFIG || {};
     const urlParams = new URLSearchParams(window.location.search);
     const hasCatalogParam = urlParams.has('catalog');
@@ -975,19 +1009,18 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (lastId) {
-        // 若与 SSR 当前渲染的分类一致，无需重绘（避免进入首屏一闪的客户端重建）
-        // 同时跳过 updateHeading / updateNavigationState — SSR 已按该分类产出正确状态
+        // 若与 SSR 当前渲染的分类一致，无需恢复分类；点击排序的本地增量会在后续初始化重排中处理
         if (String(lastId) === String(config.ssrCatalogId)) {
-          return;
+          return false;
         }
 
         if (lastId === 'all') {
           // Explicitly restore "All Categories" state
-          const allSites = window.IORI_SITES || [];
+          const allSites = getSitesForCategory(null);
           renderSites(allSites);
           updateNavigationState(null);
           syncSearchState(null);
-          return;
+          return true;
         }
 
         // Try to find the category link in DOM to get correct Name and Href
@@ -1006,11 +1039,22 @@ document.addEventListener('DOMContentLoaded', function () {
           renderSites(filteredSites, lastId);
           updateNavigationState(lastId);
           syncSearchState(catalogName);
+          return true;
         } else {
           localStorage.removeItem('iori_last_category');
         }
       }
     }
+    return false;
+  })();
+
+  // 首屏 SSR 只包含 DB clicks；开启点击排序时用本地未同步增量重排一次
+  (function rerenderInitialClicksSort() {
+    const config = window.IORI_LAYOUT_CONFIG || {};
+    if (!config.sortByClicks || didRestoreLastCategory || !window.IORI_CLICKS) return;
+
+    const ssrCatalogId = config.ssrCatalogId && config.ssrCatalogId !== 'all' ? config.ssrCatalogId : null;
+    renderSites(getSitesForCategory(ssrCatalogId), ssrCatalogId);
   })();
 
   requestAnimationFrame(() => {

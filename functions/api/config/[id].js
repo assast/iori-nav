@@ -38,7 +38,7 @@ export async function onRequestPut(context) {
     }
 
     const config = await request.json();
-    const { name, url, logo, desc, catelog_id, sort_order, is_private } = config;
+    const { name, url, logo, desc, catelog_id, sort_order, is_private, clicks } = config;
 
     // Support partial updates: use existing values when field is not provided
     const sanitizedName = name !== undefined ? String(name).trim() : existing.name;
@@ -47,6 +47,7 @@ export async function onRequestPut(context) {
     const sanitizedDesc = desc !== undefined ? (String(desc).trim() || null) : existing.desc;
     const sortOrderValue = sort_order !== undefined ? normalizeSortOrder(sort_order) : existing.sort_order;
     const isPrivateValue = is_private !== undefined ? (is_private ? 1 : 0) : existing.is_private;
+    const clicksValue = clicks !== undefined ? Math.max(0, parseInt(clicks, 10) || 0) : (existing.clicks || 0);
     const finalCatelogId = catelog_id !== undefined ? catelog_id : existing.catelog_id;
 
     if (!sanitizedName || !sanitizedUrl || !finalCatelogId) {
@@ -69,9 +70,9 @@ export async function onRequestPut(context) {
 
     const update = await env.NAV_DB.prepare(`
       UPDATE sites
-      SET name = ?, url = ?, logo = ?, desc = ?, catelog_id = ?, catelog_name = ?, sort_order = ?, is_private = ?, update_time = CURRENT_TIMESTAMP
+      SET name = ?, url = ?, logo = ?, desc = ?, catelog_id = ?, catelog_name = ?, sort_order = ?, is_private = ?, clicks = ?, update_time = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, finalCatelogId, catelogName, sortOrderValue, finalIsPrivate, id).run();
+    `).bind(sanitizedName, sanitizedUrl, sanitizedLogo, sanitizedDesc, finalCatelogId, catelogName, sortOrderValue, finalIsPrivate, clicksValue, id).run();
 
     const dirtyScope = (existing.is_private === 1 && finalIsPrivate === 1) ? 'private' : 'all';
     await markHomeCacheDirty(env, dirtyScope);

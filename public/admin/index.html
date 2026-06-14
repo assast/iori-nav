@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>书签管理页面</title>
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/admin.css?v=e6b53a41" />
-  <link rel="stylesheet" href="/css/admin-dropdown.css?v=f47ba184" />
+  <link rel="stylesheet" href="/css/admin.css?v=7f99d6cc" />
+  <link rel="stylesheet" href="/css/admin-dropdown.css?v=d98a0d19" />
   <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
 </head>
 
@@ -21,6 +21,14 @@
         </p>
       </div>
       <div class="header-actions">
+        <button id="syncClicksBtn" class="refresh-btn" title="将本设备的本地点击量同步到数据库">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          同步点击量
+        </button>
         <button id="refreshCacheBtn" class="refresh-btn" title="手动刷新首页缓存">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
             stroke="currentColor">
@@ -119,7 +127,8 @@
         <h2>刷新缓存</h2>
         <div class="p-4">
           <p class="text-gray-700 font-medium text-base mb-2">确定要手动刷新首页缓存吗？</p>
-          <p class="text-gray-500 text-sm">通常情况下，数据更新会自动刷新缓存，无需手动操作。</p>
+          <p id="refreshCacheUnsyncedWarning" class="hidden text-orange-600 text-sm mb-2">检测到本设备存在未同步点击增量，刷新缓存会丢弃这些增量。建议先点击“同步点击量”。</p>
+          <p class="text-gray-500 text-sm">通常情况下，数据更新会自动刷新缓存，无需手动操作。刷新后会将数据库中的点击量拉取到本设备，并清空本地未同步增量。</p>
         </div>
         <div class="flex justify-end gap-3 mt-4">
           <button id="cancelRefreshCacheBtn"
@@ -127,6 +136,24 @@
           <button id="confirmRefreshCacheBtn"
             class="w-24 h-10 flex items-center justify-center bg-orange-600 text-white rounded hover:bg-orange-700 text-sm font-medium shadow-sm transition-colors"
             style="background-color: #ea580c; color: white;">确认刷新</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 同步点击量确认模态框 -->
+    <div id="syncClicksModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="modal-close" id="closeSyncClicksModal">×</span>
+        <h2>同步点击量</h2>
+        <div class="p-4">
+          <p class="text-gray-700 font-medium text-base mb-2">确定要将本设备的点击量同步到数据库吗？</p>
+          <p class="text-gray-500 text-sm">同步后会将本设备尚未同步的点击增量累加到数据库；同步成功后本地增量会自动清空。</p>
+        </div>
+        <div class="flex justify-end gap-3 mt-4">
+          <button id="cancelSyncClicksBtn"
+            class="w-24 h-10 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
+          <button id="confirmSyncClicksBtn"
+            class="w-24 h-10 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">确认同步</button>
         </div>
       </div>
     </div>
@@ -337,6 +364,10 @@
             <label for="editBookmarkSortOrder">排序值(可选):</label>
             <input type="number" name="sort_order" id="editBookmarkSortOrder" placeholder="9999" />
           </div>
+          <div class="form-group">
+            <label for="editBookmarkClicks">点击量:</label>
+            <input type="number" name="clicks" id="editBookmarkClicks" placeholder="0" min="0" />
+          </div>
           <div class="form-group flex items-center justify-between">
             <label for="editBookmarkIsPrivate"
               class="cursor-pointer select-none text-gray-700 font-medium">私密书签:</label>
@@ -420,6 +451,16 @@
                   class="cursor-pointer select-none text-gray-700 font-medium text-sm">记住上次选择分类</label>
                 <label class="switch scale-75 origin-right">
                   <input type="checkbox" id="homeRememberLastCategorySwitch">
+                  <span class="slider round"></span>
+                </label>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <label for="sortByClicksSwitch"
+                  class="cursor-pointer select-none text-gray-700 font-medium text-sm">按点击量排序
+                  <span class="text-xs text-gray-400 ml-1">(开启后覆盖手动排序)</span>
+                </label>
+                <label class="switch scale-75 origin-right">
+                  <input type="checkbox" id="sortByClicksSwitch">
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -962,6 +1003,7 @@
                 <th>分类</th>
                 <th>隐私</th>
                 <th>排序</th>
+                <th>点击</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -1125,13 +1167,14 @@
     </div>
   </div>
 
-  <script src="/js/admin-cache.js?v=ae06819c"></script>
-  <script src="/js/admin.js?v=cf714c83"></script>
+  <script src="/js/clicks-storage.js?v=fbd8fc30"></script>
+  <script src="/js/admin-cache.js?v=544d8ee9"></script>
+  <script src="/js/admin.js?v=70151d6d"></script>
   <script src="/js/admin-categories.js?v=f6ac8996"></script>
-  <script src="/js/admin-bookmarks.js?v=2c52bc54"></script>
-  <script src="/js/admin-batch.js?v=3f24c650"></script>
-  <script src="/js/admin-settings.js?v=df9e628b"></script>
-  <script src="/js/admin-import-export.js?v=210ca688"></script>
+  <script src="/js/admin-bookmarks.js?v=050f96b1"></script>
+  <script src="/js/admin-batch.js?v=34ab1dee"></script>
+  <script src="/js/admin-settings.js?v=28aa747e"></script>
+  <script src="/js/admin-import-export.js?v=43a1de60"></script>
 </body>
 
 </html>

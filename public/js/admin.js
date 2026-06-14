@@ -419,7 +419,7 @@ window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeywor
   // 显示加载状态
   if (configTableBody) {
       configTableBody.innerHTML = `
-        <tr><td colspan="10" class="text-center py-20">
+        <tr><td colspan="11" class="text-center py-20">
             <div class="flex flex-col items-center justify-center">
                 <div class="w-10 h-10 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mb-4"></div>
                 <p class="text-gray-500 text-sm">正在加载书签数据...</p>
@@ -457,11 +457,11 @@ window.fetchConfigs = function(page = currentPage, keyword = currentSearchKeywor
       } else {
         window.showMessage(data.message, 'error');
         // 错误时清空或显示错误信息
-        if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="10" class="text-center text-red-500 py-10">${data.message}</td></tr>`;
+        if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="11" class="text-center text-red-500 py-10">${data.message}</td></tr>`;
       }
     }).catch(err => {
       window.showMessage('网络错误', 'error');
-      if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="10" class="text-center text-red-500 py-10">网络错误: ${err.message}</td></tr>`;
+      if (configTableBody) configTableBody.innerHTML = `<tr><td colspan="11" class="text-center text-red-500 py-10">网络错误: ${err.message}</td></tr>`;
     })
 }
 
@@ -597,7 +597,7 @@ function renderConfig(configs) {
   if (!configTableBody) return;
   configTableBody.innerHTML = '';
   if (configs.length === 0) {
-    configTableBody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-500 py-10">没有配置数据</td></tr>';
+    configTableBody.innerHTML = '<tr><td colspan="11" class="text-center text-gray-500 py-10">没有配置数据</td></tr>';
     updateSelectAllMainState();
     updateBatchActionsBar();
     return;
@@ -645,6 +645,7 @@ function renderConfig(configs) {
       <td class="p-3 border-b">
         <input type="number" class="sort-input" value="${sortOrder}" data-id="${config.id}" min="0" step="1" title="修改后按回车保存">
       </td>
+      <td class="p-3 border-b text-gray-600 text-center">${config.clicks || 0}</td>
       <td class="p-3 border-b">
         <div class="flex gap-2 flex-wrap">
           <button class="edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-id="${config.id}">编辑</button>
@@ -692,6 +693,8 @@ window.handleEdit = function(id) {
   document.getElementById('editBookmarkDesc').value = config.desc;
   document.getElementById('editBookmarkSortOrder').value = config.sort_order;
   document.getElementById('editBookmarkIsPrivate').checked = !!config.is_private;
+  const clicksInput = document.getElementById('editBookmarkClicks');
+  if (clicksInput) clicksInput.value = config.clicks || 0;
   
   // Create dropdown using window.categoriesTree
   window.createCascadingDropdown('editBookmarkCatelogWrapper', 'editBookmarkCatelog', window.categoriesTree, config.catelog_id);

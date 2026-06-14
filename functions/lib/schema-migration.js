@@ -50,6 +50,9 @@ async function runIncrementalMigrations(env) {
   if (!categoryCols.has('parent_id')) {
     alterStatements.push(env.NAV_DB.prepare('ALTER TABLE category ADD COLUMN parent_id INTEGER DEFAULT 0'));
   }
+  if (!sitesCols.has('clicks')) {
+    alterStatements.push(env.NAV_DB.prepare('ALTER TABLE sites ADD COLUMN clicks INTEGER DEFAULT 0'));
+  }
 
   for (const statement of alterStatements) {
     try {

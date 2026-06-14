@@ -87,6 +87,7 @@ const initSettings = () => {
   const homeSiteDescriptionInput = document.getElementById('homeSiteDescription');
 
   const searchEngineSwitch = document.getElementById('searchEngineSwitch');
+  const sortByClicksSwitch = document.getElementById('sortByClicksSwitch');
 
   // Font Options
   const FONT_OPTIONS = [
@@ -351,7 +352,8 @@ const initSettings = () => {
     wallpaper_source: 'bing',
     wallpaper_cid_360: '36',
     layout_card_style: 'style1',
-    layout_card_border_radius: '12'
+    layout_card_border_radius: '12',
+    sort_by_clicks: false
   };
 
   let shouldStopBulkGeneration = false;
@@ -788,6 +790,10 @@ const initSettings = () => {
 
     currentSettings.home_search_engine_enabled = searchEngineSwitch.checked;
 
+    if (sortByClicksSwitch) {
+      currentSettings.sort_by_clicks = sortByClicksSwitch.checked;
+    }
+
     currentSettings.layout_custom_wallpaper = customWallpaperInput.value.trim();
 
     currentSettings.layout_enable_bg_blur = bgBlurSwitch.checked;
@@ -962,6 +968,8 @@ const initSettings = () => {
         if (serverSettings.home_default_category) currentSettings.home_default_category = serverSettings.home_default_category;
         if (serverSettings.home_remember_last_category !== undefined) currentSettings.home_remember_last_category = serverSettings.home_remember_last_category === 'true';
 
+        if (serverSettings.sort_by_clicks !== undefined) currentSettings.sort_by_clicks = serverSettings.sort_by_clicks === 'true';
+
         if (serverSettings.layout_enable_frosted_glass !== undefined) currentSettings.layout_enable_frosted_glass = serverSettings.layout_enable_frosted_glass === 'true';
         if (serverSettings.layout_frosted_glass_intensity) currentSettings.layout_frosted_glass_intensity = serverSettings.layout_frosted_glass_intensity;
         if (serverSettings.layout_grid_cols) currentSettings.layout_grid_cols = serverSettings.layout_grid_cols;
@@ -1121,6 +1129,8 @@ const initSettings = () => {
     if (homeRememberLastCategorySwitch) homeRememberLastCategorySwitch.checked = !!currentSettings.home_remember_last_category;
 
     if (searchEngineSwitch) searchEngineSwitch.checked = !!currentSettings.home_search_engine_enabled;
+
+    if (sortByClicksSwitch) sortByClicksSwitch.checked = !!currentSettings.sort_by_clicks;
 
     if (frostedGlassSwitch) frostedGlassSwitch.checked = !!currentSettings.layout_enable_frosted_glass;
     if (frostedGlassIntensityRange) frostedGlassIntensityRange.value = currentSettings.layout_frosted_glass_intensity || '15';

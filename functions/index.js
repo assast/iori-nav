@@ -106,7 +106,7 @@ export async function onRequest(context) {
   const settingsKeys = getSettingsKeys();
   const settingsPlaceholders = settingsKeys.map(() => '?').join(',');
   // sort_order 仅用于 ORDER BY，不参与 SELECT（SQLite 允许）；前端不使用该字段
-  const sitesQuery = `SELECT id, name, url, logo, desc, catelog_id, catelog_name
+  const sitesQuery = `SELECT id, name, url, logo, desc, catelog_id, catelog_name, clicks
                       FROM sites WHERE (is_private = 0 OR ? = 1) ORDER BY sort_order ASC, create_time DESC`;
 
   // Settings 缓存：优先从 KV 读取，减少数据库查询
@@ -224,9 +224,16 @@ export async function onRequest(context) {
     });
   };
 
-  const orderedSites = catalogExists
-    ? sortSitesByCategoryTree(sites, categoryIdMap.get(requestedCatalogName))
-    : sites;
+  const orderedSites = (() => {
+    const base = catalogExists
+      ? sortSitesByCategoryTree(sites, categoryIdMap.get(requestedCatalogName))
+      : sites;
+    // SSR 预排：按 clicks 降序以减少前端重排抖动（前端会用合并值再排一次）
+    if (S.sort_by_clicks) {
+      return [...base].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    }
+    return base;
+  })();
 
   const groupSitesByCategory = (siteList, activeCategoryId) => {
     if (!activeCategoryId) return [{ id: '', label: '', isRootGroup: false, sites: siteList }];
@@ -526,6 +533,7 @@ export async function onRequest(context) {
     cardStyle: S.layout_card_style,
     enableFrostedGlass: S.layout_enable_frosted_glass,
     rememberLastCategory: S.home_remember_last_category,
+    sortByClicks: S.sort_by_clicks,
     // 当前 SSR 已渲染的分类（用于前端 Auto-restore 判断是否可跳过重绘）
     ssrCatalogId: catalogExists ? categoryIdMap.get(requestedCatalogName) : 'all',
   }).replace(/</g, '\\u003c');
