@@ -454,6 +454,278 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
   color: #f3f4f6;
 }
 
+/* 分类批量打开确认 */
+.category-open-confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.56);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+}
+
+.category-open-confirm-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.category-open-confirm-dialog {
+  width: min(100%, 28rem);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  border: 1px solid #d8e1eb;
+  border-radius: 0.5rem;
+  background: #fbfdff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
+  padding: 1.25rem;
+  color: #1f2937;
+  transform: translateY(0.75rem);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.category-open-confirm-modal.is-open .category-open-confirm-dialog {
+  transform: translateY(0);
+}
+
+.category-open-confirm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.category-open-confirm-header h2 {
+  color: #17263a;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.category-open-confirm-header p {
+  margin-top: 0.2rem;
+  color: #5f6f82;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.category-open-confirm-close {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  color: #64748b;
+  transition: color 0.16s ease, background-color 0.16s ease;
+}
+
+.category-open-confirm-close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.category-open-confirm-close:hover {
+  background: #edf2f7;
+  color: #27364a;
+}
+
+.category-open-confirm-summary {
+  margin-top: 1rem;
+  color: #334155;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.category-open-scope-fields {
+  margin-top: 1rem;
+}
+
+.category-open-scope-fields legend {
+  margin-bottom: 0.45rem;
+  color: #5f6f82;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.category-open-scope-option {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 3.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d8e1eb;
+  border-radius: 0.375rem;
+  background: #f7fafc;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.category-open-scope-option + .category-open-scope-option {
+  margin-top: 0.5rem;
+}
+
+.category-open-scope-option:hover {
+  border-color: #9fb5cb;
+  background: #f0f5f9;
+}
+
+.category-open-scope-option:has(input:checked) {
+  border-color: #527da8;
+  background: #edf4fa;
+}
+
+.category-open-scope-option input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #416d9d;
+}
+
+.category-open-scope-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.category-open-scope-copy strong {
+  color: #26384b;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.category-open-scope-copy small {
+  margin-top: 0.1rem;
+  color: #6b7b8d;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.category-open-scope-count {
+  color: #416d9d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.category-open-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.category-open-cancel-btn,
+.category-open-submit-btn {
+  min-height: 2.35rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.375rem;
+  font-size: 0.84rem;
+  font-weight: 650;
+  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.category-open-cancel-btn {
+  border: 1px solid #cbd5e1;
+  background: #fbfdff;
+  color: #475569;
+}
+
+.category-open-cancel-btn:hover {
+  background: #f1f5f9;
+  color: #1f2937;
+}
+
+.category-open-submit-btn {
+  border: 1px solid #315f8f;
+  background: #315f8f;
+  color: #f8fbff;
+}
+
+.category-open-submit-btn:hover {
+  border-color: #244f7d;
+  background: #244f7d;
+}
+
+.category-open-submit-btn:disabled {
+  border-color: #b8c4d1;
+  background: #b8c4d1;
+  cursor: not-allowed;
+}
+
+.category-open-confirm-dialog :focus-visible {
+  outline: 2px solid #416d9d;
+  outline-offset: 2px;
+}
+
+.dark .category-open-confirm-dialog {
+  border-color: #44566c;
+  background: #1f2937;
+  color: #e5e7eb;
+}
+
+.dark .category-open-confirm-header h2,
+.dark .category-open-scope-copy strong {
+  color: #f1f5f9;
+}
+
+.dark .category-open-confirm-header p,
+.dark .category-open-scope-fields legend,
+.dark .category-open-scope-copy small {
+  color: #a8b4c3;
+}
+
+.dark .category-open-confirm-close {
+  color: #a8b4c3;
+}
+
+.dark .category-open-confirm-close:hover,
+.dark .category-open-cancel-btn:hover {
+  background: #374151;
+  color: #f1f5f9;
+}
+
+.dark .category-open-confirm-summary {
+  color: #d5dde7;
+}
+
+.dark .category-open-scope-option {
+  border-color: #44566c;
+  background: #273548;
+}
+
+.dark .category-open-scope-option:hover {
+  border-color: #6f8daa;
+  background: #2d4054;
+}
+
+.dark .category-open-scope-option:has(input:checked) {
+  border-color: #7ca0c4;
+  background: #30475f;
+}
+
+.dark .category-open-scope-count {
+  color: #afd0ef;
+}
+
+.dark .category-open-cancel-btn {
+  border-color: #526176;
+  background: #1f2937;
+  color: #d5dde7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-open-confirm-modal,
+  .category-open-confirm-dialog {
+    transition: none;
+  }
+}
+
 @media (max-width: 440px) {
   .category-group-action {
     min-height: 1.8rem;

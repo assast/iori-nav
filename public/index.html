@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=c81d9179">
+  <link rel="stylesheet" href="/css/style.css?v=0c550619">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
@@ -175,6 +175,52 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11l7-7 7 7M5 19l7-7 7 7" />
     </svg>
   </button>
+
+  <!-- 分类批量打开确认 -->
+  <div id="categoryOpenConfirmModal" class="category-open-confirm-modal" aria-hidden="true">
+    <div class="category-open-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="categoryOpenConfirmTitle" aria-describedby="categoryOpenConfirmSummary" tabindex="-1">
+      <div class="category-open-confirm-header">
+        <div class="min-w-0">
+          <h2 id="categoryOpenConfirmTitle">确认一键打开</h2>
+          <p id="categoryOpenConfirmTarget"></p>
+        </div>
+        <button id="closeCategoryOpenConfirm" type="button" class="category-open-confirm-close" aria-label="关闭确认框">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+
+      <form id="categoryOpenConfirmForm">
+        <p id="categoryOpenConfirmSummary" class="category-open-confirm-summary"></p>
+
+        <fieldset id="categoryOpenScopeFields" class="category-open-scope-fields" hidden>
+          <legend>打开范围</legend>
+          <label class="category-open-scope-option">
+            <input id="categoryOpenScopeCurrent" type="radio" name="categoryOpenScope" value="current" checked>
+            <span class="category-open-scope-copy">
+              <strong>仅当前分类</strong>
+              <small>只打开当前分类自己的书签</small>
+            </span>
+            <span id="categoryOpenCurrentCount" class="category-open-scope-count"></span>
+          </label>
+          <label class="category-open-scope-option">
+            <input id="categoryOpenScopeDescendants" type="radio" name="categoryOpenScope" value="descendants">
+            <span class="category-open-scope-copy">
+              <strong>包含子分类</strong>
+              <small>同时打开所有下级分类的书签</small>
+            </span>
+            <span id="categoryOpenDescendantCount" class="category-open-scope-count"></span>
+          </label>
+        </fieldset>
+
+        <div class="category-open-confirm-actions">
+          <button id="cancelCategoryOpenConfirm" type="button" class="category-open-cancel-btn">取消</button>
+          <button id="confirmCategoryOpen" type="submit" class="category-open-submit-btn">确认打开</button>
+        </div>
+      </form>
+    </div>
+  </div>
   
   <!-- 添加网站模态框 -->
   <div id="addSiteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 opacity-0 invisible transition-all duration-300">
@@ -231,6 +277,6 @@
   </div>
   
   <script src="/js/clicks-storage.js?v=fbd8fc30"></script>
-  <script src="/js/main.js?v=7e61cb0a"></script>
+  <script src="/js/main.js?v=c910adaf"></script>
 </body>
 </html>

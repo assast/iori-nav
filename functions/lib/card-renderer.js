@@ -15,11 +15,11 @@ export function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
           <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">${subtitle}</span>
         </div>
         <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
-          <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="一键打开${safeLabel}下的全部书签" aria-label="一键打开${safeLabel}下的全部书签">
+          <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
             <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
             <span class="category-action-label">一键打开</span>
           </button>
-          <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="新窗口打开${safeLabel}下的全部书签" aria-label="新窗口打开${safeLabel}下的全部书签">
+          <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在新窗口打开${safeLabel}的书签" aria-label="选择范围后在新窗口打开${safeLabel}的书签">
             <svg aria-hidden="true"><use href="#icon-window"/></svg>
             <span class="category-action-label">新窗口打开</span>
           </button>

@@ -248,6 +248,24 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ========== 分类批量打开 ==========
+  const categoryOpenConfirmModal = document.getElementById('categoryOpenConfirmModal');
+  const categoryOpenConfirmDialog = categoryOpenConfirmModal?.querySelector('.category-open-confirm-dialog');
+  const categoryOpenConfirmForm = document.getElementById('categoryOpenConfirmForm');
+  const categoryOpenConfirmTitle = document.getElementById('categoryOpenConfirmTitle');
+  const categoryOpenConfirmTarget = document.getElementById('categoryOpenConfirmTarget');
+  const categoryOpenConfirmSummary = document.getElementById('categoryOpenConfirmSummary');
+  const categoryOpenScopeFields = document.getElementById('categoryOpenScopeFields');
+  const categoryOpenScopeCurrent = document.getElementById('categoryOpenScopeCurrent');
+  const categoryOpenScopeDescendants = document.getElementById('categoryOpenScopeDescendants');
+  const categoryOpenCurrentCount = document.getElementById('categoryOpenCurrentCount');
+  const categoryOpenDescendantCount = document.getElementById('categoryOpenDescendantCount');
+  const confirmCategoryOpen = document.getElementById('confirmCategoryOpen');
+  const closeCategoryOpenConfirmButton = document.getElementById('closeCategoryOpenConfirm');
+  const cancelCategoryOpenConfirmButton = document.getElementById('cancelCategoryOpenConfirm');
+  let pendingCategoryOpen = null;
+  let categoryOpenLastFocus = null;
+  let categoryOpenPreviousScrollOverflow = '';
+
   sitesGrid?.addEventListener('click', function (e) {
     const button = e.target.closest('.category-group-action');
     if (!button) return;
@@ -257,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const categoryId = button.getAttribute('data-category-id');
     const openInNewWindow = button.classList.contains('category-new-window-btn');
-    openCategorySites(categoryId, openInNewWindow);
+    requestCategoryOpen(categoryId, openInNewWindow);
   });
 
   function getSafeSiteUrl(site) {
@@ -272,12 +290,131 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function openCategorySites(categoryId, openInNewWindow) {
-    if (!categoryId) return;
-
-    const sites = getSitesForCategory(categoryId)
+  function getOpenableCategorySites(categoryId, includeDescendants) {
+    return getSitesForCategory(categoryId, includeDescendants)
       .map(site => ({ site, url: getSafeSiteUrl(site) }))
       .filter(item => item.url);
+  }
+
+  function getSelectedCategoryOpenSites() {
+    if (!pendingCategoryOpen) return [];
+    return categoryOpenScopeDescendants?.checked
+      ? pendingCategoryOpen.descendantSites
+      : pendingCategoryOpen.currentSites;
+  }
+
+  function updateCategoryOpenConfirmation() {
+    if (!pendingCategoryOpen || !categoryOpenConfirmSummary || !confirmCategoryOpen) return;
+
+    const selectedSites = getSelectedCategoryOpenSites();
+    const destination = pendingCategoryOpen.openInNewWindow ? '独立窗口' : '新标签页';
+    categoryOpenConfirmSummary.textContent = `将在${destination}中打开 ${selectedSites.length} 个书签。`;
+    confirmCategoryOpen.disabled = selectedSites.length === 0;
+  }
+
+  function closeCategoryOpenConfirmation() {
+    if (!categoryOpenConfirmModal?.classList.contains('is-open')) return;
+
+    categoryOpenConfirmModal.classList.remove('is-open');
+    categoryOpenConfirmModal.setAttribute('aria-hidden', 'true');
+    if (appScroll) appScroll.style.overflow = categoryOpenPreviousScrollOverflow;
+    pendingCategoryOpen = null;
+    categoryOpenLastFocus?.focus();
+    categoryOpenLastFocus = null;
+  }
+
+  function requestCategoryOpen(categoryId, openInNewWindow) {
+    if (!categoryId || !categoryOpenConfirmModal) return;
+
+    const currentSites = getOpenableCategorySites(categoryId, false);
+    const descendantSites = getOpenableCategorySites(categoryId, true);
+    if (descendantSites.length === 0) {
+      showToast('该分类下没有可打开的书签');
+      return;
+    }
+
+    const descendantIds = (window.IORI_CATEGORY_DESCENDANT_IDS || {})[String(categoryId)] || [String(categoryId)];
+    const hasDescendants = descendantIds.length > 1;
+    pendingCategoryOpen = { categoryId, openInNewWindow, currentSites, descendantSites };
+    categoryOpenLastFocus = document.activeElement;
+
+    if (categoryOpenConfirmTitle) {
+      categoryOpenConfirmTitle.textContent = openInNewWindow ? '确认新窗口打开' : '确认一键打开';
+    }
+    if (categoryOpenConfirmTarget) {
+      categoryOpenConfirmTarget.textContent = `「${getCategoryGroupLabel(categoryId)}」`;
+    }
+    if (categoryOpenScopeFields) categoryOpenScopeFields.hidden = !hasDescendants;
+    // 默认始终只打开当前分类自己
+    if (categoryOpenScopeCurrent) categoryOpenScopeCurrent.checked = true;
+    if (categoryOpenScopeDescendants) categoryOpenScopeDescendants.checked = false;
+    if (categoryOpenCurrentCount) categoryOpenCurrentCount.textContent = `${currentSites.length} 个`;
+    if (categoryOpenDescendantCount) categoryOpenDescendantCount.textContent = `${descendantSites.length} 个`;
+    updateCategoryOpenConfirmation();
+
+    categoryOpenPreviousScrollOverflow = appScroll?.style.overflow || '';
+    if (appScroll) appScroll.style.overflow = 'hidden';
+    categoryOpenConfirmModal.classList.add('is-open');
+    categoryOpenConfirmModal.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => {
+      // 当前分类为空时，把焦点放到「包含子分类」选项，提示可切换范围
+      const initialFocus = hasDescendants && currentSites.length === 0
+        ? categoryOpenScopeDescendants
+        : confirmCategoryOpen;
+      initialFocus?.focus();
+    });
+  }
+
+  categoryOpenScopeFields?.addEventListener('change', updateCategoryOpenConfirmation);
+  closeCategoryOpenConfirmButton?.addEventListener('click', closeCategoryOpenConfirmation);
+  cancelCategoryOpenConfirmButton?.addEventListener('click', closeCategoryOpenConfirmation);
+  categoryOpenConfirmModal?.addEventListener('click', (e) => {
+    if (e.target === categoryOpenConfirmModal) closeCategoryOpenConfirmation();
+  });
+  categoryOpenConfirmDialog?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeCategoryOpenConfirmation();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+
+    const focusable = Array.from(categoryOpenConfirmDialog.querySelectorAll('button:not([disabled]), input:not([disabled])'))
+      .filter(element => !element.closest('[hidden]'));
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+  categoryOpenConfirmForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!pendingCategoryOpen) return;
+
+    // 防止在“仅当前分类且数量为 0”时通过回车提交
+    if (getSelectedCategoryOpenSites().length === 0) {
+      updateCategoryOpenConfirmation();
+      return;
+    }
+
+    const { categoryId, openInNewWindow } = pendingCategoryOpen;
+    // 无子分类时强制只打开当前分类；有子分类时以用户选择为准（默认仅当前）
+    const includeDescendants = !categoryOpenScopeFields?.hidden
+      && categoryOpenScopeDescendants?.checked === true;
+    closeCategoryOpenConfirmation();
+    openCategorySites(categoryId, openInNewWindow, includeDescendants);
+  });
+
+  function openCategorySites(categoryId, openInNewWindow, includeDescendants) {
+    if (!categoryId) return;
+
+    const sites = getOpenableCategorySites(categoryId, includeDescendants);
 
     if (sites.length === 0) {
       showToast('该分类下没有可打开的书签');
@@ -754,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
   }
 
-  function getSitesForCategory(catalogId) {
+  function getSitesForCategory(catalogId, includeDescendants = true) {
     const rawSites = window.IORI_SITES || [];
     const config = window.IORI_LAYOUT_CONFIG || {};
     // 合并本地与 DB 的 clicks 值
@@ -769,7 +906,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const categoryDescendantIds = window.IORI_CATEGORY_DESCENDANT_IDS || {};
-    const descendantIds = categoryDescendantIds[String(catalogId)] || [String(catalogId)];
+    const descendantIds = includeDescendants
+      ? categoryDescendantIds[String(catalogId)] || [String(catalogId)]
+      : [String(catalogId)];
     const descendantIdSet = new Set(descendantIds.map(id => String(id)));
 
     const filtered = allSites.filter(site => descendantIdSet.has(String(site.catelog_id)));
@@ -811,11 +950,11 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">${subtitle}</span>
           </div>
           <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
-            <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="一键打开${safeLabel}下的全部书签" aria-label="一键打开${safeLabel}下的全部书签">
+            <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
               <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
               <span class="category-action-label">一键打开</span>
             </button>
-            <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="新窗口打开${safeLabel}下的全部书签" aria-label="新窗口打开${safeLabel}下的全部书签">
+            <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在新窗口打开${safeLabel}的书签" aria-label="选择范围后在新窗口打开${safeLabel}的书签">
               <svg aria-hidden="true"><use href="#icon-window"/></svg>
               <span class="category-action-label">新窗口打开</span>
             </button>
