@@ -260,12 +260,18 @@ export async function onRequest(context) {
     if (!activeCategoryId) return renderSiteCards(siteList, S);
 
     let cardIndex = 0;
-    return groupSitesByCategory(siteList, activeCategoryId).map(group => {
-      const headerHtml = renderCategoryGroupHeader(group.label, group.isRootGroup);
+    const activeHeaderHtml = renderCategoryGroupHeader(
+      categoryNameById.get(String(activeCategoryId)) || '未分类',
+      true,
+      activeCategoryId
+    );
+    const groupsHtml = groupSitesByCategory(siteList, activeCategoryId).map(group => {
+      const headerHtml = group.isRootGroup ? '' : renderCategoryGroupHeader(group.label, false, group.id);
       const indexedSites = group.sites.map(site => ({ ...site, __renderIndex: cardIndex++ }));
       const cardsHtml = renderSiteCards(indexedSites, S);
       return headerHtml + cardsHtml;
     }).join('');
+    return activeHeaderHtml + groupsHtml;
   };
 
   // === 7. 壁纸处理 ===
@@ -291,7 +297,7 @@ export async function onRequest(context) {
   // === 10. 生成站点卡片 HTML ===
   let sitesGridMarkup = orderedSites.length > 0
     ? renderGroupedSiteCards(orderedSites, catalogExists ? categoryIdMap.get(requestedCatalogName) : null)
-    : renderEmptyState(categories.length, S.home_hide_admin);
+    : `${catalogExists ? renderCategoryGroupHeader(requestedCatalogName, true, categoryIdMap.get(requestedCatalogName)) : ''}${renderEmptyState(categories.length, S.home_hide_admin)}`;
 
   // === 11. 计算 Grid 列数 ===
   let gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 justify-items-center';

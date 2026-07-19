@@ -247,6 +247,65 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 2500);
   }
 
+  // ========== 分类批量打开 ==========
+  sitesGrid?.addEventListener('click', function (e) {
+    const button = e.target.closest('.category-group-action');
+    if (!button) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const categoryId = button.getAttribute('data-category-id');
+    const openInNewWindow = button.classList.contains('category-new-window-btn');
+    openCategorySites(categoryId, openInNewWindow);
+  });
+
+  function getSafeSiteUrl(site) {
+    const normalizedUrl = normalizeUrl(site?.url);
+    if (!normalizedUrl) return '';
+
+    try {
+      const parsed = new URL(normalizedUrl);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function openCategorySites(categoryId, openInNewWindow) {
+    if (!categoryId) return;
+
+    const sites = getSitesForCategory(categoryId)
+      .map(site => ({ site, url: getSafeSiteUrl(site) }))
+      .filter(item => item.url);
+
+    if (sites.length === 0) {
+      showToast('该分类下没有可打开的书签');
+      return;
+    }
+
+    let openedCount = 0;
+    sites.forEach(({ site, url }, index) => {
+      const features = openInNewWindow
+        ? `popup=yes,width=${Math.min(1280, window.screen?.availWidth || 1280)},height=${Math.min(900, window.screen?.availHeight || 900)},left=${index * 24},top=${index * 24}`
+        : '';
+      const popup = window.open(url, '_blank', features);
+
+      if (popup) {
+        // Keep the opened page from retaining a reference to the navigation site.
+        popup.opener = null;
+        openedCount += 1;
+        if (site.id && window.IORI_CLICKS) window.IORI_CLICKS.increment(site.id);
+      }
+    });
+
+    if (openedCount < sites.length) {
+      showToast(`已打开 ${openedCount}/${sites.length} 个书签，浏览器拦截了部分窗口`);
+    } else {
+      showToast(`已打开 ${openedCount} 个书签`);
+    }
+  }
+
   // ========== 搜索功能 ==========
   const searchInputs = document.querySelectorAll('.search-input-target');
 
@@ -740,14 +799,27 @@ document.addEventListener('DOMContentLoaded', function () {
     return names[String(catelogId)] || '未分类';
   }
 
-  function renderCategoryGroupHeader(label, isRootGroup) {
+  function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
     const safeLabel = escapeHTML(label || '未分类');
+    const safeCategoryId = escapeHTML(categoryId || '');
     const subtitle = isRootGroup ? '当前分类' : '子分类';
     return `
-      <div class="col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2">
-        <div class="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-          <span class="text-sm sm:text-base font-semibold">${safeLabel}</span>
-          <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500">${subtitle}</span>
+      <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-gray-700 dark:text-gray-200">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm sm:text-base font-semibold truncate" title="${safeLabel}">${safeLabel}</span>
+            <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">${subtitle}</span>
+          </div>
+          <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
+            <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="一键打开${safeLabel}下的全部书签" aria-label="一键打开${safeLabel}下的全部书签">
+              <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
+              <span class="category-action-label">一键打开</span>
+            </button>
+            <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="新窗口打开${safeLabel}下的全部书签" aria-label="新窗口打开${safeLabel}下的全部书签">
+              <svg aria-hidden="true"><use href="#icon-window"/></svg>
+              <span class="category-action-label">新窗口打开</span>
+            </button>
+          </div>
         </div>
       </div>`;
   }
@@ -868,14 +940,21 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSearchEmptyState('', sites.length);
 
     if (sites.length === 0) {
-      sitesGrid.innerHTML = '<div data-role="category-empty-state" class="col-span-full text-center text-gray-500 py-10">本分类下暂无书签</div>';
+      const activeHeaderHtml = activeCatalogId
+        ? renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId)
+        : '';
+      sitesGrid.innerHTML = `${activeHeaderHtml}<div data-role="category-empty-state" class="col-span-full text-center text-gray-500 py-10">本分类下暂无书签</div>`;
       return;
     }
 
     let cardIndex = 0;
+    if (activeCatalogId) {
+      sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId));
+    }
+
     groupSitesForCategoryView(sites, activeCatalogId).forEach(group => {
-      if (activeCatalogId) {
-        sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(group.label, group.isRootGroup));
+      if (activeCatalogId && !group.isRootGroup) {
+        sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(group.label, false, group.id));
       }
 
       group.sites.forEach(site => {

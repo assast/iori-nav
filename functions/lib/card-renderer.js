@@ -3,14 +3,27 @@
 
 import { escapeHTML, sanitizeUrl } from './utils';
 
-export function renderCategoryGroupHeader(label, isRootGroup) {
+export function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
   const safeLabel = escapeHTML(label || '未分类');
+  const safeCategoryId = escapeHTML(categoryId || '');
   const subtitle = isRootGroup ? '当前分类' : '子分类';
   return `
-    <div class="col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2">
-      <div class="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-        <span class="text-sm sm:text-base font-semibold">${safeLabel}</span>
-        <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500">${subtitle}</span>
+    <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
+      <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-gray-700 dark:text-gray-200">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="text-sm sm:text-base font-semibold truncate" title="${safeLabel}">${safeLabel}</span>
+          <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">${subtitle}</span>
+        </div>
+        <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
+          <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="一键打开${safeLabel}下的全部书签" aria-label="一键打开${safeLabel}下的全部书签">
+            <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
+            <span class="category-action-label">一键打开</span>
+          </button>
+          <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="新窗口打开${safeLabel}下的全部书签" aria-label="新窗口打开${safeLabel}下的全部书签">
+            <svg aria-hidden="true"><use href="#icon-window"/></svg>
+            <span class="category-action-label">新窗口打开</span>
+          </button>
+        </div>
       </div>
     </div>`;
 }
