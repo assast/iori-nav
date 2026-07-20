@@ -3,10 +3,20 @@
 
 import { escapeHTML, sanitizeUrl } from './utils';
 
-export function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
+export function renderCategoryGroupHeader(label, isRootGroup, categoryId, options = {}) {
+  const { showOpenAction = false } = options;
   const safeLabel = escapeHTML(label || '未分类');
   const safeCategoryId = escapeHTML(categoryId || '');
   const subtitle = isRootGroup ? '当前' : '子目录';
+  // 仅当该分类有直属可打开书签时展示一键打开
+  const actionsHtml = showOpenAction
+    ? `<div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
+          <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
+            <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
+            <span class="category-action-label">一键打开</span>
+          </button>
+        </div>`
+    : '';
   return `
     <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-5 sm:mt-7'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
       <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-gray-700 dark:text-gray-200">
@@ -14,12 +24,7 @@ export function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
           <span class="text-sm sm:text-[0.95rem] font-semibold tracking-wide truncate" title="${safeLabel}">${safeLabel}</span>
           <span class="text-[11px] text-gray-400 dark:text-gray-500 flex-shrink-0 tracking-wider">${subtitle}</span>
         </div>
-        <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
-          <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
-            <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
-            <span class="category-action-label">一键打开</span>
-          </button>
-        </div>
+        ${actionsHtml}
       </div>
     </div>`;
 }

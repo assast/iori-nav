@@ -39,7 +39,19 @@ function _renderHorizontalItems(cats, currentCatalogName, level) {
 }
 
 /**
- * 渲染垂直侧边栏菜单（纸质编辑风：无图标噪音，缩进表达层级）
+ * 判断节点子树中是否包含当前选中分类（不含自身）
+ */
+function _hasActiveDescendant(cat, currentCatalogName) {
+    if (!currentCatalogName || !cat.children || cat.children.length === 0) return false;
+    return cat.children.some(child =>
+        child.catelog === currentCatalogName || _hasActiveDescendant(child, currentCatalogName)
+    );
+}
+
+/**
+ * 渲染垂直侧边栏菜单（纸质编辑风：缩进 + 可折叠）
+ * 默认只展开到第 2 级（depth 0 展开，可见 depth 0/1；更深需点击展开）
+ * 若当前选中分类在更深层级，会沿路径展开以保证可见
  * @param {Array} cats - 分类树
  * @param {string} currentCatalogName - 当前选中的分类名
  * @param {boolean} [_isCustomWallpaper] - 兼容旧调用，不再影响样式
@@ -49,18 +61,33 @@ export function renderVerticalMenu(cats, currentCatalogName, _isCustomWallpaper)
     return _renderVerticalItems(cats, currentCatalogName, 0);
 }
 
+// 默认展开：level < 1 → 根节点展开，可见两级（depth 0 与 depth 1）
+const DEFAULT_EXPAND_MAX_LEVEL = 1;
+
 function _renderVerticalItems(cats, currentCatalogName, level) {
     return cats.map(cat => {
         const safeName = escapeHTML(cat.catelog);
         const encodedName = encodeURIComponent(cat.catelog);
         const isActive = currentCatalogName === cat.catelog;
         const activeClass = isActive ? 'is-active' : '';
+        const hasChildren = cat.children && cat.children.length > 0;
+        const forceExpand = hasChildren && _hasActiveDescendant(cat, currentCatalogName);
+        const isExpanded = hasChildren && (level < DEFAULT_EXPAND_MAX_LEVEL || forceExpand);
 
-        let html = `<a href="?catalog=${encodedName}" data-id="${cat.id}" class="sidebar-nav-link ${activeClass}" style="--nav-depth: ${level}" data-depth="${level}"><span class="sidebar-nav-label">${safeName}</span></a>`;
+        const toggleHtml = hasChildren
+            ? `<button type="button" class="sidebar-nav-toggle" data-toggle-id="${cat.id}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-label="${isExpanded ? '收起' : '展开'}${safeName}"><svg class="sidebar-nav-toggle-icon" aria-hidden="true"><use href="#icon-chevron-right"/></svg></button>`
+            : `<span class="sidebar-nav-toggle-spacer" aria-hidden="true"></span>`;
 
-        if (cat.children && cat.children.length > 0) {
-            html += _renderVerticalItems(cat.children, currentCatalogName, level + 1);
-        }
-        return html;
+        const childrenHtml = hasChildren
+            ? `<div class="sidebar-nav-children"${isExpanded ? '' : ' hidden'} data-parent-id="${cat.id}">${_renderVerticalItems(cat.children, currentCatalogName, level + 1)}</div>`
+            : '';
+
+        return `<div class="sidebar-nav-item${hasChildren ? (isExpanded ? ' is-expanded' : ' is-collapsed') : ''}" data-depth="${level}" data-id="${cat.id}">` +
+            `<div class="sidebar-nav-row">` +
+            toggleHtml +
+            `<a href="?catalog=${encodedName}" data-id="${cat.id}" class="sidebar-nav-link ${activeClass}" style="--nav-depth: ${level}" data-depth="${level}"><span class="sidebar-nav-label">${safeName}</span></a>` +
+            `</div>` +
+            childrenHtml +
+            `</div>`;
     }).join('');
 }

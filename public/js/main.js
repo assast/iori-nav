@@ -21,6 +21,52 @@ document.addEventListener('DOMContentLoaded', function () {
   closeSidebar?.addEventListener('click', closeSidebarMenu);
   mobileOverlay?.addEventListener('click', closeSidebarMenu);
 
+  // ========== 侧边栏分类树展开/折叠 ==========
+  function setSidebarNavExpanded(item, expanded) {
+    if (!item) return;
+    const children = item.querySelector(':scope > .sidebar-nav-children');
+    const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
+    if (!children || !toggle) return;
+
+    item.classList.toggle('is-expanded', expanded);
+    item.classList.toggle('is-collapsed', !expanded);
+    children.hidden = !expanded;
+    toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+    const label = item.querySelector(':scope > .sidebar-nav-row .sidebar-nav-label');
+    const name = label ? label.textContent.trim() : '';
+    toggle.setAttribute('aria-label', `${expanded ? '收起' : '展开'}${name}`);
+  }
+
+  function expandSidebarNavAncestors(categoryId) {
+    if (!categoryId || !sidebar) return;
+    const link = sidebar.querySelector(`.sidebar-nav-link[data-id="${categoryId}"]`);
+    if (!link) return;
+
+    let node = link.closest('.sidebar-nav-item');
+    while (node) {
+      const parentChildren = node.parentElement?.closest?.('.sidebar-nav-children');
+      if (!parentChildren) break;
+      const parentItem = parentChildren.closest('.sidebar-nav-item');
+      if (!parentItem) break;
+      setSidebarNavExpanded(parentItem, true);
+      node = parentItem;
+    }
+  }
+
+  sidebar?.addEventListener('click', (e) => {
+    const toggle = e.target.closest('.sidebar-nav-toggle');
+    if (!toggle || !sidebar.contains(toggle)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const item = toggle.closest('.sidebar-nav-item');
+    if (!item) return;
+    const willExpand = !item.classList.contains('is-expanded');
+    setSidebarNavExpanded(item, willExpand);
+  });
+
   // 为初始 SSR 渲染的卡片设置动画延迟（已从服务端移至前端）
   const initialCards = document.querySelectorAll('.site-card.card-anim-enter');
   const sitesGrid = document.getElementById('sitesGrid');
@@ -858,17 +904,13 @@ document.addEventListener('DOMContentLoaded', function () {
       updateNavigationState(catalogId);
       syncSearchState(catalogId ? catalogName : null);
 
-      // Remember Last Category Logic
-      const config = window.IORI_LAYOUT_CONFIG || {};
-      if (config.rememberLastCategory) {
-        if (catalogId) {
-          localStorage.setItem('iori_last_category', catalogId);
-          setCookie('iori_last_category', catalogId, 365);
-        } else {
-          // Explicitly save "all" state
-          localStorage.setItem('iori_last_category', 'all');
-          setCookie('iori_last_category', 'all', 365);
-        }
+      // 始终记住上次选择的分类
+      if (catalogId) {
+        localStorage.setItem('iori_last_category', catalogId);
+        setCookie('iori_last_category', catalogId, 365);
+      } else {
+        localStorage.setItem('iori_last_category', 'all');
+        setCookie('iori_last_category', 'all', 365);
       }
 
     } catch (err) {
@@ -933,10 +975,20 @@ document.addEventListener('DOMContentLoaded', function () {
     return names[String(catelogId)] || '未分类';
   }
 
-  function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
+  function renderCategoryGroupHeader(label, isRootGroup, categoryId, options = {}) {
+    const { showOpenAction = false } = options;
     const safeLabel = escapeHTML(label || '未分类');
     const safeCategoryId = escapeHTML(categoryId || '');
     const subtitle = isRootGroup ? '当前' : '子目录';
+    // 仅当该分类有直属可打开书签时展示一键打开
+    const actionsHtml = showOpenAction
+      ? `<div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
+            <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
+              <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
+              <span class="category-action-label">一键打开</span>
+            </button>
+          </div>`
+      : '';
     return `
       <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-5 sm:mt-7'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-gray-700 dark:text-gray-200">
@@ -944,12 +996,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="text-sm sm:text-[0.95rem] font-semibold tracking-wide truncate" title="${safeLabel}">${safeLabel}</span>
             <span class="text-[11px] text-gray-400 dark:text-gray-500 flex-shrink-0 tracking-wider">${subtitle}</span>
           </div>
-          <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
-            <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
-              <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
-              <span class="category-action-label">一键打开</span>
-            </button>
-          </div>
+          ${actionsHtml}
         </div>
       </div>`;
   }
@@ -1069,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (sites.length === 0) {
       const activeHeaderHtml = activeCatalogId
-        ? renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId)
+        ? renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId, { showOpenAction: false })
         : '';
       sitesGrid.innerHTML = `${activeHeaderHtml}<div data-role="category-empty-state" class="col-span-full text-center text-gray-500 py-10">本分类下暂无书签</div>`;
       return;
@@ -1077,12 +1124,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let cardIndex = 0;
     if (activeCatalogId) {
-      sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId));
+      const rootHasDirectSites = getOpenableCategorySites(activeCatalogId, false).length > 0;
+      sitesGrid.insertAdjacentHTML(
+        'beforeend',
+        renderCategoryGroupHeader(getCategoryGroupLabel(activeCatalogId), true, activeCatalogId, {
+          showOpenAction: rootHasDirectSites,
+        })
+      );
     }
 
     groupSitesForCategoryView(sites, activeCatalogId).forEach(group => {
       if (activeCatalogId && !group.isRootGroup) {
-        sitesGrid.insertAdjacentHTML('beforeend', renderCategoryGroupHeader(group.label, false, group.id));
+        // group.sites 来自该子分类直属书签；再过滤无效 URL
+        const showOpenAction = group.sites.some(site => !!getSafeSiteUrl(site));
+        sitesGrid.insertAdjacentHTML(
+          'beforeend',
+          renderCategoryGroupHeader(group.label, false, group.id, { showOpenAction })
+        );
       }
 
       group.sites.forEach(site => {
@@ -1163,6 +1221,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const isActive = (!catalogId && isAllLink) || (!!catalogId && String(linkId) === String(catalogId));
         link.classList.toggle('is-active', isActive);
       });
+      if (catalogId) expandSidebarNavAncestors(catalogId);
     }
   }
 
@@ -1179,60 +1238,68 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'https://' + url;
   }
 
-  // Auto-restore Last Category
+  // 自动恢复上次选择的分类（始终启用；URL 带 catalog 参数时不覆盖）
   const didRestoreLastCategory = (function () {
     const config = window.IORI_LAYOUT_CONFIG || {};
     const urlParams = new URLSearchParams(window.location.search);
     const hasCatalogParam = urlParams.has('catalog');
 
-    if (config.rememberLastCategory && !hasCatalogParam) {
-      let lastId = localStorage.getItem('iori_last_category');
-
-      // Fallback to Cookie if LocalStorage is missing (e.g. cleared or not synced)
-      if (!lastId) {
-        const match = document.cookie.match(/iori_last_category=(all|\d+)/);
-        if (match) {
-          lastId = match[1];
-        }
+    if (hasCatalogParam) {
+      // 深链进入时仍展开路径，保证当前分类在侧边栏可见
+      const catalogParam = urlParams.get('catalog');
+      if (catalogParam && catalogParam !== 'all') {
+        const activeLink = document.querySelector(`#sidebar .sidebar-nav-link.is-active[data-id]`);
+        if (activeLink) expandSidebarNavAncestors(activeLink.getAttribute('data-id'));
       }
+      return false;
+    }
 
-      if (lastId) {
-        // 若与 SSR 当前渲染的分类一致，无需恢复分类；点击排序的本地增量会在后续初始化重排中处理
-        if (String(lastId) === String(config.ssrCatalogId)) {
-          return false;
-        }
+    let lastId = localStorage.getItem('iori_last_category');
 
-        if (lastId === 'all') {
-          // Explicitly restore "All Categories" state
-          const allSites = getSitesForCategory(null);
-          renderSites(allSites);
-          updateNavigationState(null);
-          syncSearchState(null);
-          return true;
-        }
-
-        // Try to find the category link in DOM to get correct Name and Href
-        const link = document.querySelector(`a[data-id="${lastId}"]`);
-
-        if (link) {
-          const href = link.getAttribute('href');
-          // Clone logic from click handler
-          // Note: link.textContent might contain garbage if it has icons.
-          // But updateHeading handles it? No, we should be careful.
-          // main.js click handler uses: let catalogName = link.textContent.trim();
-          let catalogName = link.innerText.trim();
-
-          const filteredSites = getSitesForCategory(lastId);
-
-          renderSites(filteredSites, lastId);
-          updateNavigationState(lastId);
-          syncSearchState(catalogName);
-          return true;
-        } else {
-          localStorage.removeItem('iori_last_category');
-        }
+    // Fallback to Cookie if LocalStorage is missing (e.g. cleared or not synced)
+    if (!lastId) {
+      const match = document.cookie.match(/iori_last_category=(all|\d+)/);
+      if (match) {
+        lastId = match[1];
       }
     }
+
+    if (!lastId) {
+      // 无历史记录时，若 SSR 默认分类较深，仍展开其路径
+      if (config.ssrCatalogId && config.ssrCatalogId !== 'all') {
+        expandSidebarNavAncestors(config.ssrCatalogId);
+      }
+      return false;
+    }
+
+    // 若与 SSR 当前渲染的分类一致，无需恢复分类；点击排序的本地增量会在后续初始化重排中处理
+    if (String(lastId) === String(config.ssrCatalogId)) {
+      if (lastId !== 'all') expandSidebarNavAncestors(lastId);
+      return false;
+    }
+
+    if (lastId === 'all') {
+      const allSites = getSitesForCategory(null);
+      renderSites(allSites);
+      updateNavigationState(null);
+      syncSearchState(null);
+      return true;
+    }
+
+    const link = document.querySelector(`#sidebar a[data-id="${lastId}"], a.sidebar-nav-link[data-id="${lastId}"], a[data-id="${lastId}"]`);
+
+    if (link) {
+      let catalogName = link.innerText.trim();
+      const filteredSites = getSitesForCategory(lastId);
+
+      renderSites(filteredSites, lastId);
+      updateNavigationState(lastId);
+      syncSearchState(catalogName);
+      expandSidebarNavAncestors(lastId);
+      return true;
+    }
+
+    localStorage.removeItem('iori_last_category');
     return false;
   })();
 

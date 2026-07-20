@@ -339,7 +339,6 @@ const initSettings = () => {
     home_hitokoto_color: '',
     home_search_engine_enabled: false,
     home_default_category: '',
-    home_remember_last_category: false,
     layout_enable_frosted_glass: false,
     layout_frosted_glass_intensity: '15',
     layout_grid_cols: '4',
@@ -784,10 +783,6 @@ const initSettings = () => {
       currentSettings.home_default_category = homeDefaultCategorySelect.value;
     }
 
-    if (homeRememberLastCategorySwitch) {
-      currentSettings.home_remember_last_category = homeRememberLastCategorySwitch.checked;
-    }
-
     currentSettings.home_search_engine_enabled = searchEngineSwitch.checked;
 
     if (sortByClicksSwitch) {
@@ -881,7 +876,6 @@ const initSettings = () => {
   // --- Helper Functions ---
 
   const homeDefaultCategorySelect = document.getElementById('homeDefaultCategory');
-  const homeRememberLastCategorySwitch = document.getElementById('homeRememberLastCategorySwitch');
 
   async function loadSettings() {
     // Ensure categories are loaded for the dropdown
@@ -966,7 +960,6 @@ const initSettings = () => {
         if (serverSettings.home_search_engine_enabled !== undefined) currentSettings.home_search_engine_enabled = serverSettings.home_search_engine_enabled === 'true';
 
         if (serverSettings.home_default_category) currentSettings.home_default_category = serverSettings.home_default_category;
-        if (serverSettings.home_remember_last_category !== undefined) currentSettings.home_remember_last_category = serverSettings.home_remember_last_category === 'true';
 
         if (serverSettings.sort_by_clicks !== undefined) currentSettings.sort_by_clicks = serverSettings.sort_by_clicks === 'true';
 
@@ -1126,7 +1119,6 @@ const initSettings = () => {
     if (homeSiteDescriptionInput) homeSiteDescriptionInput.value = currentSettings.home_site_description || '';
 
     if (homeDefaultCategorySelect) homeDefaultCategorySelect.value = currentSettings.home_default_category || '';
-    if (homeRememberLastCategorySwitch) homeRememberLastCategorySwitch.checked = !!currentSettings.home_remember_last_category;
 
     if (searchEngineSwitch) searchEngineSwitch.checked = !!currentSettings.home_search_engine_enabled;
 

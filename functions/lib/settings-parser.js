@@ -30,7 +30,6 @@ const SETTINGS_SCHEMA = {
     home_site_description: { default: '', type: 'string' },
     home_search_engine_enabled: { default: false, type: 'bool' },
     home_default_category: { default: '', type: 'string' },
-    home_remember_last_category: { default: false, type: 'bool' },
     layout_grid_cols: { default: '4', type: 'string' },
     layout_custom_wallpaper: { default: '', type: 'string' },
     layout_menu_layout: { default: 'horizontal', type: 'string' },

@@ -177,7 +177,7 @@ export async function onRequest(context) {
   let requestedCatalogName = (url.searchParams.get('catalog') || '').trim();
 
   // 共享首页缓存仅基于稳定的默认分类渲染，避免用户的 iori_last_category
-  // 影响公共 KV HTML。记住上次分类的恢复逻辑仅在前端执行。
+  // 影响公共 KV HTML。上次分类的恢复逻辑仅在前端执行。
   if (!requestedCatalogName) {
     const defaultCat = (S.home_default_category || '').trim();
     if (defaultCat && categoryIdMap.has(defaultCat)) requestedCatalogName = defaultCat;
@@ -256,6 +256,15 @@ export async function onRequest(context) {
     return groups;
   };
 
+  const hasDirectOpenableSite = (siteList, categoryId) => {
+    const id = String(categoryId || '');
+    return siteList.some(site => {
+      if (String(site.catelog_id || '') !== id) return false;
+      const url = site.url || '';
+      return /^https?:\/\//i.test(url);
+    });
+  };
+
   const renderGroupedSiteCards = (siteList, activeCategoryId) => {
     if (!activeCategoryId) return renderSiteCards(siteList, S);
 
@@ -263,10 +272,15 @@ export async function onRequest(context) {
     const activeHeaderHtml = renderCategoryGroupHeader(
       categoryNameById.get(String(activeCategoryId)) || '未分类',
       true,
-      activeCategoryId
+      activeCategoryId,
+      { showOpenAction: hasDirectOpenableSite(siteList, activeCategoryId) }
     );
     const groupsHtml = groupSitesByCategory(siteList, activeCategoryId).map(group => {
-      const headerHtml = group.isRootGroup ? '' : renderCategoryGroupHeader(group.label, false, group.id);
+      const headerHtml = group.isRootGroup
+        ? ''
+        : renderCategoryGroupHeader(group.label, false, group.id, {
+            showOpenAction: hasDirectOpenableSite(group.sites, group.id),
+          });
       const indexedSites = group.sites.map(site => ({ ...site, __renderIndex: cardIndex++ }));
       const cardsHtml = renderSiteCards(indexedSites, S);
       return headerHtml + cardsHtml;
@@ -297,7 +311,7 @@ export async function onRequest(context) {
   // === 10. 生成站点卡片 HTML ===
   let sitesGridMarkup = orderedSites.length > 0
     ? renderGroupedSiteCards(orderedSites, catalogExists ? categoryIdMap.get(requestedCatalogName) : null)
-    : `${catalogExists ? renderCategoryGroupHeader(requestedCatalogName, true, categoryIdMap.get(requestedCatalogName)) : ''}${renderEmptyState(categories.length, S.home_hide_admin)}`;
+    : `${catalogExists ? renderCategoryGroupHeader(requestedCatalogName, true, categoryIdMap.get(requestedCatalogName), { showOpenAction: false }) : ''}${renderEmptyState(categories.length, S.home_hide_admin)}`;
 
   // === 11. 计算 Grid 列数 ===
   let gridClass = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 justify-items-center';
@@ -538,7 +552,6 @@ export async function onRequest(context) {
     gridCols: S.layout_grid_cols,
     cardStyle: S.layout_card_style,
     enableFrostedGlass: S.layout_enable_frosted_glass,
-    rememberLastCategory: S.home_remember_last_category,
     sortByClicks: S.sort_by_clicks,
     // 当前 SSR 已渲染的分类（用于前端 Auto-restore 判断是否可跳过重绘）
     ssrCatalogId: catalogExists ? categoryIdMap.get(requestedCatalogName) : 'all',
