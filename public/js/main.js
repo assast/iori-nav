@@ -106,19 +106,27 @@ document.addEventListener('DOMContentLoaded', function () {
     saveSidebarExpandedState();
   }
 
-  function collapseAllSidebarNav() {
+  function collapseAllSidebarNavWithoutPersist() {
     if (!sidebar) return;
     sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
       const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
       if (!toggle) return;
       setSidebarNavExpanded(item, false, false);
     });
+  }
+
+  function collapseAllSidebarNav() {
+    collapseAllSidebarNavWithoutPersist();
     saveSidebarExpandedState();
   }
 
-  // 恢复上次展开状态（若有）
+  // 恢复上次展开状态；无记录时强制全部收起（默认仅一级，也覆盖旧缓存 SSR 的展开态）
   const savedExpandedIds = loadSidebarExpandedIds();
-  if (savedExpandedIds) applySidebarExpandedIds(savedExpandedIds);
+  if (savedExpandedIds) {
+    applySidebarExpandedIds(savedExpandedIds);
+  } else {
+    collapseAllSidebarNavWithoutPersist();
+  }
 
   sidebar?.addEventListener('click', (e) => {
     const toggle = e.target.closest('.sidebar-nav-toggle');
