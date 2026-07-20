@@ -39,38 +39,27 @@ function _renderHorizontalItems(cats, currentCatalogName, level) {
 }
 
 /**
- * 渲染垂直侧边栏菜单
+ * 渲染垂直侧边栏菜单（纸质编辑风：无图标噪音，缩进表达层级）
  * @param {Array} cats - 分类树
  * @param {string} currentCatalogName - 当前选中的分类名
- * @param {boolean} isCustomWallpaper - 是否使用自定义壁纸
+ * @param {boolean} [_isCustomWallpaper] - 兼容旧调用，不再影响样式
  * @returns {string} HTML 字符串
  */
-export function renderVerticalMenu(cats, currentCatalogName, isCustomWallpaper) {
-    return _renderVerticalItems(cats, currentCatalogName, isCustomWallpaper, 0);
+export function renderVerticalMenu(cats, currentCatalogName, _isCustomWallpaper) {
+    return _renderVerticalItems(cats, currentCatalogName, 0);
 }
 
-function _renderVerticalItems(cats, currentCatalogName, isCustomWallpaper, level) {
+function _renderVerticalItems(cats, currentCatalogName, level) {
     return cats.map(cat => {
         const safeName = escapeHTML(cat.catelog);
         const encodedName = encodeURIComponent(cat.catelog);
         const isActive = currentCatalogName === cat.catelog;
+        const activeClass = isActive ? 'is-active' : '';
 
-        const baseClass = "flex items-center px-3 py-2 rounded-lg w-full transition-colors duration-200";
-        const activeClass = isActive
-            ? "bg-secondary-100 text-primary-700 dark:bg-gray-800 dark:text-primary-400"
-            : "hover:bg-gray-100 text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800";
-        const defaultIconColor = isCustomWallpaper ? "text-gray-600" : "text-gray-400 dark:text-gray-500";
-        const iconClass = isActive ? "text-primary-600 dark:text-primary-400" : defaultIconColor;
-        const indent = level * 12;
-
-        let html = `
-      <a href="?catalog=${encodedName}" data-id="${cat.id}" class="${baseClass} ${activeClass}" style="padding-left: ${12 + indent}px">
-          <svg class="h-5 w-5 mr-2 ${iconClass}"><use href="#icon-folder"/></svg>
-          ${safeName}
-      </a>`;
+        let html = `<a href="?catalog=${encodedName}" data-id="${cat.id}" class="sidebar-nav-link ${activeClass}" style="--nav-depth: ${level}" data-depth="${level}"><span class="sidebar-nav-label">${safeName}</span></a>`;
 
         if (cat.children && cat.children.length > 0) {
-            html += _renderVerticalItems(cat.children, currentCatalogName, isCustomWallpaper, level + 1);
+            html += _renderVerticalItems(cat.children, currentCatalogName, level + 1);
         }
         return html;
     }).join('');

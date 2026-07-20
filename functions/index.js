@@ -583,7 +583,7 @@ export async function onRequest(context) {
     'CANONICAL_URL': escapeHTML(canonicalUrl),
     'OG_IMAGE_URL': escapeHTML(ogImageUrl),
     'FOOTER_TEXT': escapeHTML(footerText),
-    'CATALOG_EXISTS': catalogExists ? 'true' : 'false',
+    'CATALOG_EXISTS': catalogExists ? '' : 'is-active',
     'CATALOG_LINKS': catalogLinkMarkup,
     'SUBMISSION_CLASS': submissionClass,
     'HEADING_TEXT': headingText,

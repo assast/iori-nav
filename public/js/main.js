@@ -936,13 +936,13 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
     const safeLabel = escapeHTML(label || '未分类');
     const safeCategoryId = escapeHTML(categoryId || '');
-    const subtitle = isRootGroup ? '当前分类' : '子分类';
+    const subtitle = isRootGroup ? '当前' : '子目录';
     return `
-      <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-4 sm:mt-6'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
+      <div class="category-group-header col-span-full w-full ${isRootGroup ? 'mt-0' : 'mt-5 sm:mt-7'} mb-1 sm:mb-2" data-role="category-group-header" data-category-id="${safeCategoryId}">
         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 text-gray-700 dark:text-gray-200">
-          <div class="flex items-center gap-2 min-w-0">
-            <span class="text-sm sm:text-base font-semibold truncate" title="${safeLabel}">${safeLabel}</span>
-            <span class="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">${subtitle}</span>
+          <div class="flex items-baseline gap-2 min-w-0">
+            <span class="text-sm sm:text-[0.95rem] font-semibold tracking-wide truncate" title="${safeLabel}">${safeLabel}</span>
+            <span class="text-[11px] text-gray-400 dark:text-gray-500 flex-shrink-0 tracking-wider">${subtitle}</span>
           </div>
           <div class="category-group-actions inline-flex items-center gap-1" role="group" aria-label="${safeLabel}批量操作">
             <button type="button" class="category-group-action category-open-btn" data-category-id="${safeCategoryId}" title="选择范围后打开${safeLabel}的书签" aria-label="选择范围后打开${safeLabel}的书签">
@@ -987,32 +987,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const isAboveFold = index < 8;
     const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
     const logoHtml = site.logo
-      ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="40" height="40" class="w-10 h-10 rounded-lg object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
-      : `<div class="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner">${cardInitial}</div>`;
+      ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="36" height="36" class="w-9 h-9 rounded-md object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
+      : `<div class="w-9 h-9 rounded-md bg-primary-600 flex items-center justify-center text-white font-semibold text-base shadow-inner">${cardInitial}</div>`;
 
-    const descHtml = hideDesc ? '' : `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
+    const descHtml = hideDesc ? '' : `<p class="site-desc mt-2 text-sm leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
 
     const hasValidUrl = !!safeUrl;
     const linksHtml = hideLinks ? '' : `
-        <div class="mt-3 flex items-center justify-between">
-          <span class="text-xs text-primary-600 dark:text-primary-400 truncate flex-1 min-w-0 mr-2" title="${safeUrl}">${safeUrl || '未提供链接'}</span>
-          <button class="copy-btn relative flex items-center px-2 py-1 ${hasValidUrl ? 'bg-accent-100 text-accent-700 hover:bg-accent-200 dark:bg-accent-900/30 dark:text-accent-300 dark:hover:bg-accent-900/50' : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'} rounded-full text-xs font-medium transition-colors" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'}>
-            <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}"><use href="#icon-copy"/></svg>
+        <div class="site-card-meta mt-auto pt-3 flex items-center justify-between gap-2">
+          <span class="site-url text-xs truncate min-w-0 flex-1" title="${safeUrl}">${safeUrl || '未提供链接'}</span>
+          <button class="copy-btn relative inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${hasValidUrl ? '' : 'is-disabled'}" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'} aria-label="复制链接">
+            <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}" aria-hidden="true"><use href="#icon-copy"/></svg>
             ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
             <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
           </button>
         </div>`;
 
     const categoryHtml = hideCategory ? '' : `
-              <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-secondary-100 text-primary-700 dark:bg-secondary-800 dark:text-primary-300">
-                ${safeCatalog}
-              </span>`;
+              <span class="site-category mt-1 truncate" title="${safeCatalog}">${safeCatalog}</span>`;
 
     const frostedClass = isFrostedEnabled ? 'frosted-glass-effect' : '';
     const cardStyleClass = cardStyle === 'style2' ? 'style-2' : '';
     const baseCardClass = isFrostedEnabled
       ? 'site-card group overflow-hidden transition-all'
-      : 'site-card group bg-white border border-primary-100/60 shadow-sm overflow-hidden dark:bg-gray-800 dark:border-gray-700';
+      : 'site-card group bg-white border border-primary-100/50 shadow-[0_1px_2px_rgba(36,48,58,0.04)] overflow-hidden dark:bg-gray-800 dark:border-gray-700';
 
     const card = document.createElement('div');
     card.className = `${baseCardClass} ${frostedClass} ${cardStyleClass} card-anim-enter`;
@@ -1032,11 +1030,11 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="site-card-content">
         <a href="${safeUrl}" ${hasValidUrl ? 'target="_blank" rel="noopener noreferrer"' : ''} class="block">
           <div class="flex items-start">
-            <div class="site-icon flex-shrink-0 mr-4 transition-all duration-300">
+            <div class="site-icon flex-shrink-0">
               ${logoHtml}
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="site-title text-base font-medium text-gray-900 truncate transition-all duration-300 origin-left" title="${safeName}">${safeName}</h3>
+              <h3 class="site-title text-[0.95rem] font-semibold text-gray-900 truncate origin-left" title="${safeName}">${safeName}</h3>
               ${categoryHtml}
             </div>
           </div>
@@ -1158,31 +1156,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update Sidebar (Vertical Menu)
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
-      const links = sidebar.querySelectorAll('a[data-id], a[href="?catalog=all"]');
+      const links = sidebar.querySelectorAll('.sidebar-nav-link, a[data-id], a[href="?catalog=all"]');
       links.forEach(link => {
-        const svg = link.querySelector('svg');
         const linkId = link.getAttribute('data-id');
-        const isActive = (!catalogId && !linkId) || (String(linkId) === String(catalogId));
-
-        if (isActive) {
-          // Active state
-          link.classList.remove('hover:bg-gray-100', 'text-gray-700', 'dark:hover:bg-gray-800', 'dark:text-gray-300');
-          link.classList.add('bg-secondary-100', 'text-primary-700', 'dark:bg-gray-800', 'dark:text-primary-400');
-
-          if (svg) {
-            svg.classList.remove('text-gray-400', 'dark:text-gray-500');
-            svg.classList.add('text-primary-600', 'dark:text-primary-400');
-          }
-        } else {
-          // Inactive state
-          link.classList.remove('bg-secondary-100', 'text-primary-700', 'dark:bg-gray-800', 'dark:text-primary-400');
-          link.classList.add('hover:bg-gray-100', 'text-gray-700', 'dark:text-gray-300', 'dark:hover:bg-gray-800');
-
-          if (svg) {
-            svg.classList.remove('text-primary-600', 'dark:text-primary-400');
-            svg.classList.add('text-gray-400', 'dark:text-gray-500');
-          }
-        }
+        const isAllLink = link.getAttribute('data-nav-all') === '1' || link.getAttribute('href') === '?catalog=all';
+        const isActive = (!catalogId && isAllLink) || (!!catalogId && String(linkId) === String(catalogId));
+        link.classList.toggle('is-active', isActive);
       });
     }
   }
