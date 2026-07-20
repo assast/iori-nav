@@ -108,15 +108,15 @@ html.dark body.custom-wallpaper::before {
     transition: background-color 0.3s ease;
 }
 
-/* 2. 侧边栏深色 + 壁纸：半透明玻璃，略透出壁纸 */
+/* 2. 侧边栏深色 + 壁纸：更透的玻璃，明显透出壁纸 */
 html.dark body.custom-wallpaper .sidebar {
     background: linear-gradient(
       180deg,
-      rgba(18, 23, 29, 0.58) 0%,
-      rgba(18, 23, 29, 0.52) 100%
+      rgba(18, 23, 29, 0.38) 0%,
+      rgba(18, 23, 29, 0.32) 100%
     ) !important;
-    backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.08);
-    -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.08);
+    backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.1);
     border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
 }
 
@@ -472,32 +472,32 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 .sidebar {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, #f8f5ef 78%, transparent) 0%,
-    color-mix(in srgb, #f3efe7 72%, transparent) 100%
+    color-mix(in srgb, #f8f5ef 52%, transparent) 0%,
+    color-mix(in srgb, #f3efe7 46%, transparent) 100%
   );
-  border-right: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
   box-shadow: none;
   color: var(--ink);
-  backdrop-filter: blur(14px) saturate(1.05);
-  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
 }
 
 .dark .sidebar {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, #151b22 72%, transparent) 0%,
-    color-mix(in srgb, #12171d 68%, transparent) 100%
+    color-mix(in srgb, #151b22 48%, transparent) 0%,
+    color-mix(in srgb, #12171d 42%, transparent) 100%
   );
   border-right-color: rgba(255, 255, 255, 0.06);
   color: #e8edf2;
 }
 
-/* 壁纸场景再略透一点，让背景纹理透出 */
+/* 壁纸场景再透一点，让背景纹理透出 */
 body.custom-wallpaper .sidebar {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, #f8f5ef 62%, transparent) 0%,
-    color-mix(in srgb, #f3efe7 56%, transparent) 100%
+    color-mix(in srgb, #f8f5ef 40%, transparent) 0%,
+    color-mix(in srgb, #f3efe7 34%, transparent) 100%
   );
 }
 
@@ -811,6 +811,22 @@ body.custom-wallpaper .sidebar {
 .dark .sidebar-admin-link:hover {
   color: #c7daf0;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-version {
+  margin: 0.15rem 0 0;
+  text-align: center;
+  font-size: 0.68rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  opacity: 0.72;
+  user-select: all;
+}
+
+.dark .sidebar-version {
+  color: #7d8b98;
+  opacity: 0.8;
 }
 
 /* 分类标题：编辑风分隔 */

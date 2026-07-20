@@ -1,6 +1,6 @@
 // functions/index.js
 import { isAdminAuthenticated, getHomeCacheKey, isHomeCacheDirty, clearHomeCacheDirty, markHomeCacheDirty, getHomeCacheDirtyValue } from './_middleware';
-import { FONT_MAP, HOME_CACHE_TTL } from './constants';
+import { APP_VERSION, FONT_MAP, HOME_CACHE_TTL } from './constants';
 import { escapeHTML, sanitizeUrl, normalizeSortOrder, getStyleStr } from './lib/utils';
 import { getSettingsKeys, parseSettings } from './lib/settings-parser';
 import { renderHorizontalMenu, renderVerticalMenu } from './lib/menu-renderer';
@@ -609,6 +609,7 @@ export async function onRequest(context) {
     'SIDEBAR_CLASS': sidebarClass,
     'MAIN_CLASS': mainClass,
     'SIDEBAR_TOGGLE_CLASS': sidebarToggleClass,
+    'APP_VERSION': escapeHTML(APP_VERSION),
   };
   html = html.replace(/\{\{(\w+)\}\}/g, (_, key) => replacements[key] ?? '');
   html = html.replace('grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6', gridClass);

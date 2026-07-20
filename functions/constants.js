@@ -1,21 +1,29 @@
 /**
- * 项目里有 3 套不同用途的“版本机制”，不要混用：
+ * 项目里有 4 套不同用途的“版本机制”，不要混用：
  *
- * 1. SCHEMA_VERSION
+ * 1. APP_VERSION（根目录 VERSION）
+ *    - 用途：界面展示的产品版本号，便于确认线上是否已部署最新代码
+ *    - 何时修改：发版或希望强制识别新部署时改根目录 VERSION
+ *    - 生效方式：scripts/update-versions.js 同步写入本文件；SSR 注入到侧栏
+ *
+ * 2. SCHEMA_VERSION
  *    - 用途：数据库 Schema 迁移版本号
  *    - 何时修改：新增/修改表、字段、索引等 D1 结构时
  *    - 生效方式：变更后会触发 ensureSchema()/schema-migration 重新执行迁移
  *
- * 2. HOME_CACHE_VERSION
+ * 3. HOME_CACHE_VERSION
  *    - 用途：首页 HTML 的 KV 缓存版本号
  *    - 何时修改：首页结构或服务端渲染结果变化，且希望强制刷新已缓存首页时
  *    - 生效方式：参与 home_html_public/home_html_private 的缓存 key 生成
  *
- * 3. 静态资源 ?v=hash
+ * 4. 静态资源 ?v=hash
  *    - 用途：浏览器侧 CSS/JS/favicon 缓存刷新
  *    - 何时修改：无需手动修改，相关文件内容变化后自动更新
  *    - 生效方式：由 scripts/update-versions.js 计算文件哈希，并在 pre-commit 时自动写回 HTML
  */
+
+// 产品版本号 - 以根目录 VERSION 为准，由 update-versions.js 同步
+export const APP_VERSION = '1.0.1';
 
 // 数据库 Schema 版本 - 修改此值会触发迁移
 export const SCHEMA_VERSION = 'v5';
@@ -24,7 +32,7 @@ export const SCHEMA_VERSION = 'v5';
 export const PREVIOUS_SCHEMA_VERSION = 'v4';
 
 // 首页 HTML 缓存版本 - 修改此值会强制刷新首页缓存
-export const HOME_CACHE_VERSION = 'v13';
+export const HOME_CACHE_VERSION = 'v14';
 
 // 首页 HTML 缓存与 dirty 标记 TTL（30 天）
 export const HOME_CACHE_TTL = 2592000;

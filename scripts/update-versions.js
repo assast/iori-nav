@@ -67,14 +67,56 @@ function buildReplacement(filePath, hash) {
 }
 
 /**
+ * 将根目录 VERSION 同步到 functions/constants.js 的 APP_VERSION
+ */
+function syncAppVersion() {
+  const versionPath = path.join(ROOT_DIR, 'VERSION');
+  const constantsPath = path.join(ROOT_DIR, 'functions/constants.js');
+
+  if (!fs.existsSync(versionPath) || !fs.existsSync(constantsPath)) {
+    console.warn('⚠️  跳过 APP_VERSION 同步：VERSION 或 constants.js 不存在');
+    return false;
+  }
+
+  const appVersion = fs.readFileSync(versionPath, 'utf8').trim();
+  if (!appVersion) {
+    console.warn('⚠️  跳过 APP_VERSION 同步：VERSION 为空');
+    return false;
+  }
+
+  let constants = fs.readFileSync(constantsPath, 'utf8');
+  const nextLine = `export const APP_VERSION = '${appVersion.replace(/'/g, "\\'")}';`;
+  const pattern = /export const APP_VERSION = ['"][^'"]*['"];/;
+
+  if (!pattern.test(constants)) {
+    console.warn('⚠️  跳过 APP_VERSION 同步：constants.js 中未找到 APP_VERSION');
+    return false;
+  }
+
+  const prev = constants.match(pattern)?.[0];
+  if (prev === nextLine) {
+    console.log(`🏷️  APP_VERSION 已是最新: ${appVersion}`);
+    return false;
+  }
+
+  constants = constants.replace(pattern, nextLine);
+  fs.writeFileSync(constantsPath, constants, 'utf8');
+  console.log(`🏷️  APP_VERSION -> ${appVersion}`);
+  return true;
+}
+
+/**
  * 主函数
  */
 function main() {
   console.log('📦 开始更新静态资源版本号...\n');
-  
-  let totalUpdated = 0;
-  let htmlFilesModified = [];
-  
+
+  const appVersionUpdated = syncAppVersion();
+  console.log('');
+
+  let totalUpdated = appVersionUpdated ? 1 : 0;
+  let htmlFilesModified = appVersionUpdated ? ['functions/constants.js'] : [];
+
   for (const [htmlFile, assets] of Object.entries(HTML_FILES)) {
     const htmlPath = path.join(ROOT_DIR, htmlFile);
     
