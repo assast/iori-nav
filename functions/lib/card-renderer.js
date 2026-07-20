@@ -19,7 +19,7 @@ export function renderCategoryGroupHeader(label, isRootGroup, categoryId) {
             <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
             <span class="category-action-label">一键打开</span>
           </button>
-          <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在新窗口打开${safeLabel}的书签" aria-label="选择范围后在新窗口打开${safeLabel}的书签">
+          <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在同一个新窗口中打开${safeLabel}的书签" aria-label="选择范围后在同一个新窗口中打开${safeLabel}的书签">
             <svg aria-hidden="true"><use href="#icon-window"/></svg>
             <span class="category-action-label">新窗口打开</span>
           </button>

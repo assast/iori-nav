@@ -307,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!pendingCategoryOpen || !categoryOpenConfirmSummary || !confirmCategoryOpen) return;
 
     const selectedSites = getSelectedCategoryOpenSites();
-    const destination = pendingCategoryOpen.openInNewWindow ? '独立窗口' : '新标签页';
+    const destination = pendingCategoryOpen.openInNewWindow ? '同一个新窗口' : '新标签页';
     categoryOpenConfirmSummary.textContent = `将在${destination}中打开 ${selectedSites.length} 个书签。`;
     confirmCategoryOpen.disabled = selectedSites.length === 0;
   }
@@ -411,6 +411,111 @@ document.addEventListener('DOMContentLoaded', function () {
     openCategorySites(categoryId, openInNewWindow, includeDescendants);
   });
 
+  function showCategoryOpenResultToast(openedCount, total, openInNewWindow) {
+    if (openedCount === 0) {
+      showToast('浏览器拦截了新窗口，请允许弹窗后重试');
+      return;
+    }
+    if (openedCount < total) {
+      showToast(`已打开 ${openedCount}/${total} 个书签，浏览器拦截了部分窗口`);
+      return;
+    }
+    showToast(openInNewWindow ? `已在新窗口打开 ${openedCount} 个书签` : `已打开 ${openedCount} 个书签`);
+  }
+
+  // 在「同一个」新窗口中打开全部链接：只创建一次窗口，由该窗口再打开其余标签
+  function openSitesInOneNewWindow(sites) {
+    const urls = sites.map(({ url }) => url);
+    const width = Math.min(1280, window.screen?.availWidth || 1280);
+    const height = Math.min(900, window.screen?.availHeight || 900);
+    const features = `width=${width},height=${height},left=0,top=0`;
+
+    // 用户手势内只调用一次 window.open，避免弹出 N 个独立窗口
+    const container = window.open('about:blank', '_blank', features);
+    if (!container) {
+      showCategoryOpenResultToast(0, sites.length, true);
+      return;
+    }
+
+    // 启动页：在同一窗口上下文中打开全部链接，再导航到第一个
+    // （其余链接由该窗口发起 window.open，浏览器会尽量归入同一窗口的标签）
+    const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>正在打开 ${urls.length} 个书签…</title>
+<style>
+  html,body{height:100%;margin:0}
+  body{display:grid;place-items:center;font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#e2e8f0}
+  p{margin:0;line-height:1.6;text-align:center;padding:24px}
+  small{display:block;margin-top:8px;opacity:.7}
+</style>
+</head>
+<body>
+<p id="status">正在打开 ${urls.length} 个书签…</p>
+<script>
+(function () {
+  var urls = ${JSON.stringify(urls)};
+  var opened = 0;
+  // 先打开第 2 个及以后的链接为标签，最后当前窗口进入第 1 个
+  for (var i = 1; i < urls.length; i++) {
+    try {
+      if (window.open(urls[i], '_blank')) opened += 1;
+    } catch (e) {}
+  }
+  if (urls.length > 0) {
+    try {
+      location.replace(urls[0]);
+      opened += 1;
+      return;
+    } catch (e) {}
+  }
+  var status = document.getElementById('status');
+  if (!status) return;
+  if (opened === 0) {
+    status.innerHTML = '未能打开书签。<small>请允许本站弹窗后关闭本页并重试</small>';
+    return;
+  }
+  status.textContent = '已打开 ' + opened + '/' + urls.length + ' 个书签（部分被拦截）';
+})();
+<\/script>
+</body>
+</html>`;
+
+    try {
+      container.document.open();
+      container.document.write(html);
+      container.document.close();
+    } catch {
+      // 无法写入启动页时：当前窗口打开第一个，其余尽量作为标签打开
+      let openedCount = 0;
+      try {
+        container.location.href = urls[0];
+        openedCount = 1;
+      } catch {
+        container.close?.();
+      }
+      for (let i = openedCount; i < sites.length; i++) {
+        const win = window.open(sites[i].url, '_blank');
+        if (win) {
+          win.opener = null;
+          openedCount += 1;
+        }
+      }
+      sites.slice(0, openedCount).forEach(({ site }) => {
+        if (site.id && window.IORI_CLICKS) window.IORI_CLICKS.increment(site.id);
+      });
+      showCategoryOpenResultToast(openedCount, sites.length, true);
+      return;
+    }
+
+    // 启动页已接管打开流程；点击量按全部计入（与确认弹窗数量一致）
+    sites.forEach(({ site }) => {
+      if (site.id && window.IORI_CLICKS) window.IORI_CLICKS.increment(site.id);
+    });
+    showCategoryOpenResultToast(sites.length, sites.length, true);
+  }
+
   function openCategorySites(categoryId, openInNewWindow, includeDescendants) {
     if (!categoryId) return;
 
@@ -421,26 +526,23 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    let openedCount = 0;
-    sites.forEach(({ site, url }, index) => {
-      const features = openInNewWindow
-        ? `popup=yes,width=${Math.min(1280, window.screen?.availWidth || 1280)},height=${Math.min(900, window.screen?.availHeight || 900)},left=${index * 24},top=${index * 24}`
-        : '';
-      const popup = window.open(url, '_blank', features);
+    if (openInNewWindow) {
+      openSitesInOneNewWindow(sites);
+      return;
+    }
 
-      if (popup) {
+    let openedCount = 0;
+    sites.forEach(({ site, url }) => {
+      const tab = window.open(url, '_blank');
+      if (tab) {
         // Keep the opened page from retaining a reference to the navigation site.
-        popup.opener = null;
+        tab.opener = null;
         openedCount += 1;
         if (site.id && window.IORI_CLICKS) window.IORI_CLICKS.increment(site.id);
       }
     });
 
-    if (openedCount < sites.length) {
-      showToast(`已打开 ${openedCount}/${sites.length} 个书签，浏览器拦截了部分窗口`);
-    } else {
-      showToast(`已打开 ${openedCount} 个书签`);
-    }
+    showCategoryOpenResultToast(openedCount, sites.length, false);
   }
 
   // ========== 搜索功能 ==========
@@ -954,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <svg aria-hidden="true"><use href="#icon-external-link"/></svg>
               <span class="category-action-label">一键打开</span>
             </button>
-            <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在新窗口打开${safeLabel}的书签" aria-label="选择范围后在新窗口打开${safeLabel}的书签">
+            <button type="button" class="category-group-action category-new-window-btn" data-category-id="${safeCategoryId}" title="选择范围后在同一个新窗口中打开${safeLabel}的书签" aria-label="选择范围后在同一个新窗口中打开${safeLabel}的书签">
               <svg aria-hidden="true"><use href="#icon-window"/></svg>
               <span class="category-action-label">新窗口打开</span>
             </button>
