@@ -786,22 +786,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // 初次加载时根据屏幕宽度修正标题显示
   syncSearchState();
 
-  // ========== 一言 API ==========
-  const hitokotoContainer = document.querySelector('#hitokoto')?.parentElement;
-  // 检查容器是否被隐藏，如果隐藏则不发起请求
-  if (hitokotoContainer && !hitokotoContainer.classList.contains('hidden')) {
-    fetch('https://v1.hitokoto.cn', { signal: AbortSignal.timeout(3000) })
-      .then(res => res.json())
-      .then(data => {
-        const hitokoto = document.getElementById('hitokoto_text');
-        if (hitokoto) {
-          hitokoto.href = `https://hitokoto.cn/?uuid=${data.uuid}`;
-          hitokoto.innerText = data.hitokoto;
-        }
-      })
-      .catch(console.error);
-  }
-
   // ========== Horizontal Menu Overflow Logic ==========
   const navContainer = document.getElementById('horizontalCategoryNav');
   const moreWrapper = document.getElementById('horizontalMoreWrapper');

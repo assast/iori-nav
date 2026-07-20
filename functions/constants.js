@@ -23,7 +23,7 @@
  */
 
 // 产品版本号 - 以根目录 VERSION 为准，由 update-versions.js 同步
-export const APP_VERSION = '1.0.1';
+export const APP_VERSION = '1.0.2';
 
 // 数据库 Schema 版本 - 修改此值会触发迁移
 export const SCHEMA_VERSION = 'v5';
@@ -32,7 +32,7 @@ export const SCHEMA_VERSION = 'v5';
 export const PREVIOUS_SCHEMA_VERSION = 'v4';
 
 // 首页 HTML 缓存版本 - 修改此值会强制刷新首页缓存
-export const HOME_CACHE_VERSION = 'v14';
+export const HOME_CACHE_VERSION = 'v15';
 
 // 首页 HTML 缓存与 dirty 标记 TTL（30 天）
 export const HOME_CACHE_TTL = 2592000;

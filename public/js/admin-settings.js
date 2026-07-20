@@ -63,11 +63,6 @@ const initSettings = () => {
   const homeStatsColorInput = document.getElementById('homeStatsColor');
   const homeStatsColorPicker = document.getElementById('homeStatsColorPicker');
 
-  const hideHitokotoSwitch = document.getElementById('hideHitokotoSwitch');
-  const homeHitokotoSizeInput = document.getElementById('homeHitokotoSize');
-  const homeHitokotoColorInput = document.getElementById('homeHitokotoColor');
-  const homeHitokotoColorPicker = document.getElementById('homeHitokotoColorPicker');
-
   // New Card Font Elements
   const cardTitleFontInput = document.getElementById('cardTitleFont');
   const cardTitleSizeInput = document.getElementById('cardTitleSize');
@@ -81,7 +76,6 @@ const initSettings = () => {
   const homeTitleFontInput = document.getElementById('homeTitleFont');
   const homeSubtitleFontInput = document.getElementById('homeSubtitleFont');
   const homeStatsFontInput = document.getElementById('homeStatsFont');
-  const homeHitokotoFontInput = document.getElementById('homeHitokotoFont');
 
   const homeSiteNameInput = document.getElementById('homeSiteName');
   const homeSiteDescriptionInput = document.getElementById('homeSiteDescription');
@@ -136,7 +130,7 @@ const initSettings = () => {
   }
 
   function populateFontSelects() {
-    const selects = [homeTitleFontInput, homeSubtitleFontInput, homeStatsFontInput, homeHitokotoFontInput, cardTitleFontInput, cardDescFontInput];
+    const selects = [homeTitleFontInput, homeSubtitleFontInput, homeStatsFontInput, cardTitleFontInput, cardDescFontInput];
     selects.forEach(select => {
       if (!select) return;
       select.innerHTML = '';
@@ -334,9 +328,6 @@ const initSettings = () => {
     home_hide_stats: false,
     home_stats_size: '',
     home_stats_color: '',
-    home_hide_hitokoto: false,
-    home_hitokoto_size: '',
-    home_hitokoto_color: '',
     home_search_engine_enabled: false,
     layout_enable_frosted_glass: false,
     layout_frosted_glass_intensity: '15',
@@ -398,7 +389,6 @@ const initSettings = () => {
   setupColorPicker(homeTitleColorInput, homeTitleColorPicker);
   setupColorPicker(homeSubtitleColorInput, homeSubtitleColorPicker);
   setupColorPicker(homeStatsColorInput, homeStatsColorPicker);
-  setupColorPicker(homeHitokotoColorInput, homeHitokotoColorPicker);
   setupColorPicker(cardTitleColorInput, cardTitleColorPicker);
   setupColorPicker(cardDescColorInput, cardDescColorPicker);
 
@@ -766,14 +756,9 @@ const initSettings = () => {
     currentSettings.home_stats_size = homeStatsSizeInput.value.trim();
     currentSettings.home_stats_color = homeStatsColorInput.value.trim();
 
-    currentSettings.home_hide_hitokoto = hideHitokotoSwitch.checked;
-    currentSettings.home_hitokoto_size = homeHitokotoSizeInput.value.trim();
-    currentSettings.home_hitokoto_color = homeHitokotoColorInput.value.trim();
-
     currentSettings.home_title_font = homeTitleFontInput.value.trim();
     currentSettings.home_subtitle_font = homeSubtitleFontInput.value.trim();
     currentSettings.home_stats_font = homeStatsFontInput.value.trim();
-    currentSettings.home_hitokoto_font = homeHitokotoFontInput.value.trim();
 
     currentSettings.home_site_name = homeSiteNameInput.value.trim();
     currentSettings.home_site_description = homeSiteDescriptionInput.value.trim();
@@ -905,17 +890,12 @@ const initSettings = () => {
         if (serverSettings.home_stats_size) currentSettings.home_stats_size = serverSettings.home_stats_size;
         if (serverSettings.home_stats_color) currentSettings.home_stats_color = serverSettings.home_stats_color;
 
-        if (serverSettings.home_hide_hitokoto !== undefined) currentSettings.home_hide_hitokoto = serverSettings.home_hide_hitokoto === 'true';
-        if (serverSettings.home_hitokoto_size) currentSettings.home_hitokoto_size = serverSettings.home_hitokoto_size;
-        if (serverSettings.home_hitokoto_color) currentSettings.home_hitokoto_color = serverSettings.home_hitokoto_color;
-
         if (serverSettings.home_hide_github !== undefined) currentSettings.home_hide_github = serverSettings.home_hide_github === 'true';
         if (serverSettings.home_hide_admin !== undefined) currentSettings.home_hide_admin = serverSettings.home_hide_admin === 'true';
 
         if (serverSettings.home_title_font) currentSettings.home_title_font = serverSettings.home_title_font;
         if (serverSettings.home_subtitle_font) currentSettings.home_subtitle_font = serverSettings.home_subtitle_font;
         if (serverSettings.home_stats_font) currentSettings.home_stats_font = serverSettings.home_stats_font;
-        if (serverSettings.home_hitokoto_font) currentSettings.home_hitokoto_font = serverSettings.home_hitokoto_font;
 
         if (serverSettings.home_site_name) currentSettings.home_site_name = serverSettings.home_site_name;
         if (serverSettings.home_site_description) currentSettings.home_site_description = serverSettings.home_site_description;
@@ -1061,20 +1041,9 @@ const initSettings = () => {
       }
     }
 
-    if (hideHitokotoSwitch) hideHitokotoSwitch.checked = !!currentSettings.home_hide_hitokoto;
-    if (homeHitokotoSizeInput) homeHitokotoSizeInput.value = currentSettings.home_hitokoto_size || '14';
-    if (homeHitokotoColorInput) {
-      const val = currentSettings.home_hitokoto_color || '#6b7280';
-      homeHitokotoColorInput.value = val;
-      if (homeHitokotoColorPicker && /^#[0-9A-F]{6}$/i.test(val)) {
-        homeHitokotoColorPicker.value = val;
-      }
-    }
-
     if (homeTitleFontInput) homeTitleFontInput.value = currentSettings.home_title_font || '';
     if (homeSubtitleFontInput) homeSubtitleFontInput.value = currentSettings.home_subtitle_font || '';
     if (homeStatsFontInput) homeStatsFontInput.value = currentSettings.home_stats_font || '';
-    if (homeHitokotoFontInput) homeHitokotoFontInput.value = currentSettings.home_hitokoto_font || '';
 
     if (homeSiteNameInput) homeSiteNameInput.value = currentSettings.home_site_name || '';
     if (homeSiteDescriptionInput) homeSiteDescriptionInput.value = currentSettings.home_site_description || '';
@@ -1160,7 +1129,6 @@ const initSettings = () => {
     if (currentSettings.home_title_font) loadFont(currentSettings.home_title_font);
     if (currentSettings.home_subtitle_font) loadFont(currentSettings.home_subtitle_font);
     if (currentSettings.home_stats_font) loadFont(currentSettings.home_stats_font);
-    if (currentSettings.home_hitokoto_font) loadFont(currentSettings.home_hitokoto_font);
     if (currentSettings.card_title_font) loadFont(currentSettings.card_title_font);
     if (currentSettings.card_desc_font) loadFont(currentSettings.card_desc_font);
 
