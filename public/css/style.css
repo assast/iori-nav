@@ -420,17 +420,6 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
   outline-offset: 2px;
 }
 
-.category-new-window-btn {
-  border-color: #d1d5db;
-  color: #4b5563;
-}
-
-.category-new-window-btn:hover {
-  border-color: #9ca3af;
-  background: #f3f4f6;
-  color: #1f2937;
-}
-
 .dark .category-group-action {
   border-color: #4b6580;
   background: rgba(31, 41, 55, 0.72);
@@ -441,17 +430,6 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
   border-color: #718da8;
   background: #26384b;
   color: #d5e7f7;
-}
-
-.dark .category-new-window-btn {
-  border-color: #4b5563;
-  color: #d1d5db;
-}
-
-.dark .category-new-window-btn:hover {
-  border-color: #6b7280;
-  background: #374151;
-  color: #f3f4f6;
 }
 
 /* 分类批量打开确认 */
