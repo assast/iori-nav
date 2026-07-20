@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=39ee7260">
+  <link rel="stylesheet" href="/css/style.css?v=cf3c8862">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
@@ -86,7 +86,13 @@
       </div>
 
       <nav class="sidebar-nav" aria-label="书签分类">
-        <p class="sidebar-nav-heading">目录</p>
+        <div class="sidebar-nav-header">
+          <p class="sidebar-nav-heading">目录</p>
+          <div class="sidebar-nav-actions" role="group" aria-label="目录展开控制">
+            <button type="button" id="sidebarExpandToLevel2" class="sidebar-nav-action-btn" title="全部展开到二级">展开二级</button>
+            <button type="button" id="sidebarCollapseAll" class="sidebar-nav-action-btn" title="全部收起">全部收起</button>
+          </div>
+        </div>
         <div class="sidebar-nav-list">
           <a href="?catalog=all" class="sidebar-nav-link {{CATALOG_EXISTS}}" data-nav-all="1" style="--nav-depth: 0">
             <span class="sidebar-nav-label">全部</span>
@@ -265,6 +271,6 @@
   </div>
   
   <script src="/js/clicks-storage.js?v=fbd8fc30"></script>
-  <script src="/js/main.js?v=28bfad3c"></script>
+  <script src="/js/main.js?v=7bc7b463"></script>
 </body>
 </html>

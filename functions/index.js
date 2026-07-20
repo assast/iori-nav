@@ -176,12 +176,7 @@ export async function onRequest(context) {
   // === 6. 确定目标分类 ===
   let requestedCatalogName = (url.searchParams.get('catalog') || '').trim();
 
-  // 共享首页缓存仅基于稳定的默认分类渲染，避免用户的 iori_last_category
-  // 影响公共 KV HTML。上次分类的恢复逻辑仅在前端执行。
-  if (!requestedCatalogName) {
-    const defaultCat = (S.home_default_category || '').trim();
-    if (defaultCat && categoryIdMap.has(defaultCat)) requestedCatalogName = defaultCat;
-  }
+  // 共享首页缓存不读取用户本地上次分类；恢复逻辑仅在前端执行。
 
   let targetCategoryIds = [];
   let currentCatalogName = '';

@@ -22,7 +22,34 @@ document.addEventListener('DOMContentLoaded', function () {
   mobileOverlay?.addEventListener('click', closeSidebarMenu);
 
   // ========== 侧边栏分类树展开/折叠 ==========
-  function setSidebarNavExpanded(item, expanded) {
+  const SIDEBAR_EXPANDED_KEY = 'iori_sidebar_expanded';
+
+  function collectExpandedCategoryIds() {
+    if (!sidebar) return [];
+    return Array.from(sidebar.querySelectorAll('.sidebar-nav-item.is-expanded[data-id]'))
+      .map(el => String(el.getAttribute('data-id')))
+      .filter(Boolean);
+  }
+
+  function saveSidebarExpandedState() {
+    try {
+      localStorage.setItem(SIDEBAR_EXPANDED_KEY, JSON.stringify(collectExpandedCategoryIds()));
+    } catch (_) { /* ignore quota / private mode */ }
+  }
+
+  function loadSidebarExpandedIds() {
+    try {
+      const raw = localStorage.getItem(SIDEBAR_EXPANDED_KEY);
+      if (raw == null) return null; // 从未记录：保持 SSR 默认（仅一级）
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return null;
+      return new Set(arr.map(String));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setSidebarNavExpanded(item, expanded, persist = true) {
     if (!item) return;
     const children = item.querySelector(':scope > .sidebar-nav-children');
     const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
@@ -36,9 +63,21 @@ document.addEventListener('DOMContentLoaded', function () {
     const label = item.querySelector(':scope > .sidebar-nav-row .sidebar-nav-label');
     const name = label ? label.textContent.trim() : '';
     toggle.setAttribute('aria-label', `${expanded ? '收起' : '展开'}${name}`);
+
+    if (persist) saveSidebarExpandedState();
   }
 
-  function expandSidebarNavAncestors(categoryId) {
+  function applySidebarExpandedIds(ids) {
+    if (!sidebar || !ids) return;
+    sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
+      const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
+      if (!toggle) return;
+      const id = String(item.getAttribute('data-id') || '');
+      setSidebarNavExpanded(item, ids.has(id), false);
+    });
+  }
+
+  function expandSidebarNavAncestors(categoryId, persist = true) {
     if (!categoryId || !sidebar) return;
     const link = sidebar.querySelector(`.sidebar-nav-link[data-id="${categoryId}"]`);
     if (!link) return;
@@ -49,10 +88,37 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!parentChildren) break;
       const parentItem = parentChildren.closest('.sidebar-nav-item');
       if (!parentItem) break;
-      setSidebarNavExpanded(parentItem, true);
+      setSidebarNavExpanded(parentItem, true, false);
       node = parentItem;
     }
+    if (persist) saveSidebarExpandedState();
   }
+
+  /** 全部展开到二级：展开一级节点，收起更深层 */
+  function expandSidebarToLevel2() {
+    if (!sidebar) return;
+    sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
+      const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
+      if (!toggle) return;
+      const depth = Number(item.getAttribute('data-depth') || 0);
+      setSidebarNavExpanded(item, depth === 0, false);
+    });
+    saveSidebarExpandedState();
+  }
+
+  function collapseAllSidebarNav() {
+    if (!sidebar) return;
+    sidebar.querySelectorAll('.sidebar-nav-item').forEach(item => {
+      const toggle = item.querySelector(':scope > .sidebar-nav-row > .sidebar-nav-toggle');
+      if (!toggle) return;
+      setSidebarNavExpanded(item, false, false);
+    });
+    saveSidebarExpandedState();
+  }
+
+  // 恢复上次展开状态（若有）
+  const savedExpandedIds = loadSidebarExpandedIds();
+  if (savedExpandedIds) applySidebarExpandedIds(savedExpandedIds);
 
   sidebar?.addEventListener('click', (e) => {
     const toggle = e.target.closest('.sidebar-nav-toggle');
@@ -65,6 +131,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!item) return;
     const willExpand = !item.classList.contains('is-expanded');
     setSidebarNavExpanded(item, willExpand);
+  });
+
+  document.getElementById('sidebarExpandToLevel2')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    expandSidebarToLevel2();
+  });
+  document.getElementById('sidebarCollapseAll')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    collapseAllSidebarNav();
   });
 
   // 为初始 SSR 渲染的卡片设置动画延迟（已从服务端移至前端）

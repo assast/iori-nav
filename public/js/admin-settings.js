@@ -338,7 +338,6 @@ const initSettings = () => {
     home_hitokoto_size: '',
     home_hitokoto_color: '',
     home_search_engine_enabled: false,
-    home_default_category: '',
     layout_enable_frosted_glass: false,
     layout_frosted_glass_intensity: '15',
     layout_grid_cols: '4',
@@ -779,10 +778,6 @@ const initSettings = () => {
     currentSettings.home_site_name = homeSiteNameInput.value.trim();
     currentSettings.home_site_description = homeSiteDescriptionInput.value.trim();
 
-    if (homeDefaultCategorySelect) {
-      currentSettings.home_default_category = homeDefaultCategorySelect.value;
-    }
-
     currentSettings.home_search_engine_enabled = searchEngineSwitch.checked;
 
     if (sortByClicksSwitch) {
@@ -875,39 +870,7 @@ const initSettings = () => {
 
   // --- Helper Functions ---
 
-  const homeDefaultCategorySelect = document.getElementById('homeDefaultCategory');
-
   async function loadSettings() {
-    // Ensure categories are loaded for the dropdown
-    if (categoriesTree.length === 0) {
-      try {
-        const res = await fetch('/api/categories?pageSize=9999');
-        const data = await res.json();
-        if (data.code === 200) {
-          categoriesData = data.data || [];
-          categoriesTree = buildCategoryTree(categoriesData);
-        }
-      } catch (e) { console.error('Failed to load categories for settings', e); }
-    }
-
-    if (homeDefaultCategorySelect) {
-      homeDefaultCategorySelect.innerHTML = '<option value="">默认 (全部)</option>';
-
-      // Helper to flatten tree for simple select
-      const addOptions = (nodes, prefix = '') => {
-        nodes.forEach(node => {
-          const option = document.createElement('option');
-          option.value = node.catelog; // Store Name as value, because config uses name
-          option.textContent = prefix + node.catelog;
-          homeDefaultCategorySelect.appendChild(option);
-          if (node.children && node.children.length > 0) {
-            addOptions(node.children, prefix + '-- ');
-          }
-        });
-      };
-      addOptions(categoriesTree);
-    }
-
     try {
       // 1. Try to fetch from server (new source of truth)
       const res = await fetch('/api/settings');
@@ -958,8 +921,6 @@ const initSettings = () => {
         if (serverSettings.home_site_description) currentSettings.home_site_description = serverSettings.home_site_description;
 
         if (serverSettings.home_search_engine_enabled !== undefined) currentSettings.home_search_engine_enabled = serverSettings.home_search_engine_enabled === 'true';
-
-        if (serverSettings.home_default_category) currentSettings.home_default_category = serverSettings.home_default_category;
 
         if (serverSettings.sort_by_clicks !== undefined) currentSettings.sort_by_clicks = serverSettings.sort_by_clicks === 'true';
 
@@ -1117,8 +1078,6 @@ const initSettings = () => {
 
     if (homeSiteNameInput) homeSiteNameInput.value = currentSettings.home_site_name || '';
     if (homeSiteDescriptionInput) homeSiteDescriptionInput.value = currentSettings.home_site_description || '';
-
-    if (homeDefaultCategorySelect) homeDefaultCategorySelect.value = currentSettings.home_default_category || '';
 
     if (searchEngineSwitch) searchEngineSwitch.checked = !!currentSettings.home_search_engine_enabled;
 

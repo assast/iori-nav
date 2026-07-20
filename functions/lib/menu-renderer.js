@@ -50,8 +50,8 @@ function _hasActiveDescendant(cat, currentCatalogName) {
 
 /**
  * 渲染垂直侧边栏菜单（纸质编辑风：缩进 + 可折叠）
- * 默认只展开到第 2 级（depth 0 展开，可见 depth 0/1；更深需点击展开）
- * 若当前选中分类在更深层级，会沿路径展开以保证可见
+ * 默认只展示一级分类（全部折叠）；选中分类在更深层级时沿路径展开以保证可见
+ * 客户端会再叠加「记住展开状态」与「展开到二级 / 全部收起」
  * @param {Array} cats - 分类树
  * @param {string} currentCatalogName - 当前选中的分类名
  * @param {boolean} [_isCustomWallpaper] - 兼容旧调用，不再影响样式
@@ -61,9 +61,6 @@ export function renderVerticalMenu(cats, currentCatalogName, _isCustomWallpaper)
     return _renderVerticalItems(cats, currentCatalogName, 0);
 }
 
-// 默认展开：level < 1 → 根节点展开，可见两级（depth 0 与 depth 1）
-const DEFAULT_EXPAND_MAX_LEVEL = 1;
-
 function _renderVerticalItems(cats, currentCatalogName, level) {
     return cats.map(cat => {
         const safeName = escapeHTML(cat.catelog);
@@ -71,8 +68,8 @@ function _renderVerticalItems(cats, currentCatalogName, level) {
         const isActive = currentCatalogName === cat.catelog;
         const activeClass = isActive ? 'is-active' : '';
         const hasChildren = cat.children && cat.children.length > 0;
-        const forceExpand = hasChildren && _hasActiveDescendant(cat, currentCatalogName);
-        const isExpanded = hasChildren && (level < DEFAULT_EXPAND_MAX_LEVEL || forceExpand);
+        // 默认折叠；仅当选中项在子树中时强制展开路径（深链 SSR）
+        const isExpanded = hasChildren && _hasActiveDescendant(cat, currentCatalogName);
 
         const toggleHtml = hasChildren
             ? `<button type="button" class="sidebar-nav-toggle" data-toggle-id="${cat.id}" aria-expanded="${isExpanded ? 'true' : 'false'}" aria-label="${isExpanded ? '收起' : '展开'}${safeName}"><svg class="sidebar-nav-toggle-icon" aria-hidden="true"><use href="#icon-chevron-right"/></svg></button>`
