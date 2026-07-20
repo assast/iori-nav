@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=cf3c8862">
+  <link rel="stylesheet" href="/css/style.css?v=31e3b6b8">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
@@ -94,9 +94,14 @@
           </div>
         </div>
         <div class="sidebar-nav-list">
-          <a href="?catalog=all" class="sidebar-nav-link {{CATALOG_EXISTS}}" data-nav-all="1" style="--nav-depth: 0">
-            <span class="sidebar-nav-label">全部</span>
-          </a>
+          <div class="sidebar-nav-item" data-depth="0" data-nav-all-item="1">
+            <div class="sidebar-nav-row">
+              <span class="sidebar-nav-toggle-spacer" aria-hidden="true"></span>
+              <a href="?catalog=all" class="sidebar-nav-link {{CATALOG_EXISTS}}" data-nav-all="1" style="--nav-depth: 0">
+                <span class="sidebar-nav-label">全部</span>
+              </a>
+            </div>
+          </div>
           {{CATALOG_LINKS}}
         </div>
       </nav>

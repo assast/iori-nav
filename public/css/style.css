@@ -108,11 +108,15 @@ html.dark body.custom-wallpaper::before {
     transition: background-color 0.3s ease;
 }
 
-/* 2. 侧边栏深色玻璃化 */
+/* 2. 侧边栏深色 + 壁纸：半透明玻璃，略透出壁纸 */
 html.dark body.custom-wallpaper .sidebar {
-    background: rgba(18, 23, 29, 0.86) !important;
-    backdrop-filter: blur(var(--frosted-glass-blur, 15px));
-    -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px));
+    background: linear-gradient(
+      180deg,
+      rgba(18, 23, 29, 0.58) 0%,
+      rgba(18, 23, 29, 0.52) 100%
+    ) !important;
+    backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.08);
+    -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.08);
     border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
 }
 
@@ -466,16 +470,35 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 /*  竖版侧栏：纸质目录风                     */
 /* ========================================= */
 .sidebar {
-  background: linear-gradient(180deg, #f8f5ef 0%, #f3efe7 100%);
-  border-right: 1px solid var(--line);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f8f5ef 78%, transparent) 0%,
+    color-mix(in srgb, #f3efe7 72%, transparent) 100%
+  );
+  border-right: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   box-shadow: none;
   color: var(--ink);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
 }
 
 .dark .sidebar {
-  background: linear-gradient(180deg, #151b22 0%, #12171d 100%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #151b22 72%, transparent) 0%,
+    color-mix(in srgb, #12171d 68%, transparent) 100%
+  );
   border-right-color: rgba(255, 255, 255, 0.06);
   color: #e8edf2;
+}
+
+/* 壁纸场景再略透一点，让背景纹理透出 */
+body.custom-wallpaper .sidebar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #f8f5ef 62%, transparent) 0%,
+    color-mix(in srgb, #f3efe7 56%, transparent) 100%
+  );
 }
 
 .sidebar-inner {
@@ -606,15 +629,9 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
   align-items: center;
   gap: 0.1rem;
   min-width: 0;
+  /* 所有层级与「常用」同列对齐，层级只靠展开/收起表达 */
+  padding-left: 0;
 }
-
-.sidebar-nav-item[data-depth="0"] > .sidebar-nav-row { padding-left: 0; }
-.sidebar-nav-item[data-depth="1"] > .sidebar-nav-row { padding-left: 0.75rem; }
-.sidebar-nav-item[data-depth="2"] > .sidebar-nav-row { padding-left: 1.5rem; }
-.sidebar-nav-item[data-depth="3"] > .sidebar-nav-row { padding-left: 2.25rem; }
-.sidebar-nav-item[data-depth="4"] > .sidebar-nav-row { padding-left: 3rem; }
-.sidebar-nav-item[data-depth="5"] > .sidebar-nav-row { padding-left: 3.75rem; }
-.sidebar-nav-item[data-depth="6"] > .sidebar-nav-row { padding-left: 4.5rem; }
 
 .sidebar-nav-toggle,
 .sidebar-nav-toggle-spacer {
