@@ -629,9 +629,16 @@ body.custom-wallpaper .sidebar {
   align-items: center;
   gap: 0.1rem;
   min-width: 0;
-  /* 所有层级与「常用」同列对齐，层级只靠展开/收起表达 */
+  /* 「全部」与一级 depth=0 不缩进；更深层级按 depth 缩进体现层级 */
   padding-left: 0;
 }
+
+.sidebar-nav-item[data-depth="1"] > .sidebar-nav-row { padding-left: 0.75rem; }
+.sidebar-nav-item[data-depth="2"] > .sidebar-nav-row { padding-left: 1.5rem; }
+.sidebar-nav-item[data-depth="3"] > .sidebar-nav-row { padding-left: 2.25rem; }
+.sidebar-nav-item[data-depth="4"] > .sidebar-nav-row { padding-left: 3rem; }
+.sidebar-nav-item[data-depth="5"] > .sidebar-nav-row { padding-left: 3.75rem; }
+.sidebar-nav-item[data-depth="6"] > .sidebar-nav-row { padding-left: 4.5rem; }
 
 .sidebar-nav-toggle,
 .sidebar-nav-toggle-spacer {
