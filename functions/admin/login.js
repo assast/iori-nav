@@ -34,31 +34,33 @@ function renderLoginPage(message = '') {
   <title>管理员登录</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
-    body { display: flex; justify-content: center; align-items: center; background-color: #f8f9fa; padding: 1rem; }
+    html, body { height: 100%; margin: 0; padding: 0; font-family: Inter, "Noto Sans SC", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    body { display: flex; justify-content: center; align-items: center; background-color: #f6f5f4; padding: 1rem; }
     .login-container {
-      background-color: white; padding: 2rem; border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08); width: 100%; max-width: 380px;
+      background-color: #ffffff; padding: 2rem; border-radius: 12px;
+      border: 1px solid #e5e3df;
+      box-shadow: rgba(15, 15, 15, 0.08) 0px 4px 12px 0px; width: 100%; max-width: 380px;
       animation: fadeIn 0.5s ease-out;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-    .login-title { font-size: 1.75rem; font-weight: 700; text-align: center; margin: 0 0 1.5rem 0; color: #333; }
+    .login-title { font-size: 1.75rem; font-weight: 600; text-align: center; margin: 0 0 1.5rem 0; color: #1a1a1a; letter-spacing: -0.02em; }
     .form-group { margin-bottom: 1.25rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555; }
-    input[type="text"], input[type="password"] {
-      width: 100%; padding: 0.875rem 1rem; border: 1px solid #ddd; border-radius: 6px;
-      font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s;
+    label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #37352f; font-size: 0.875rem; }
+    input[type="text"], input[type="password"], select {
+      width: 100%; padding: 0.75rem 1rem; border: 1px solid #c8c4be; border-radius: 8px;
+      font-size: 1rem; transition: border-color 0.15s, box-shadow 0.15s; min-height: 44px;
+      background: #ffffff; color: #1a1a1a;
     }
-    input:focus { border-color: #7209b7; outline: none; box-shadow: 0 0 0 3px rgba(114, 9, 183, 0.15); }
+    input:focus, select:focus { border-color: #5645d4; outline: none; box-shadow: 0 0 0 2px rgba(86, 69, 212, 0.2); }
     button {
-      width: 100%; padding: 0.875rem; background-color: #7209b7; color: white; border: none;
-      border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
+      width: 100%; padding: 0.75rem 1.125rem; background-color: #5645d4; color: white; border: none;
+      border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; min-height: 44px;
+      transition: background-color 0.15s, transform 0.1s;
     }
-    button:hover { background-color: #5a067c; }
+    button:hover { background-color: #4534b3; }
     button:active { transform: scale(0.98); }
-    .error-message { color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem; text-align: center; }
-    .back-link { display: block; text-align: center; margin-top: 1.5rem; color: #7209b7; text-decoration: none; font-size: 0.875rem; }
+    .error-message { color: #e03131; font-size: 0.875rem; margin-top: 0.5rem; text-align: center; }
+    .back-link { display: block; text-align: center; margin-top: 1.5rem; color: #0075de; text-decoration: none; font-size: 0.875rem; font-weight: 500; }
     .back-link:hover { text-decoration: underline; }
   </style>
 </head>
@@ -76,7 +78,7 @@ function renderLoginPage(message = '') {
       </div>
       <div class="form-group">
         <label for="duration">登录有效期</label>
-        <select id="duration" name="duration" style="width: 100%; padding: 0.875rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; background-color: white;">
+        <select id="duration" name="duration">
           <option value="1">1 天</option>
           <option value="7">7 天</option>
           <option value="30">30 天</option>

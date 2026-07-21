@@ -205,7 +205,7 @@ function renderCategoryTable(categories) {
             const expandLabel = isExpanded ? '收起' : '展开';
             const expandIcon = isExpanded ? '▾' : '▸';
             const childButton = hasChildren
-                ? `<button class="category-subs-btn bg-indigo-100 text-indigo-600 hover:bg-indigo-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" aria-expanded="${isExpanded}">${expandIcon} ${expandLabel}</button>`
+                ? `<button class="category-subs-btn bg-primary-100 text-primary-600 hover:bg-primary-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" aria-expanded="${isExpanded}">${expandIcon} ${expandLabel}</button>`
                 : '<button class="category-subs-btn bg-gray-100 text-gray-400 px-2 py-1 rounded text-xs" disabled>无子分类</button>';
 
             const privacyBadge = item.is_private
@@ -227,7 +227,7 @@ function renderCategoryTable(categories) {
                 <td class="p-3 border-b">
                     <div class="flex gap-2 flex-wrap">
                         ${childButton}
-                        <button class="category-edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}">编辑</button>
+                        <button class="category-edit-btn bg-primary-100 text-primary-600 hover:bg-primary-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}">编辑</button>
                         <button class="category-del-btn bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded text-xs" data-category-id="${item.id}" data-site-count="${siteCount}" data-sub-count="${subCount}">删除</button>
                     </div>
                 </td>

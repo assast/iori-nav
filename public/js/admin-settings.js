@@ -462,7 +462,7 @@ const initSettings = () => {
               transform: scale(1.15) translateY(-10px) !important;
               box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
               z-index: 10 !important;
-              border: 2px solid #416d9d !important;
+              border: 2px solid #5645d4 !important;
           }
       `;
     document.head.appendChild(style);

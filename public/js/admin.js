@@ -628,7 +628,7 @@ function renderConfig(configs) {
     }
 
     const urlLink = normalizedUrl
-      ? `<a href="${window.escapeHTML(normalizedUrl)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline truncate max-w-[200px] inline-block" title="${displayUrl}">${displayUrl}</a>`
+      ? `<a href="${window.escapeHTML(normalizedUrl)}" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:underline truncate max-w-[200px] inline-block" title="${displayUrl}">${displayUrl}</a>`
       : `<span class="text-gray-400">未提供</span>`;
 
     tr.innerHTML = `
@@ -648,7 +648,7 @@ function renderConfig(configs) {
       <td class="p-3 border-b text-gray-600 text-center">${config.clicks || 0}</td>
       <td class="p-3 border-b">
         <div class="flex gap-2 flex-wrap">
-          <button class="edit-btn bg-blue-100 text-blue-600 hover:bg-blue-200 px-2 py-1 rounded text-xs" data-id="${config.id}">编辑</button>
+          <button class="edit-btn bg-primary-100 text-primary-600 hover:bg-primary-200 px-2 py-1 rounded text-xs" data-id="${config.id}">编辑</button>
           <button class="del-btn bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded text-xs" data-id="${config.id}">删除</button>
         </div>
       </td>

@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showToast(message) {
     const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-accent-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300';
+    toast.className = 'fixed top-4 right-4 bg-primary-500 text-white px-4 py-2.5 rounded-md shadow-elevation-2 z-50 transition-opacity duration-300';
     toast.textContent = message;
     document.body.appendChild(toast);
 
@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function () {
         navContainer.insertBefore(item, moreWrapper);
       });
       moreWrapper.classList.add('hidden');
-      moreBtn.classList.remove('active', 'text-primary-600', 'bg-secondary-100');
+      moreBtn.classList.remove('active', 'text-primary-600', 'bg-primary-50');
       moreBtn.classList.add('inactive');
     };
 
@@ -881,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (activeInDropdown) {
         moreBtn.classList.add('active');
         moreBtn.classList.remove('inactive');
-        moreBtn.classList.add('text-primary-600', 'bg-secondary-100');
+        moreBtn.classList.add('text-primary-600', 'bg-primary-50');
       }
 
       // Restore overflow to visible to allow dropdowns (submenus) to show
@@ -1101,8 +1101,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const isAboveFold = index < 8;
     const imgLoadingAttrs = isAboveFold ? 'fetchpriority="high" decoding="async"' : 'loading="lazy" decoding="async"';
     const logoHtml = site.logo
-      ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="36" height="36" class="w-9 h-9 rounded-md object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
-      : `<div class="w-9 h-9 rounded-md bg-primary-600 flex items-center justify-center text-white font-semibold text-base shadow-inner">${cardInitial}</div>`;
+      ? `<img src="${escapeHTML(site.logo)}" alt="${safeName}" width="36" height="36" class="w-9 h-9 rounded-md object-cover bg-surface dark:bg-gray-700" ${imgLoadingAttrs}>`
+      : `<div class="w-9 h-9 rounded-md bg-primary-500 flex items-center justify-center text-white font-semibold text-base shadow-inner">${cardInitial}</div>`;
 
     const descHtml = hideDesc ? '' : `<p class="site-desc mt-2 text-sm leading-relaxed line-clamp-2" title="${safeDesc}">${safeDesc}</p>`;
 
@@ -1113,7 +1113,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <button class="copy-btn relative inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${hasValidUrl ? '' : 'is-disabled'}" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'} aria-label="复制链接">
             <svg class="h-3 w-3 ${isFiveCols || isSixCols ? '' : 'mr-1'}" aria-hidden="true"><use href="#icon-copy"/></svg>
             ${isFiveCols || isSixCols ? '' : '<span class="copy-text">复制</span>'}
-            <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+            <span class="copy-success hidden absolute -top-8 right-0 bg-primary-500 text-white text-xs px-2 py-1 rounded-md shadow-elevation-1">已复制!</span>
           </button>
         </div>`;
 
@@ -1124,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cardStyleClass = cardStyle === 'style2' ? 'style-2' : '';
     const baseCardClass = isFrostedEnabled
       ? 'site-card group overflow-hidden transition-all'
-      : 'site-card group bg-white border border-primary-100/50 shadow-[0_1px_2px_rgba(36,48,58,0.04)] overflow-hidden dark:bg-gray-800 dark:border-gray-700';
+      : 'site-card group bg-white border border-hairline shadow-elevation-1 overflow-hidden dark:bg-gray-800 dark:border-gray-700';
 
     const card = document.createElement('div');
     card.className = `${baseCardClass} ${frostedClass} ${cardStyleClass} card-anim-enter`;
@@ -1261,10 +1261,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dropdown && moreBtn) {
       const activeInDropdown = dropdown.querySelector('.active');
       if (activeInDropdown) {
-        moreBtn.classList.add('active', 'text-primary-600', 'bg-secondary-100');
+        moreBtn.classList.add('active', 'text-primary-600', 'bg-primary-50');
         moreBtn.classList.remove('inactive');
       } else {
-        moreBtn.classList.remove('active', 'text-primary-600', 'bg-secondary-100');
+        moreBtn.classList.remove('active', 'text-primary-600', 'bg-primary-50');
         moreBtn.classList.add('inactive');
       }
     }

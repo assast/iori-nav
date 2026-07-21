@@ -1,18 +1,60 @@
 /* 自定义滚动条 */
 :root {
   --card-padding: 1rem;
-  --card-radius: 0.7rem;
+  --card-radius: 12px; /* DESIGN.md rounded.lg */
   --frosted-glass-blur: 15px;
-  /* 纸质编辑风：微暖中性 + 墨水色 */
-  --ink: #24303a;
-  --ink-soft: #5b6b78;
-  --ink-faint: #8a97a3;
-  --paper: #f6f3ed;
-  --paper-card: #fffcf8;
-  --line: #e4dfd5;
-  --line-strong: #d2cbc0;
-  --accent-ink: #3d5a73;
-  --nav-active-bg: color-mix(in srgb, var(--accent-ink) 9%, #f3efe7);
+
+  /* DESIGN.md tokens — Notion 设计系统 */
+  --color-primary: #5645d4;
+  --color-primary-pressed: #4534b3;
+  --color-primary-deep: #3a2a99;
+  --color-on-primary: #ffffff;
+  --color-brand-navy: #0a1530;
+  --color-brand-navy-deep: #070f24;
+  --color-brand-navy-mid: #1a2a52;
+  --color-link-blue: #0075de;
+  --color-canvas: #ffffff;
+  --color-surface: #f6f5f4;
+  --color-surface-soft: #fafaf9;
+  --color-hairline: #e5e3df;
+  --color-hairline-soft: #ede9e4;
+  --color-hairline-strong: #c8c4be;
+  --color-ink-deep: #000000;
+  --color-ink: #1a1a1a;
+  --color-charcoal: #37352f;
+  --color-slate: #5d5b54;
+  --color-steel: #787671;
+  --color-stone: #a4a097;
+  --color-muted: #bbb8b1;
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: #a4a097;
+  --color-success: #1aae39;
+  --color-warning: #dd5b00;
+  --color-error: #e03131;
+  --color-tint-lavender: #e6e0f5;
+  --color-tint-peach: #ffe8d4;
+  --color-tint-mint: #d9f3e1;
+
+  --shadow-1: rgba(15, 15, 15, 0.04) 0px 1px 2px 0px;
+  --shadow-2: rgba(15, 15, 15, 0.08) 0px 4px 12px 0px;
+  --shadow-3: rgba(15, 15, 15, 0.20) 0px 24px 48px -8px;
+  --shadow-4: rgba(15, 15, 15, 0.16) 0px 16px 48px -8px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* 兼容旧变量名（侧栏 / 卡片内部仍引用） */
+  --ink: var(--color-ink);
+  --ink-soft: var(--color-slate);
+  --ink-faint: var(--color-steel);
+  --paper: var(--color-surface);
+  --paper-card: var(--color-canvas);
+  --line: var(--color-hairline);
+  --line-strong: var(--color-hairline-strong);
+  --accent-ink: var(--color-primary);
+  --nav-active-bg: color-mix(in srgb, var(--accent-ink) 9%, var(--color-surface));
   --nav-hover-bg: color-mix(in srgb, var(--accent-ink) 5%, transparent);
 }
 
@@ -74,12 +116,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c3d0e3;
-  border-radius: 10px;
+  background: var(--color-hairline-strong);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #416d9d;
+  background: var(--color-primary);
 }
 
 /* Dark Mode Scrollbar */
@@ -143,7 +185,7 @@ html.dark body.custom-wallpaper .sidebar {
 .site-card:hover {
   will-change: transform;
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(36, 48, 58, 0.08);
+  box-shadow: var(--shadow-2);
   z-index: 20;
   border-color: color-mix(in srgb, var(--accent-ink) 35%, var(--line)) !important;
 }
@@ -206,19 +248,19 @@ html.dark body.custom-wallpaper .sidebar {
 
 .site-card .copy-btn.is-disabled,
 .site-card .copy-btn:disabled {
-  background: #ece7df;
-  color: #a8a29a;
+  background: var(--color-hairline);
+  color: var(--color-muted);
   cursor: not-allowed;
 }
 
 .dark .site-card .copy-btn {
-  background: rgba(143, 180, 216, 0.1);
-  color: #c7daf0;
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  color: #c4b5fd;
 }
 
 .dark .site-card .copy-btn:hover:not(:disabled):not(.is-disabled) {
-  background: rgba(143, 180, 216, 0.16);
-  border-color: rgba(143, 180, 216, 0.22);
+  background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 28%, transparent);
 }
 
 .dark .site-card .copy-btn.is-disabled,
@@ -280,7 +322,7 @@ html.dark body.custom-wallpaper .sidebar {
 }
 
 .dark .site-card-content .text-primary-600 {
-    color: #60a5fa !important;
+    color: #a78bfa !important;
 }
 
 /* 4. 头部/容器深色化 */
@@ -328,17 +370,18 @@ header {
     color: #fff;
 }
 .dark .dropdown-item.active {
-    background-color: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    color: #c4b5fd;
 }
 
-/* 7. 导航按钮样式 */
+/* 7. 导航按钮样式 — DESIGN.md: rounded.md 矩形，非 pill */
 .nav-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem;
-  line-height: 1.25rem; font-weight: 500; white-space: nowrap;
-  transition: all 0.2s ease; border: 1px solid transparent;
-  cursor: pointer; text-decoration: none; height: 2.5rem;
+  padding: 10px 18px; border-radius: var(--radius-md); font-size: 0.875rem;
+  line-height: 1.3; font-weight: 500; white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  border: 1px solid transparent;
+  cursor: pointer; text-decoration: none; min-height: 2.5rem;
 }
 
 body:not(.app-ready) .nav-btn,
@@ -357,18 +400,18 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 .custom-wallpaper .nav-btn.inactive {
   background-color: rgba(255, 255, 255, 0.7); color: #374151; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
-.custom-wallpaper .nav-btn.inactive:hover { background-color: white; color: #2563eb; }
+.custom-wallpaper .nav-btn.inactive:hover { background-color: white; color: var(--color-primary); }
 
 .nav-btn.active {
-  background-color: white; color: #1d4ed8; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); font-weight: 600;
+  background-color: white; color: var(--color-primary-deep); box-shadow: var(--shadow-1); font-weight: 600;
 }
 .dark .nav-btn.active {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  color: #60a5fa !important;
-  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent) !important;
+  color: #c4b5fd !important;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent) !important;
 }
-.custom-wallpaper .nav-btn.active { background-color: #2563eb; color: white; }
-.dark.custom-wallpaper .nav-btn.active { background-color: #2563eb !important; color: white !important; }
+.custom-wallpaper .nav-btn.active { background-color: var(--color-primary); color: white; }
+.dark.custom-wallpaper .nav-btn.active { background-color: var(--color-primary) !important; color: white !important; }
 
 /* 风格一：轻量强调，避免图标消失 + 标题放大的噪音 */
 .site-card:not(.style-2) .site-icon {
@@ -467,15 +510,11 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 }
 
 /* ========================================= */
-/*  竖版侧栏：纸质目录风                     */
+/*  竖版侧栏 — DESIGN.md surface + hairline  */
 /* ========================================= */
 .sidebar {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, #f8f5ef 52%, transparent) 0%,
-    color-mix(in srgb, #f3efe7 46%, transparent) 100%
-  );
-  border-right: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   box-shadow: none;
   color: var(--ink);
   backdrop-filter: blur(16px) saturate(1.08);
@@ -483,22 +522,14 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 }
 
 .dark .sidebar {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, #151b22 48%, transparent) 0%,
-    color-mix(in srgb, #12171d 42%, transparent) 100%
-  );
+  background: color-mix(in srgb, var(--color-brand-navy) 72%, transparent);
   border-right-color: rgba(255, 255, 255, 0.06);
   color: #e8edf2;
 }
 
 /* 壁纸场景再透一点，让背景纹理透出 */
 body.custom-wallpaper .sidebar {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, #f8f5ef 40%, transparent) 0%,
-    color-mix(in srgb, #f3efe7 34%, transparent) 100%
-  );
+  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
 }
 
 .sidebar-inner {
@@ -523,11 +554,11 @@ body.custom-wallpaper .sidebar {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
   border: 1px solid transparent;
   color: var(--ink-soft);
   background: transparent;
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .sidebar-tool-btn:hover {
@@ -695,13 +726,13 @@ body.custom-wallpaper .sidebar {
   min-width: 0;
   min-height: 2.15rem;
   padding: 0.42rem 0.55rem 0.42rem 0.35rem;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-md);
   color: var(--ink-soft);
   font-size: 0.9rem;
   line-height: 1.25;
   font-weight: 500;
   text-decoration: none;
-  transition: background-color 0.16s ease, color 0.16s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .sidebar-nav-link:hover {
@@ -742,9 +773,9 @@ body.custom-wallpaper .sidebar {
 }
 
 .dark .sidebar-nav-link.is-active {
-  color: #c7daf0;
-  background: rgba(169, 201, 232, 0.1);
-  box-shadow: inset 2px 0 0 #8fb4d8;
+  color: #c4b5fd;
+  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-primary);
 }
 
 .sidebar-footer {
@@ -766,30 +797,29 @@ body.custom-wallpaper .sidebar {
   justify-content: center;
   gap: 0.4rem;
   width: 100%;
-  min-height: 2.3rem;
-  padding: 0.45rem 0.8rem;
-  border: 1px solid color-mix(in srgb, var(--accent-ink) 35%, var(--line));
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--accent-ink) 8%, #fff);
-  color: var(--accent-ink);
-  font-size: 0.84rem;
-  font-weight: 600;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+  min-height: 2.5rem;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
 }
 
 .sidebar-submit-btn:hover {
-  background: color-mix(in srgb, var(--accent-ink) 14%, #fff);
-  border-color: color-mix(in srgb, var(--accent-ink) 55%, var(--line));
+  background: var(--color-primary-pressed);
 }
 
 .dark .sidebar-submit-btn {
-  background: rgba(143, 180, 216, 0.1);
-  border-color: rgba(143, 180, 216, 0.28);
-  color: #c7daf0;
+  background: var(--color-primary);
+  border-color: transparent;
+  color: var(--color-on-primary);
 }
 
 .dark .sidebar-submit-btn:hover {
-  background: rgba(143, 180, 216, 0.16);
+  background: var(--color-primary-pressed);
 }
 
 .sidebar-admin-link {
@@ -860,15 +890,15 @@ body.custom-wallpaper .sidebar {
   justify-content: center;
   min-height: 1.9rem;
   padding: 0.32rem 0.55rem;
-  border: 1px solid #cbd9e8;
-  border-radius: 0.375rem;
-  background: rgba(255, 255, 255, 0.72);
-  color: #315f8f;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-canvas);
+  color: var(--color-primary);
   font-size: 0.72rem;
   line-height: 1;
   font-weight: 600;
   white-space: nowrap;
-  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .category-group-action svg {
@@ -879,26 +909,26 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-group-action:hover {
-  border-color: #8eabc9;
-  background: #edf3f8;
-  color: #244f7d;
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-hairline));
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-canvas));
+  color: var(--color-primary-pressed);
 }
 
 .category-group-action:focus-visible {
-  outline: 2px solid #416d9d;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .dark .category-group-action {
-  border-color: #4b6580;
-  background: rgba(31, 41, 55, 0.72);
-  color: #a9c9e8;
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: #c4b5fd;
 }
 
 .dark .category-group-action:hover {
-  border-color: #718da8;
-  background: #26384b;
-  color: #d5e7f7;
+  border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  color: #ddd6fe;
 }
 
 /* 分类批量打开确认 */
@@ -925,12 +955,12 @@ body.custom-wallpaper .sidebar {
   width: min(100%, 28rem);
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
-  border: 1px solid #d8e1eb;
-  border-radius: 0.5rem;
-  background: #fbfdff;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-canvas);
+  box-shadow: var(--shadow-4);
   padding: 1.25rem;
-  color: #1f2937;
+  color: var(--color-ink);
   transform: translateY(0.75rem);
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -947,15 +977,15 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-open-confirm-header h2 {
-  color: #17263a;
+  color: var(--color-ink);
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.4;
 }
 
 .category-open-confirm-header p {
   margin-top: 0.2rem;
-  color: #5f6f82;
+  color: var(--color-slate);
   font-size: 0.82rem;
   overflow-wrap: anywhere;
 }
@@ -967,9 +997,9 @@ body.custom-wallpaper .sidebar {
   flex: 0 0 2rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.375rem;
-  color: #64748b;
-  transition: color 0.16s ease, background-color 0.16s ease;
+  border-radius: var(--radius-md);
+  color: var(--color-steel);
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 
 .category-open-confirm-close svg {
@@ -978,13 +1008,13 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-open-confirm-close:hover {
-  background: #edf2f7;
-  color: #27364a;
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
 
 .category-open-confirm-summary {
   margin-top: 1rem;
-  color: #334155;
+  color: var(--color-charcoal);
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -995,7 +1025,7 @@ body.custom-wallpaper .sidebar {
 
 .category-open-scope-fields legend {
   margin-bottom: 0.45rem;
-  color: #5f6f82;
+  color: var(--color-slate);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -1007,11 +1037,11 @@ body.custom-wallpaper .sidebar {
   gap: 0.7rem;
   min-height: 3.7rem;
   padding: 0.65rem 0.75rem;
-  border: 1px solid #d8e1eb;
-  border-radius: 0.375rem;
-  background: #f7fafc;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
   cursor: pointer;
-  transition: border-color 0.16s ease, background-color 0.16s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .category-open-scope-option + .category-open-scope-option {
@@ -1019,19 +1049,19 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-open-scope-option:hover {
-  border-color: #9fb5cb;
-  background: #f0f5f9;
+  border-color: var(--color-hairline-strong);
+  background: var(--color-surface);
 }
 
 .category-open-scope-option:has(input:checked) {
-  border-color: #527da8;
-  background: #edf4fa;
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-canvas));
 }
 
 .category-open-scope-option input {
   width: 1rem;
   height: 1rem;
-  accent-color: #416d9d;
+  accent-color: var(--color-primary);
 }
 
 .category-open-scope-copy {
@@ -1041,9 +1071,9 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-open-scope-copy strong {
-  color: #26384b;
+  color: var(--color-ink);
   font-size: 0.86rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .category-open-scope-copy small {
@@ -1054,7 +1084,7 @@ body.custom-wallpaper .sidebar {
 }
 
 .category-open-scope-count {
-  color: #416d9d;
+  color: var(--color-primary);
   font-size: 0.75rem;
   font-weight: 700;
   white-space: nowrap;
@@ -1069,44 +1099,45 @@ body.custom-wallpaper .sidebar {
 
 .category-open-cancel-btn,
 .category-open-submit-btn {
-  min-height: 2.35rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 0.375rem;
-  font-size: 0.84rem;
-  font-weight: 650;
-  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+  min-height: 2.5rem;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .category-open-cancel-btn {
-  border: 1px solid #cbd5e1;
-  background: #fbfdff;
-  color: #475569;
+  border: 1px solid var(--color-hairline-strong);
+  background: var(--color-canvas);
+  color: var(--color-ink);
 }
 
 .category-open-cancel-btn:hover {
-  background: #f1f5f9;
-  color: #1f2937;
+  background: var(--color-surface);
+  color: var(--color-ink-deep);
 }
 
 .category-open-submit-btn {
-  border: 1px solid #315f8f;
-  background: #315f8f;
-  color: #f8fbff;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .category-open-submit-btn:hover {
-  border-color: #244f7d;
-  background: #244f7d;
+  border-color: var(--color-primary-pressed);
+  background: var(--color-primary-pressed);
 }
 
 .category-open-submit-btn:disabled {
-  border-color: #b8c4d1;
-  background: #b8c4d1;
+  border-color: var(--color-hairline);
+  background: var(--color-hairline);
+  color: var(--color-muted);
   cursor: not-allowed;
 }
 
 .category-open-confirm-dialog :focus-visible {
-  outline: 2px solid #416d9d;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -1327,26 +1358,26 @@ body.custom-wallpaper .sidebar {
 
 .search-engine-option.active {
   background-color: white;
-  color: #1d4ed8; /* Dark Blue */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  color: var(--color-primary-deep);
+  box-shadow: var(--shadow-1);
   font-weight: 600;
-  border-bottom-color: transparent; /* Reset old style */
+  border-bottom-color: transparent;
 }
 
 /* Custom Wallpaper Mode */
 .custom-wallpaper .search-engine-option {
   background-color: rgba(255, 255, 255, 0.7);
-  color: #374151;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  color: var(--color-charcoal);
+  box-shadow: var(--shadow-1);
 }
 .custom-wallpaper .search-engine-option:hover {
   background-color: white;
-  color: #2563eb;
+  color: var(--color-primary);
 }
 .custom-wallpaper .search-engine-option.active {
-  background-color: #2563eb;
+  background-color: var(--color-primary);
   color: white;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-1);
 }
 
 /* Dark Mode */
@@ -1360,9 +1391,9 @@ body.custom-wallpaper .sidebar {
   color: #e5e7eb;
 }
 .dark .search-engine-option.active {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  color: #c4b5fd;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 /* 侧边栏与 Overlay */
@@ -1401,15 +1432,15 @@ body.custom-wallpaper .sidebar {
 
 /* Light Mode + Wallpaper Sidebar Optimization */
 html:not(.dark) body.custom-wallpaper .sidebar {
-    background: rgba(248, 245, 239, 0.72) !important;
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent) !important;
     backdrop-filter: blur(var(--frosted-glass-blur, 15px));
     -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px));
-    border-right: 1px solid rgba(210, 203, 192, 0.55) !important;
+    border-right: 1px solid color-mix(in srgb, var(--color-hairline) 70%, transparent) !important;
     box-shadow: none;
 }
 
 html.dark body.custom-wallpaper .sidebar {
-    background: rgba(18, 23, 29, 0.82) !important;
+    background: color-mix(in srgb, var(--color-brand-navy) 82%, transparent) !important;
 }
 
 .dropdown-menu {
@@ -1458,20 +1489,20 @@ html.dark body.custom-wallpaper .sidebar {
 
 /* Horizontal More Dropdown Items Style */
 #horizontalMoreDropdown .dropdown-item {
-  display: flex; width: 100%; height: auto; border-radius: 0.25rem;
-  background-color: transparent; color: #4b5563; box-shadow: none;
+  display: flex; width: 100%; height: auto; border-radius: var(--radius-sm);
+  background-color: transparent; color: var(--color-slate); box-shadow: none;
   justify-content: flex-start; padding: 0.5rem 0.75rem; backdrop-filter: none;
 }
-#horizontalMoreDropdown .dropdown-item:hover { background-color: #f3f4f6; color: #2563eb; }
-#horizontalMoreDropdown .dropdown-item.active { background-color: #eff6ff; color: #1d4ed8; font-weight: 600; }
+#horizontalMoreDropdown .dropdown-item:hover { background-color: var(--color-surface); color: var(--color-primary); }
+#horizontalMoreDropdown .dropdown-item.active { background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-canvas)); color: var(--color-primary-deep); font-weight: 600; }
 
-.custom-wallpaper #horizontalMoreDropdown .dropdown-item { color: #374151; }
-.custom-wallpaper #horizontalMoreDropdown .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.8); color: #2563eb; }
-.custom-wallpaper #horizontalMoreDropdown .dropdown-item.active { background-color: #2563eb; color: white !important; }
+.custom-wallpaper #horizontalMoreDropdown .dropdown-item { color: var(--color-charcoal); }
+.custom-wallpaper #horizontalMoreDropdown .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.8); color: var(--color-primary); }
+.custom-wallpaper #horizontalMoreDropdown .dropdown-item.active { background-color: var(--color-primary); color: white !important; }
 
 .dark #horizontalMoreDropdown .dropdown-item { color: #d1d5db; }
 .dark #horizontalMoreDropdown .dropdown-item:hover { background-color: rgba(255, 255, 255, 0.1); color: #fff; }
-.dark #horizontalMoreDropdown .dropdown-item.active { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.dark #horizontalMoreDropdown .dropdown-item.active { background-color: color-mix(in srgb, var(--color-primary) 22%, transparent); color: #c4b5fd; }
 
 /* 针对首页“更多”菜单的特殊处理 */
 /* 1. 确保一级菜单以三个点为中心弹出 */
@@ -1529,22 +1560,22 @@ body.menu-open .site-card:hover {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: #374151;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
+  color: var(--color-charcoal);
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, color 0.15s ease;
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .dropdown-item:hover {
-  background-color: #f3f4f6;
-  color: #2563eb;
+  background-color: var(--color-surface);
+  color: var(--color-primary);
 }
 
 .dropdown-item.active {
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-canvas));
+  color: var(--color-primary-deep);
   font-weight: 500;
 }
 
@@ -1563,13 +1594,13 @@ body.menu-open .site-card:hover {
 
 /* Force Dropdown Item Color in Light Mode */
 html:not(.dark) .dropdown-item {
-    color: #4b5563;
+    color: var(--color-slate);
 }
 html:not(.dark) .dropdown-item:hover {
-    color: #2563eb !important;
+    color: var(--color-primary) !important;
 }
 html:not(.dark) .dropdown-item.active {
-    color: #1d4ed8 !important;
+    color: var(--color-primary-deep) !important;
 }
 
 [data-role="list-heading"] {

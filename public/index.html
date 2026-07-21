@@ -17,16 +17,18 @@
   <meta name="twitter:description" content="{{SITE_DESCRIPTION}}">
   <meta name="twitter:image" content="{{OG_IMAGE_URL}}">
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=163ad683">
+  <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css?v=f3176951">
   <script>
     // Init Theme ASAP to prevent FOUC
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark');
     }
   </script>
-  <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
+  <link rel="stylesheet" href="/css/tailwind.min.css?v=2bb08841">
 </head>
-<body class="bg-secondary-50 font-sans text-gray-800">
+<body class="bg-surface font-sans text-ink">
   <!-- SVG sprite: 高频复用图标在此定义一次，卡片等处通过 <use href="#icon-xxx"/> 引用 -->
   <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
     <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -59,7 +61,7 @@
   
   <!-- 桌面侧边栏开关按钮 -->
   <div class="fixed top-4 left-4 z-50 hidden lg:block {{SIDEBAR_TOGGLE_CLASS}}">
-    <label for="sidebar-toggle" class="p-2 rounded-lg bg-white shadow-md hover:bg-gray-100 inline-block cursor-pointer">
+    <label for="sidebar-toggle" class="p-2 rounded-md bg-white shadow-elevation-1 border border-hairline hover:bg-surface inline-block cursor-pointer">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
       </svg>
@@ -129,23 +131,23 @@
       {{HEADER_CONTENT}}
     </header>
     
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 {{STATS_ROW_PY_CLASS}}">
+    <div class="max-w-content mx-auto px-3 sm:px-6 {{STATS_ROW_PY_CLASS}}">
       <div class="flex items-center justify-between {{STATS_ROW_HIDDEN}}">
-        <h2 class="text-base sm:text-xl font-semibold text-gray-800 {{STATS_VISIBLE}}" {{STATS_STYLE}} data-role="list-heading" data-default="{{HEADING_DEFAULT}}" data-active="{{HEADING_ACTIVE}}">
+        <h2 class="text-base sm:text-xl font-semibold text-ink dark:text-gray-100 {{STATS_VISIBLE}}" {{STATS_STYLE}} data-role="list-heading" data-default="{{HEADING_DEFAULT}}" data-active="{{HEADING_ACTIVE}}">
           {{HEADING_TEXT}}
         </h2>
       </div>
     </div>
-    
-    <section class="max-w-7xl mx-auto px-3 sm:px-6 pb-8 sm:pb-12">
+
+    <section class="max-w-content mx-auto px-3 sm:px-6 pb-8 sm:pb-12">
       <div class="{{CONTAINER_CLASS}} p-3 sm:p-6">
         <div id="sitesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {{SITES_GRID}}
         </div>
         <div id="sitesEmptyState" class="hidden py-10">
-          <div class="mx-auto max-w-md rounded-2xl border border-dashed border-primary-200 bg-white/80 px-6 py-10 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800/80">
-            <p class="text-base font-medium text-gray-800 dark:text-gray-100">没找到匹配书签</p>
-            <button id="clearSearchBtn" type="button" class="mt-4 inline-flex items-center justify-center rounded-full bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
+          <div class="mx-auto max-w-md rounded-lg border border-dashed border-hairline bg-white/80 px-6 py-10 text-center shadow-elevation-1 dark:border-gray-700 dark:bg-gray-800/80">
+            <p class="text-base font-medium text-ink dark:text-gray-100">没找到匹配书签</p>
+            <button id="clearSearchBtn" type="button" class="mt-4 inline-flex items-center justify-center rounded-md bg-primary-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-600">
               清空搜索
             </button>
           </div>
@@ -167,7 +169,7 @@
     </footer>
   </main>
   
-  <button id="backToTop" class="fixed bottom-8 right-8 p-3 rounded-full bg-accent-500 text-white shadow-lg opacity-0 invisible transition-all duration-300 hover:bg-accent-600">
+  <button id="backToTop" class="fixed bottom-8 right-8 p-3 rounded-md bg-primary-500 text-white shadow-elevation-2 opacity-0 invisible transition-all duration-300 hover:bg-primary-600">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11l7-7 7 7M5 19l7-7 7 7" />
     </svg>
@@ -221,50 +223,50 @@
   
   <!-- 添加网站模态框 -->
   <div id="addSiteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 opacity-0 invisible transition-all duration-300">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform translate-y-8 transition-all duration-300">
+    <div class="bg-white rounded-lg shadow-elevation-4 w-full max-w-md mx-4 border border-hairline transform translate-y-8 transition-all duration-300">
       <div class="p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">添加新书签</h2>
-          <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+          <h2 class="text-xl font-semibold text-ink">添加新书签</h2>
+          <button id="closeModal" class="text-ink-steel hover:text-ink">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        
+
         <form id="addSiteForm" class="space-y-4">
           <div>
-            <label for="addSiteName" class="block text-sm font-medium text-gray-700">名称</label>
-            <input type="text" id="addSiteName" required class="mt-1 block w-full px-3 py-2 border border-primary-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-400">
+            <label for="addSiteName" class="block text-sm font-medium text-ink-charcoal">名称</label>
+            <input type="text" id="addSiteName" required class="mt-1 block w-full h-11 px-3 py-2 border border-hairline-strong rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500">
           </div>
-          
+
           <div>
-            <label for="addSiteUrl" class="block text-sm font-medium text-gray-700">网址</label>
-            <input type="text" id="addSiteUrl" required class="mt-1 block w-full px-3 py-2 border border-primary-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-400">
+            <label for="addSiteUrl" class="block text-sm font-medium text-ink-charcoal">网址</label>
+            <input type="text" id="addSiteUrl" required class="mt-1 block w-full h-11 px-3 py-2 border border-hairline-strong rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500">
           </div>
-          
+
           <div>
-            <label for="addSiteLogo" class="block text-sm font-medium text-gray-700">Logo (可选)</label>
-            <input type="text" id="addSiteLogo" class="mt-1 block w-full px-3 py-2 border border-primary-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-400">
+            <label for="addSiteLogo" class="block text-sm font-medium text-ink-charcoal">Logo (可选)</label>
+            <input type="text" id="addSiteLogo" class="mt-1 block w-full h-11 px-3 py-2 border border-hairline-strong rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500">
           </div>
-          
+
           <div>
-            <label for="addSiteDesc" class="block text-sm font-medium text-gray-700">描述 (可选)</label>
-            <textarea id="addSiteDesc" rows="2" class="mt-1 block w-full px-3 py-2 border border-primary-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-400"></textarea>
+            <label for="addSiteDesc" class="block text-sm font-medium text-ink-charcoal">描述 (可选)</label>
+            <textarea id="addSiteDesc" rows="2" class="mt-1 block w-full px-3 py-2 border border-hairline-strong rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500"></textarea>
           </div>
-          
+
           <div>
-            <label for="addSiteCatelog" class="block text-sm font-medium text-gray-700">分类</label>
-            <select id="addSiteCatelog" required class="mt-1 block w-full px-3 py-2 border border-primary-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-400 bg-white">
+            <label for="addSiteCatelog" class="block text-sm font-medium text-ink-charcoal">分类</label>
+            <select id="addSiteCatelog" required class="mt-1 block w-full h-11 px-3 py-2 border border-hairline-strong rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-500 bg-white">
               <option value="" disabled selected>加载中...</option>
             </select>
           </div>
-          
+
           <div class="flex justify-end pt-4">
-            <button type="button" id="cancelAddSite" class="bg-white py-2 px-4 border border-primary-100 rounded-md shadow-sm text-sm font-medium text-primary-600 hover:bg-secondary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-200 mr-3">
+            <button type="button" id="cancelAddSite" class="bg-white py-2.5 px-[18px] border border-hairline-strong rounded-md text-sm font-medium text-ink hover:bg-surface focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-200 mr-3">
               取消
             </button>
-            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent-500 hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-400">
+            <button type="submit" class="inline-flex justify-center py-2.5 px-[18px] border border-transparent text-sm font-medium rounded-md text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400">
               提交
             </button>
           </div>
@@ -274,6 +276,6 @@
   </div>
   
   <script src="/js/clicks-storage.js?v=fbd8fc30"></script>
-  <script src="/js/main.js?v=067890d6"></script>
+  <script src="/js/main.js?v=240eb9e9"></script>
 </body>
 </html>

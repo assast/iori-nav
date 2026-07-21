@@ -19,18 +19,19 @@ async function getTemplateHtml(env, requestUrl) {
 function getThemeClasses(isCustomWallpaper) {
   return isCustomWallpaper ? {
     headerClass: 'bg-transparent border-none shadow-none transition-colors duration-300',
-    containerClass: 'rounded-2xl',
-    titleColorClass: 'text-gray-900 dark:text-gray-100',
-    subTextColorClass: 'text-gray-600 dark:text-gray-300',
-    searchInputClass: 'bg-white/90 backdrop-blur border border-gray-200 text-gray-800 placeholder-gray-400 focus:ring-primary-200 focus:border-primary-400 focus:bg-white dark:bg-gray-800/90 dark:border-gray-600 dark:text-gray-200 dark:focus:bg-gray-800',
-    searchIconClass: 'text-gray-400 dark:text-gray-500',
+    containerClass: 'rounded-lg',
+    titleColorClass: 'text-ink dark:text-gray-100',
+    subTextColorClass: 'text-ink-slate dark:text-gray-300',
+    searchInputClass: 'bg-white/90 backdrop-blur border border-hairline text-ink placeholder:text-ink-stone focus:ring-primary-200 focus:border-primary-500 focus:bg-white dark:bg-gray-800/90 dark:border-gray-600 dark:text-gray-200 dark:focus:bg-gray-800',
+    searchIconClass: 'text-ink-stone dark:text-gray-500',
   } : {
-    headerClass: 'bg-primary-700 text-white border-b border-primary-600 shadow-sm dark:bg-gray-900 dark:border-gray-800',
-    containerClass: 'rounded-2xl border border-primary-100/60 bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-800/80 dark:border-gray-700',
+    // DESIGN.md hero-band-dark + surface cards
+    headerClass: 'bg-brand-navy text-white border-b border-brand-navy-mid shadow-sm dark:bg-brand-navy-deep dark:border-brand-navy-mid',
+    containerClass: 'rounded-lg border border-hairline bg-white/90 backdrop-blur-sm shadow-elevation-1 dark:bg-gray-800/80 dark:border-gray-700',
     titleColorClass: 'text-white',
-    subTextColorClass: 'text-primary-100/90 dark:text-gray-400',
-    searchInputClass: 'bg-white/15 text-white placeholder-primary-200 focus:ring-white/30 focus:bg-white/20 border-none dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder-gray-500',
-    searchIconClass: 'text-primary-200 dark:text-gray-500',
+    subTextColorClass: 'text-white/80 dark:text-gray-400',
+    searchInputClass: 'bg-white/10 text-white placeholder-white/50 focus:ring-white/30 focus:bg-white/15 border border-white/10 dark:bg-gray-800/50 dark:text-gray-200 dark:placeholder-gray-500',
+    searchIconClass: 'text-white/60 dark:text-gray-500',
   };
 }
 
@@ -356,7 +357,7 @@ export async function onRequest(context) {
       <div class="relative max-w-xl mx-auto">
         ${searchEngineOptions}
         <div class="relative">
-          <input type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
+          <input type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-md transition-all shadow-elevation-1 outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 absolute left-3.5 sm:left-4 top-3 sm:top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
       </div>
@@ -368,7 +369,7 @@ export async function onRequest(context) {
       <div class="relative max-w-xl mx-auto mb-5 sm:mb-6 md:mb-8">
         ${searchEngineOptions}
         <div class="relative">
-          <input id="headerSearchInput" type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all shadow-lg outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
+          <input id="headerSearchInput" type="text" name="search" placeholder="搜索书签..." class="search-input-target w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3.5 rounded-md transition-all shadow-elevation-1 outline-none focus:outline-none focus:ring-2 ${searchInputClass}" autocomplete="off">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 absolute left-3.5 sm:left-4 top-3 sm:top-3.5 ${searchIconClass}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
         </div>
       </div>
@@ -414,7 +415,7 @@ export async function onRequest(context) {
     }
     if (!S.home_hide_admin) {
       adminIconHtml = `
-        <a href="/admin" target="_blank" class="flex items-center justify-center p-2 rounded-lg bg-white/80 backdrop-blur shadow-md hover:bg-white text-gray-700 hover:text-primary-600 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:text-primary-400 transition-all" title="后台管理">
+        <a href="/admin" target="_blank" class="flex items-center justify-center p-2 rounded-md bg-white/90 backdrop-blur shadow-elevation-1 border border-hairline hover:bg-white text-ink hover:text-primary-600 dark:bg-gray-800/80 dark:text-gray-200 dark:hover:text-primary-400 dark:border-gray-700 transition-all" title="后台管理">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M7 18a5 5 0 0 1 10 0"/></path></svg>
         </a>`;
     }
@@ -427,15 +428,15 @@ export async function onRequest(context) {
   const topRightActionsHtml = `<div class="fixed top-4 right-4 z-50 flex items-center gap-3">${themeIconHtml}${adminIconHtml}</div>`;
   const leftTopActionHtml = `
     <div class="fixed top-4 left-4 z-50 ${mobileToggleVisibilityClass}">
-      <button id="sidebarToggle" class="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700">
+      <button id="sidebarToggle" class="p-2 rounded-md bg-white dark:bg-gray-800 shadow-elevation-1 border border-hairline dark:border-gray-700 hover:bg-surface dark:hover:bg-gray-700">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-500 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
       </button>
     </div>
     ${githubIconHtml}`;
 
   const footerClass = isCustomWallpaper
-    ? 'bg-transparent py-8 px-6 mt-12 border-none shadow-none text-black dark:text-gray-200'
-    : 'bg-white py-8 px-6 mt-12 border-t border-primary-100 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400';
+    ? 'bg-transparent py-8 px-6 mt-12 border-none shadow-none text-ink dark:text-gray-200'
+    : 'bg-white py-8 px-6 mt-12 border-t border-hairline dark:bg-brand-navy-deep dark:border-gray-800 dark:text-gray-400';
 
   // === 16. 模板注入 ===
   let html = templateHtml;
@@ -454,7 +455,7 @@ export async function onRequest(context) {
 
   // 背景层 HTML
   const safeWallpaperUrl = sanitizeUrl(S.layout_custom_wallpaper);
-  const defaultBgColor = '#fdf8f3';
+  const defaultBgColor = '#f6f5f4';
   let bgLayerHtml = '';
   if (safeWallpaperUrl) {
     const blurStyle = S.layout_enable_bg_blur ? `filter: blur(${S.layout_bg_blur_intensity}px); transform: scale(1.02);` : '';
@@ -553,8 +554,8 @@ export async function onRequest(context) {
 
   // 替换 body 标签 + 滚动容器
   html = html.replace(
-    '<body class="bg-secondary-50 font-sans text-gray-800">',
-    `<body class="bg-secondary-50 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-100 relative ${isCustomWallpaper ? 'custom-wallpaper' : ''}">${bgLayerHtml}<div id="app-scroll">`
+    '<body class="bg-surface font-sans text-ink">',
+    `<body class="bg-surface dark:bg-brand-navy-deep font-sans text-ink dark:text-gray-100 relative ${isCustomWallpaper ? 'custom-wallpaper' : ''}">${bgLayerHtml}<div id="app-scroll">`
   );
   html = html.replace('</body>', '</div></body>');
 

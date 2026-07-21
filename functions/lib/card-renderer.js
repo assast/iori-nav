@@ -49,7 +49,7 @@ export function renderSiteCards(sites, settings) {
   const cardStyleClass = cardStyle === 'style2' ? 'style-2' : '';
   const baseCardClass = enableFrostedGlass
     ? 'site-card group h-full flex flex-col overflow-hidden transition-all'
-    : 'site-card group h-full flex flex-col bg-white border border-primary-100/50 shadow-[0_1px_2px_rgba(36,48,58,0.04)] overflow-hidden dark:bg-gray-800 dark:border-gray-700';
+    : 'site-card group h-full flex flex-col bg-white border border-hairline shadow-elevation-1 overflow-hidden dark:bg-gray-800 dark:border-gray-700';
   const numericGridCols = Number(gridCols) || 4;
   const hideCopyText = numericGridCols >= 5;
 
@@ -85,7 +85,7 @@ export function renderSiteCards(sites, settings) {
         <button class="copy-btn relative inline-flex items-center px-2 py-1 rounded-md text-xs font-medium transition-colors ${hasValidUrl ? '' : 'is-disabled'}" data-url="${safeUrl}" ${hasValidUrl ? '' : 'disabled'} aria-label="复制链接">
           <svg class="h-3 w-3 ${hideCopyText ? '' : 'mr-1'}" aria-hidden="true"><use href="#icon-copy"/></svg>
           ${hideCopyText ? '' : '<span class="copy-text">复制</span>'}
-          <span class="copy-success hidden absolute -top-8 right-0 bg-accent-500 text-white text-xs px-2 py-1 rounded shadow-md">已复制!</span>
+          <span class="copy-success hidden absolute -top-8 right-0 bg-primary-500 text-white text-xs px-2 py-1 rounded-md shadow-elevation-1">已复制!</span>
         </button>
       </div>`;
 
@@ -99,12 +99,12 @@ export function renderSiteCards(sites, settings) {
             <div class="flex items-start">
               <div class="site-icon flex-shrink-0">
                 ${logoUrl
-        ? `<img src="${escapeHTML(logoUrl)}" alt="${safeName}" width="40" height="40" class="w-9 h-9 rounded-md object-cover bg-gray-100 dark:bg-gray-700" ${imgLoadingAttrs}>`
-        : `<div class="w-9 h-9 rounded-md bg-primary-600 flex items-center justify-center text-white font-semibold text-base shadow-inner">${cardInitial}</div>`
+        ? `<img src="${escapeHTML(logoUrl)}" alt="${safeName}" width="40" height="40" class="w-9 h-9 rounded-md object-cover bg-surface dark:bg-gray-700" ${imgLoadingAttrs}>`
+        : `<div class="w-9 h-9 rounded-md bg-primary-500 flex items-center justify-center text-white font-semibold text-base shadow-inner">${cardInitial}</div>`
       }
               </div>
               <div class="flex-1 min-w-0">
-                <h3 class="site-title text-[0.95rem] font-semibold text-gray-900 dark:text-gray-100 truncate origin-left" title="${safeName}">${safeName}</h3>
+                <h3 class="site-title text-[0.95rem] font-semibold text-ink dark:text-gray-100 truncate origin-left" title="${safeName}">${safeName}</h3>
                 ${categoryHtml}
               </div>
             </div>
@@ -137,7 +137,7 @@ export function renderEmptyState(categoryCount, hideAdmin) {
         </div>
         <h3 class="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">${emptyStateText}</h3>
         <p class="text-gray-400 dark:text-gray-500 max-w-md mx-auto mb-8">${emptyStateSub}</p>
-        ${!hideAdmin ? `<a href="/admin" target="_blank" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40 hover:-translate-y-0.5">
+        ${!hideAdmin ? `<a href="/admin" target="_blank" class="inline-flex items-center px-[18px] py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-md transition-colors shadow-elevation-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

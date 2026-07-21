@@ -254,7 +254,7 @@ function showImportPreview(result) {
       </div>
       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
         <button id="cancelImport" class="px-5 py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">取消</button>
-        <button id="confirmImport" class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium shadow-sm">确认导入</button>
+        <button id="confirmImport" class="px-5 py-2.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors text-sm font-medium shadow-sm">确认导入</button>
       </div>
     </div>
   `;

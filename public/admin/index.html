@@ -6,9 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>书签管理页面</title>
   <link rel="icon" href="/favicon.svg?v=148aafdf" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/admin.css?v=7f99d6cc" />
-  <link rel="stylesheet" href="/css/admin-dropdown.css?v=d98a0d19" />
-  <link rel="stylesheet" href="/css/tailwind.min.css?v=f596db02">
+  <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/admin.css?v=3fc50d36" />
+  <link rel="stylesheet" href="/css/admin-dropdown.css?v=dd01b7de" />
+  <link rel="stylesheet" href="/css/tailwind.min.css?v=2bb08841">
 </head>
 
 <body>
@@ -48,30 +50,30 @@
       <input type="hidden" id="categoryFilter" value="">
       <input type="text" id="searchInput" name="mySearchInput" autocomplete="off" readonly
         onfocus="this.removeAttribute('readonly');"
-        class="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow h-[42px]"
+        class="flex-1 min-w-[200px] px-4 py-2 border border-hairline-strong rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow h-[42px]"
         placeholder="搜索书签(名称, URL, 分类)" />
       <input type="file" id="importFile" accept=".json,.html,.htm" style="display: none" />
       <div class="flex flex-wrap gap-2 items-center">
         <button id="importBtn"
-          class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm h-[42px] whitespace-nowrap">导入</button>
+          class="bg-primary-500 text-white px-4 py-2.5 rounded-md hover:bg-primary-600 transition-colors shadow-elevation-1 font-medium text-sm h-[42px] whitespace-nowrap">导入</button>
         <button id="exportBtn"
-          class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium text-sm h-[42px] whitespace-nowrap">导出</button>
+          class="bg-primary-500 text-white px-4 py-2.5 rounded-md hover:bg-primary-600 transition-colors shadow-elevation-1 font-medium text-sm h-[42px] whitespace-nowrap">导出</button>
         <button id="addCategoryBtn"
-          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium text-sm flex items-center gap-1 h-[42px] whitespace-nowrap">
+          class="bg-accent-500 text-white px-4 py-2.5 rounded-md hover:bg-accent-600 transition-colors shadow-elevation-1 font-medium text-sm flex items-center gap-1 h-[42px] whitespace-nowrap">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           新增分类
         </button>
         <button id="addBookmarkBtn"
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm flex items-center gap-1 h-[42px] whitespace-nowrap">
+          class="bg-primary-500 text-white px-4 py-2.5 rounded-md hover:bg-primary-600 transition-colors shadow-elevation-1 font-medium text-sm flex items-center gap-1 h-[42px] whitespace-nowrap">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           新增书签
         </button>
         <button id="settingsBtn"
-          class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-colors shadow-sm font-medium text-sm h-[42px] whitespace-nowrap">设置</button>
+          class="bg-ink text-white px-4 py-2.5 rounded-md hover:bg-ink-deep transition-colors shadow-elevation-1 font-medium text-sm h-[42px] whitespace-nowrap">设置</button>
       </div>
     </div>
 
@@ -97,7 +99,7 @@
           <button id="cancelExportBtn"
             class="px-4 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm">取消</button>
           <button id="confirmExportBtn"
-            class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">确认导出</button>
+            class="px-4 py-2.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium">确认导出</button>
         </div>
       </div>
     </div>
@@ -153,7 +155,7 @@
           <button id="cancelSyncClicksBtn"
             class="w-24 h-10 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
           <button id="confirmSyncClicksBtn"
-            class="w-24 h-10 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">确认同步</button>
+            class="w-24 h-10 flex items-center justify-center bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium shadow-elevation-1 transition-colors">确认同步</button>
         </div>
       </div>
     </div>
@@ -224,7 +226,7 @@
             <button type="button" id="cancelAddCategoryBtn"
               class="w-24 h-10 m-0 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
             <button type="submit"
-              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">保存</button>
+              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium shadow-elevation-1 transition-colors">保存</button>
           </div>
         </form>
       </div>
@@ -263,7 +265,7 @@
             <button type="button" id="cancelEditCategoryBtn"
               class="w-24 h-10 m-0 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
             <button type="submit"
-              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">保存</button>
+              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium shadow-elevation-1 transition-colors">保存</button>
           </div>
         </form>
       </div>
@@ -319,7 +321,7 @@
             <button type="button" id="cancelAddBookmarkBtn"
               class="w-24 h-10 m-0 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
             <button type="submit"
-              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">保存</button>
+              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium shadow-elevation-1 transition-colors">保存</button>
           </div>
         </form>
       </div>
@@ -380,7 +382,7 @@
             <button type="button" id="cancelEditBookmarkBtn"
               class="w-24 h-10 m-0 flex items-center justify-center bg-gray-100 text-gray-600 rounded hover:bg-gray-200 text-sm font-medium transition-colors">取消</button>
             <button type="submit"
-              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium shadow-sm transition-colors">保存</button>
+              class="w-24 h-10 !mt-0 m-0 flex items-center justify-center bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium shadow-elevation-1 transition-colors">保存</button>
           </div>
         </form>
       </div>
@@ -646,7 +648,7 @@
                       <p class="preview-desc mt-2 text-sm text-gray-600 leading-relaxed line-clamp-2">
                         百度搜索引擎，快速查找信息，提供多种搜索服务。百度是全球最大的中文搜索引擎、最大的中文网站。</p>
                       <div class="preview-links mt-3 flex items-center justify-between">
-                        <span class="text-xs text-blue-600 truncate max-w-[140px]">https://www.baidu.com</span>
+                        <span class="text-xs text-primary-600 truncate max-w-[140px]">https://www.baidu.com</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none"
                           viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -678,7 +680,7 @@
                         百度搜索引擎，快速查找信息，提供多种搜索服务。百度是全球最大的中文搜索引擎、最大的中文网站。</p>
                       <div
                         class="preview-links mt-3 flex items-center justify-between border-t border-gray-100 pt-2 w-full">
-                        <span class="text-xs text-blue-600 truncate w-full text-center">https://www.baidu.com</span>
+                        <span class="text-xs text-primary-600 truncate w-full text-center">https://www.baidu.com</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none"
                           viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -937,7 +939,7 @@
             <div id="batchActionsBar" class="flex items-center gap-2 hidden">
               <span class="text-sm text-gray-600">已选 <span id="batchSelectedCountMain" class="font-bold text-gray-800">0</span> 项</span>
               <button id="batchDeleteBtnMain" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">删除</button>
-              <button id="batchChangeCategoryBtnMain" class="bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">更改分类</button>
+              <button id="batchChangeCategoryBtnMain" class="bg-primary-100 text-primary-600 hover:bg-primary-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">更改分类</button>
               <button id="batchChangePrivacyBtnMain" class="bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1.5 rounded text-sm font-medium transition-colors">更改隐私</button>
               <button id="batchClearSelectionBtn" class="text-gray-400 hover:text-gray-600 px-2 py-1.5 text-sm">取消</button>
             </div>
@@ -1029,7 +1031,7 @@
             </div>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               <button id="categoryExpandAllBtn"
-                class="text-sm text-indigo-600 hover:bg-indigo-100 flex items-center bg-indigo-50 border border-gray-100 px-3 py-1 rounded shadow-sm transition-colors">
+                class="text-sm text-primary-600 hover:bg-primary-100 flex items-center bg-primary-50 border border-hairline px-3 py-1 rounded shadow-sm transition-colors">
                 全部展开
               </button>
               <button id="categoryCollapseAllBtn"
@@ -1089,7 +1091,7 @@
       <div class="flex justify-end gap-3 mt-4">
         <button id="cancelBatchCategoryBtn" class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 text-sm">取消</button>
         <button id="confirmBatchCategoryBtn"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">确定</button>
+          class="px-4 py-2.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium">确定</button>
       </div>
     </div>
   </div>
@@ -1102,30 +1104,30 @@
       <p class="text-sm text-gray-500 mb-4">设置选中书签的隐私状态：</p>
       <div class="flex gap-4 justify-center mb-6">
         <label class="flex items-center gap-2 cursor-pointer p-3 border rounded hover:bg-gray-50 flex-1">
-          <input type="radio" name="batchPrivacyOption" value="1" class="w-4 h-4 text-blue-600">
+          <input type="radio" name="batchPrivacyOption" value="1" class="w-4 h-4 text-primary-600">
           <span>私密 (Private)</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer p-3 border rounded hover:bg-gray-50 flex-1">
-          <input type="radio" name="batchPrivacyOption" value="0" checked class="w-4 h-4 text-blue-600">
+          <input type="radio" name="batchPrivacyOption" value="0" checked class="w-4 h-4 text-primary-600">
           <span>公开 (Public)</span>
         </label>
       </div>
       <div class="flex justify-end gap-3">
         <button id="cancelBatchPrivacyBtn" class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 text-sm">取消</button>
         <button id="confirmBatchPrivacyBtn"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">确定</button>
+          class="px-4 py-2.5 bg-primary-500 text-white rounded-md hover:bg-primary-600 text-sm font-medium">确定</button>
       </div>
     </div>
   </div>
 
   <script src="/js/clicks-storage.js?v=fbd8fc30"></script>
   <script src="/js/admin-cache.js?v=544d8ee9"></script>
-  <script src="/js/admin.js?v=70151d6d"></script>
-  <script src="/js/admin-categories.js?v=f6ac8996"></script>
+  <script src="/js/admin.js?v=8d0bcfa5"></script>
+  <script src="/js/admin-categories.js?v=ba0b84dc"></script>
   <script src="/js/admin-bookmarks.js?v=050f96b1"></script>
   <script src="/js/admin-batch.js?v=34ab1dee"></script>
-  <script src="/js/admin-settings.js?v=afbdc970"></script>
-  <script src="/js/admin-import-export.js?v=43a1de60"></script>
+  <script src="/js/admin-settings.js?v=f0d83b6e"></script>
+  <script src="/js/admin-import-export.js?v=2ad7363b"></script>
 </body>
 
 </html>
