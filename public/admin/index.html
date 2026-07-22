@@ -438,7 +438,15 @@
                 </label>
               </div>
             </div>
-            <p class="text-xs text-gray-500 mb-4 px-2">选择横向时，左侧菜单隐藏，搜索框和分类导航显示在顶部区域。</p>
+            <p class="text-xs text-gray-500 mb-2 px-2">选择横向时，左侧菜单隐藏，搜索框和分类导航显示在顶部区域。</p>
+
+            <div class="p-2 hover:bg-gray-50 rounded mb-4" id="sidebarOpacityContainer">
+              <label for="sidebarOpacity" class="block text-gray-700 font-medium mb-1">侧边目录不透明度: <span
+                  id="sidebarOpacityValue">88</span>%</label>
+              <input type="range" id="sidebarOpacity" min="0" max="100" step="1" value="88"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              <p class="text-xs text-gray-500 mt-1">数值越小越透明，便于透出壁纸；仅在菜单布局为「竖向」时生效。</p>
+            </div>
 
             <div class="p-3 bg-gray-50 rounded border border-gray-100 mb-3">
               <h4 class="text-sm font-bold text-gray-700 mb-3 border-b border-gray-200 pb-1">书签排序</h4>
@@ -1126,7 +1134,7 @@
   <script src="/js/admin-categories.js?v=ba0b84dc"></script>
   <script src="/js/admin-bookmarks.js?v=050f96b1"></script>
   <script src="/js/admin-batch.js?v=34ab1dee"></script>
-  <script src="/js/admin-settings.js?v=f0d83b6e"></script>
+  <script src="/js/admin-settings.js?v=d12719dd"></script>
   <script src="/js/admin-import-export.js?v=2ad7363b"></script>
 </body>
 

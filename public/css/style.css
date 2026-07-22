@@ -3,6 +3,7 @@
   --card-padding: 1rem;
   --card-radius: 12px; /* DESIGN.md rounded.lg */
   --frosted-glass-blur: 15px;
+  --sidebar-opacity: 88%;
 
   /* DESIGN.md tokens — Notion 设计系统 */
   --color-primary: #5645d4;
@@ -150,13 +151,9 @@ html.dark body.custom-wallpaper::before {
     transition: background-color 0.3s ease;
 }
 
-/* 2. 侧边栏深色 + 壁纸：更透的玻璃，明显透出壁纸 */
+/* 2. 侧边栏深色 + 壁纸：使用可配置不透明度，透出壁纸 */
 html.dark body.custom-wallpaper .sidebar {
-    background: linear-gradient(
-      180deg,
-      rgba(18, 23, 29, 0.38) 0%,
-      rgba(18, 23, 29, 0.32) 100%
-    ) !important;
+    background: color-mix(in srgb, rgb(18, 23, 29) var(--sidebar-opacity, 35%), transparent) !important;
     backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.1);
     -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px)) saturate(1.1);
     border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
@@ -513,7 +510,7 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 /*  竖版侧栏 — DESIGN.md surface + hairline  */
 /* ========================================= */
 .sidebar {
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  background: color-mix(in srgb, var(--color-surface) var(--sidebar-opacity, 88%), transparent);
   border-right: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   box-shadow: none;
   color: var(--ink);
@@ -522,14 +519,14 @@ body:not(.app-ready) #sidebar a[href="?catalog=all"] {
 }
 
 .dark .sidebar {
-  background: color-mix(in srgb, var(--color-brand-navy) 72%, transparent);
+  background: color-mix(in srgb, var(--color-brand-navy) var(--sidebar-opacity, 72%), transparent);
   border-right-color: rgba(255, 255, 255, 0.06);
   color: #e8edf2;
 }
 
-/* 壁纸场景再透一点，让背景纹理透出 */
+/* 壁纸场景：仍走同一不透明度变量，便于后台统一调节 */
 body.custom-wallpaper .sidebar {
-  background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  background: color-mix(in srgb, var(--color-surface) var(--sidebar-opacity, 55%), transparent);
 }
 
 .sidebar-inner {
@@ -1432,7 +1429,7 @@ body.custom-wallpaper .sidebar {
 
 /* Light Mode + Wallpaper Sidebar Optimization */
 html:not(.dark) body.custom-wallpaper .sidebar {
-    background: color-mix(in srgb, var(--color-surface) 72%, transparent) !important;
+    background: color-mix(in srgb, var(--color-surface) var(--sidebar-opacity, 72%), transparent) !important;
     backdrop-filter: blur(var(--frosted-glass-blur, 15px));
     -webkit-backdrop-filter: blur(var(--frosted-glass-blur, 15px));
     border-right: 1px solid color-mix(in srgb, var(--color-hairline) 70%, transparent) !important;
@@ -1440,7 +1437,7 @@ html:not(.dark) body.custom-wallpaper .sidebar {
 }
 
 html.dark body.custom-wallpaper .sidebar {
-    background: color-mix(in srgb, var(--color-brand-navy) 82%, transparent) !important;
+    background: color-mix(in srgb, var(--color-brand-navy) var(--sidebar-opacity, 82%), transparent) !important;
 }
 
 .dropdown-menu {

@@ -481,7 +481,10 @@ export async function onRequest(context) {
   // CSS 变量
   const cardRadius = parseInt(S.layout_card_border_radius) || 12;
   const frostedBlur = String(S.layout_frosted_glass_intensity || '15').replace(/[^0-9]/g, '') || '15';
-  headInjections += `<style>:root { --card-padding: 1.25rem; --card-radius: ${cardRadius}px; --frosted-glass-blur: ${frostedBlur}px; }</style>`;
+  let sidebarOpacity = parseInt(String(S.layout_sidebar_opacity ?? '88').replace(/[^0-9]/g, ''), 10);
+  if (!Number.isFinite(sidebarOpacity)) sidebarOpacity = 88;
+  sidebarOpacity = Math.max(0, Math.min(100, sidebarOpacity));
+  headInjections += `<style>:root { --card-padding: 1.25rem; --card-radius: ${cardRadius}px; --frosted-glass-blur: ${frostedBlur}px; --sidebar-opacity: ${sidebarOpacity}%; }</style>`;
 
   // 自定义字体
   const usedFonts = new Set();

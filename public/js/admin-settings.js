@@ -21,6 +21,8 @@ const initSettings = () => {
   const frostedGlassSwitch = document.getElementById('frostedGlassSwitch');
   const frostedGlassIntensityRange = document.getElementById('frostedGlassIntensity');
   const frostedGlassIntensityValue = document.getElementById('frostedGlassIntensityValue');
+  const sidebarOpacityRange = document.getElementById('sidebarOpacity');
+  const sidebarOpacityValue = document.getElementById('sidebarOpacityValue');
   const gridColsRadios = document.getElementsByName('gridCols');
   const menuLayoutRadios = document.getElementsByName('menuLayout');
   const customWallpaperInput = document.getElementById('customWallpaperInput');
@@ -331,6 +333,7 @@ const initSettings = () => {
     home_search_engine_enabled: false,
     layout_enable_frosted_glass: false,
     layout_frosted_glass_intensity: '15',
+    layout_sidebar_opacity: '88',
     layout_grid_cols: '4',
     layout_custom_wallpaper: '',
     layout_menu_layout: 'horizontal',
@@ -794,6 +797,9 @@ const initSettings = () => {
 
     currentSettings.layout_enable_frosted_glass = frostedGlassSwitch.checked;
     currentSettings.layout_frosted_glass_intensity = frostedGlassIntensityRange.value;
+    if (sidebarOpacityRange) {
+      currentSettings.layout_sidebar_opacity = sidebarOpacityRange.value;
+    }
 
     currentSettings.layout_card_border_radius = cardRadiusInput.value;
 
@@ -824,6 +830,14 @@ const initSettings = () => {
     frostedGlassIntensityRange.addEventListener('input', () => {
       if (frostedGlassIntensityValue) {
         frostedGlassIntensityValue.textContent = frostedGlassIntensityRange.value;
+      }
+    });
+  }
+
+  if (sidebarOpacityRange) {
+    sidebarOpacityRange.addEventListener('input', () => {
+      if (sidebarOpacityValue) {
+        sidebarOpacityValue.textContent = sidebarOpacityRange.value;
       }
     });
   }
@@ -906,6 +920,9 @@ const initSettings = () => {
 
         if (serverSettings.layout_enable_frosted_glass !== undefined) currentSettings.layout_enable_frosted_glass = serverSettings.layout_enable_frosted_glass === 'true';
         if (serverSettings.layout_frosted_glass_intensity) currentSettings.layout_frosted_glass_intensity = serverSettings.layout_frosted_glass_intensity;
+        if (serverSettings.layout_sidebar_opacity !== undefined && serverSettings.layout_sidebar_opacity !== '') {
+          currentSettings.layout_sidebar_opacity = serverSettings.layout_sidebar_opacity;
+        }
         if (serverSettings.layout_grid_cols) currentSettings.layout_grid_cols = serverSettings.layout_grid_cols;
         if (serverSettings.layout_custom_wallpaper) currentSettings.layout_custom_wallpaper = serverSettings.layout_custom_wallpaper;
         if (serverSettings.layout_menu_layout) currentSettings.layout_menu_layout = serverSettings.layout_menu_layout;
@@ -1055,6 +1072,10 @@ const initSettings = () => {
     if (frostedGlassSwitch) frostedGlassSwitch.checked = !!currentSettings.layout_enable_frosted_glass;
     if (frostedGlassIntensityRange) frostedGlassIntensityRange.value = currentSettings.layout_frosted_glass_intensity || '15';
     if (frostedGlassIntensityValue) frostedGlassIntensityValue.textContent = currentSettings.layout_frosted_glass_intensity || '15';
+
+    const sidebarOpacity = currentSettings.layout_sidebar_opacity || '88';
+    if (sidebarOpacityRange) sidebarOpacityRange.value = sidebarOpacity;
+    if (sidebarOpacityValue) sidebarOpacityValue.textContent = sidebarOpacity;
 
     // Toggle Intensity Container visibility
     const intensityContainer = document.getElementById('frostedGlassIntensityContainer');

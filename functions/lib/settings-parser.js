@@ -31,6 +31,7 @@ const SETTINGS_SCHEMA = {
     bing_country: { default: '', type: 'string' },
     layout_enable_frosted_glass: { default: false, type: 'bool' },
     layout_frosted_glass_intensity: { default: '15', type: 'string' },
+    layout_sidebar_opacity: { default: '88', type: 'string' },
     layout_enable_bg_blur: { default: false, type: 'bool' },
     layout_bg_blur_intensity: { default: '0', type: 'string' },
     layout_card_style: { default: 'style1', type: 'string' },
